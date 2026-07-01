@@ -26,14 +26,14 @@ jobs:
           make
           sudo make install
 
-      - name: 🌐 Gerar Base do cgit com Commits Reais
+      - name: 🌐 Gerar Base Padrão do Stagit
         run: |
           mkdir public
           cd public
           stagit ..
           stagit-index .. > index_projetos.html
 
-      - name: 🎛️ Customizar Interface, Injetar Identidade e Tabelas de Status
+      - name: 🎛️ Reconstruir Estrutura com Menu Global e CSS Nativo
         run: |
           cd public
           
@@ -44,7 +44,7 @@ jobs:
               ASSUNTO="Solicitacao de Traducao: $linha"
               CORPO="Ola Daniel,%0D%0A%0D%0AGostaria de solicitar a traducao ou me voluntariar para traduzir o arquivo: $linha.%0D%0A%0D%0AMeu Nome/E-mail para registro: "
               
-              TABELA_AGUARDANDO="$TABELA_AGUARDANDO<tr><td class='commit-msg'>⚠️ <a href='mailto:daniel.pereira.eng.sre@gmail.com?subject=$ASSUNTO&body=$CORPO' style='color: #55ff55; text-decoration: underline;'>$linha</a></td><td><span class='branch-tag' style='background-color: #ff5555; color: #000; padding: 1px 4px; font-size: 11px; font-weight: bold; border-radius: 2px;'>Clique para Solicitar</span></td></tr>"
+              TABELA_AGUARDANDO="$TABELA_AGUARDANDO<tr><td class='commit-msg'>⚠️ <a href='mailto:daniel.pereira.eng.sre@gmail.com?subject=$ASSUNTO&body=$CORPO' style='color: #55ff55; text-decoration: underline;'>$linha</a></td><td><span class='branch-tag' style='background-color: #ff5555; color: #000; padding: 2px 6px; font-size: 11px; font-weight: bold; border-radius: 3px;'>Clique para Solicitar</span></td></tr>"
             fi
           done < ../aguardando_traducao.txt
 
@@ -54,17 +54,36 @@ jobs:
             if [ ! -z "$linha" ]; then
               ARQUIVO=$(echo "$linha" | cut -d'-' -f1 | xargs)
               RESPONSAVEL=$(echo "$linha" | cut -d'-' -f2 | xargs)
-              TABELA_ANDAMENTO="$TABELA_ANDAMENTO<tr><td class='commit-msg'>⏳ $ARQUIVO</td><td class='author' style='color: #ff55ff;'>$RESPONSAVEL</td></tr>"
+              TABELA_ANDAMENTO="$TABELA_ANDAMENTO<tr><td class='commit-msg'>⏳ $ARQUIVO</td><td class='author' style='color: #ff55ff; font-weight: bold;'>$RESPONSAVEL</td></tr>"
             fi
           done < ../em_traducao.txt
 
-          # 3. Cria a estrutura de cabeçalho padrão unificada
-          cat <<EOF > /tmp/topo_menu.html
-          <table id='header'><tr><td><svg height='40' viewBox='0 0 32 32' width='40' xmlns='http://www.w3.org/2000/svg' fill='#fff'><path d='M16 2C12 2 9 5 9 9c0 2.1.8 4 2.2 5.4C10 16 8 19.3 8 23c0 3.3 2.7 6 6 6h4c3.3 0 6-2.7 6-6 0-3.7-2-7-3.2-8.6C22.2 13 23 11.1 23 9c0-4-3-7-7-7zm0 2c2.8 0 5 2.2 5 5s-2.2 5-5 5-5-2.2-5-5 2.2-5 5-5zm-4 12.1c1.2-.7 2.5-1.1 4-1.1s2.8.4 4 1.1C21.2 17.7 22 20.2 22 23c0 2.2-1.8 4-4 4h-4c-2.2 0-4-1.8-4-4 0-2.8.8-5.3 2-6.9z'/></svg></td><td class='main'><h1>index : kernel/git/docs/linux.git</h1><span class='desc'>🇧🇷 Documentação do Kernel Linux em pt_BR | Gerenciado por Daniel Pereira</span></td></tr></table>
-          <div class='nav-links'><a href='log.html'>log</a> | <a href='files.html'>tree</a> | <a href='aguardando.html'>Aguardando Tradução</a> | <a href='andamento.html'>Sendo Traduzidos</a></div><hr/>
+          # 3. Sobrescreve o style.css com uma folha de estilo limpa e robusta para o tema escuro
+          cat <<EOF > style.css
+          body { background-color: #111111 !important; color: #cccccc !important; font-family: monospace !important; padding: 20px; margin: 0; }
+          h1 { color: #ffffff !important; font-size: 22px; margin: 0; font-weight: bold; }
+          .desc { color: #999999 !important; font-size: 13px; display: block; margin-top: 5px; }
+          a { color: #55ff55 !important; text-decoration: none; }
+          a:hover { text-decoration: underline; }
+          .nav-links { margin: 20px 0; font-size: 14px; color: #555; font-weight: bold; background-color: #1a1a1a; padding: 10px; border-radius: 4px; }
+          .nav-links a { color: #ffffff !important; margin: 0 12px; text-decoration: none; padding: 4px 8px; }
+          .nav-links a:hover { background-color: #2a2a2a; border-radius: 2px; }
+          .nav-links a.active { color: #ff55ff !important; font-weight: bold; background-color: #252525; border-radius: 2px; }
+          hr { border: 0; border-top: 1px solid #333333; margin: 20px 0; }
+          table { width: 100%; border-collapse: collapse; font-size: 13px; margin-top: 15px; }
+          th { background-color: #222222 !important; color: #aaaaaa !important; text-align: left; padding: 10px; font-weight: bold; border-bottom: 2px solid #333333; }
+          td { border-bottom: 1px solid #222222 !important; padding: 10px; color: #cccccc; }
+          tr:hover td { background-color: #1a1a1a !important; }
+          .branch-tag { display: inline-block; }
+          #header-table { width: 100%; margin-bottom: 10px; }
+          #header-table td { border: none !important; padding: 0; }
+          #header-table .main-td { padding-left: 15px; vertical-align: middle; }
           EOF
 
-          # 4. Cria a página estilizada: Aguardando Tradução
+          # Cabeçalho Base HTML unificado
+          HEADER_BASE="<table id='header-table'><tr><td><svg height='45' viewBox='0 0 32 32' width='45' xmlns='http://www.w3.org/2000/svg' fill='#fff'><path d='M16 2C12 2 9 5 9 9c0 2.1.8 4 2.2 5.4C10 16 8 19.3 8 23c0 3.3 2.7 6 6 6h4c3.3 0 6-2.7 6-6 0-3.7-2-7-3.2-8.6C22.2 13 23 11.1 23 9c0-4-3-7-7-7zm0 2c2.8 0 5 2.2 5 5s-2.2 5-5 5-5-2.2-5-5 2.2-5 5-5zm-4 12.1c1.2-.7 2.5-1.1 4-1.1s2.8.4 4 1.1C21.2 17.7 22 20.2 22 23c0 2.2-1.8 4-4 4h-4c-2.2 0-4-1.8-4-4 0-2.8.8-5.3 2-6.9z'/></svg></td><td class='main-td'><h1>index : kernel/git/docs/linux.git</h1><span class='desc'>🇧🇷 Documentação do Kernel Linux em pt_BR | Gerenciado por Daniel Pereira</span></td></tr></table>"
+
+          # 4. Cria a página: Aguardando Tradução
           cat <<EOF > aguardando.html
           <!DOCTYPE html>
           <html>
@@ -73,10 +92,13 @@ jobs:
           <link rel="stylesheet" type="text/css" href="style.css" />
           </head>
           <body>
-          $(cat /tmp/topo_menu.html | sed 's/href="aguardando.html"/href="aguardando.html" class="active"/g')
+          $HEADER_BASE
+          <div class="nav-links">
+          <a href="log.html">Histórico de Commits</a> | <a href="files.html">Árvore de Arquivos</a> | <a href="aguardando.html" class="active">⚠️ Aguardando Tradução</a> | <a href="andamento.html">⏳ Sendo Traduzidos</a>
+          </div>
           <div id="content">
-          <table id="log">
-          <thead><tr><th class="commit-msg">Caminho do Arquivo Upstream (Clique para solicitar)</th><th>Status</th></tr></thead>
+          <table>
+          <thead><tr><th style="width: 75%;">Caminho do Arquivo Upstream (Clique para solicitar)</th><th>Ação / Status</th></tr></thead>
           <tbody>$TABELA_AGUARDANDO</tbody>
           </table>
           </div>
@@ -84,7 +106,7 @@ jobs:
           </html>
           EOF
 
-          # 5. Cria a página estilizada: Sendo Traduzidos
+          # 5. Cria a página: Sendo Traduzidos
           cat <<EOF > andamento.html
           <!DOCTYPE html>
           <html>
@@ -93,10 +115,13 @@ jobs:
           <link rel="stylesheet" type="text/css" href="style.css" />
           </head>
           <body>
-          $(cat /tmp/topo_menu.html | sed 's/href="andamento.html"/href="andamento.html" class="active"/g')
+          $HEADER_BASE
+          <div class="nav-links">
+          <a href="log.html">Histórico de Commits</a> | <a href="files.html">Árvore de Arquivos</a> | <a href="aguardando.html">⚠️ Aguardando Tradução</a> | <a href="andamento.html" class="active">⏳ Sendo Traduzidos</a>
+          </div>
           <div id="content">
-          <table id="log">
-          <thead><tr><th class="commit-msg">Arquivo em Desenvolvimento</th><th class="author">Responsável / Autor</th></tr></thead>
+          <table>
+          <thead><tr><th style="width: 75%;">Arquivo em Desenvolvimento</th><th>Responsável / Autor</th></tr></thead>
           <tbody>$TABELA_ANDAMENTO</tbody>
           </table>
           </div>
@@ -104,37 +129,7 @@ jobs:
           </html>
           EOF
 
-          # 6. Sobrescreve o style.css para aplicar o tema escuro idêntico ao cgit oficial
-          cat <<EOF > style.css
-          body { background-color: #111111 !important; color: #cccccc !important; font-family: monospace !important; padding: 20px; }
-          h1, h2, h3, h4, .main h1 { color: #ffffff !important; font-size: 20px; margin: 0; font-weight: bold; }
-          .desc { color: #999999 !important; font-size: 13px; display: block; margin-top: 5px; }
-          a { color: #55ff55 !important; text-decoration: none; }
-          a:hover { text-decoration: underline; }
-          .nav-links { margin: 15px 0; font-size: 14px; color: #555; font-weight: bold; }
-          .nav-links a { color: #ffffff !important; margin: 0 8px; text-decoration: underline; }
-          .nav-links a.active { color: #ff55ff !important; border-bottom: 2px solid #ff55ff; text-decoration: none; }
-          hr { border: 0; border-top: 1px solid #333333; margin: 15px 0; }
-          table { width: 100%; border-collapse: collapse; font-size: 13px; margin-top: 10px; background-color: #111111; }
-          th { background-color: #222222 !important; color: #999999 !important; text-align: left; padding: 8px; font-weight: bold; border-bottom: 2px solid #333333; }
-          td { border-bottom: 1px solid #222222 !important; padding: 8px; color: #cccccc; }
-          tr:hover td { background-color: #1a1a1a !important; }
-          .age { color: #55ff55 !important; }
-          .author { color: #ff55ff !important; }
-          .commit-msg { color: #ffffff !important; }
-          #header td { border: none !important; padding: 0; }
-          #header .main { padding-left: 15px; }
-          EOF
-
-          # 7. ABORDAGEM ROBUSTA: Junta o topo do menu a todas as páginas geradas nativamente pelo stagit (sem usar sed perigoso)
-          for arquivo in *.html; do
-            if [ "$arquivo" != "aguardando.html" ] && [ "$arquivo" != "andamento.html" ] && [ "$arquivo" != "index.html" ]; then
-              cat /tmp/topo_menu.html "$arquivo" > /tmp/mesclado.html
-              mv /tmp/mesclado.html "$arquivo"
-            fi
-          done
-
-          # 8. Redirecionamento instantâneo e limpo do index para a tela de logs
+          # 6. Força o redirecionamento limpo da raiz (index.html) para o histórico de logs reais do kernel
           cat <<EOF > index.html
           <!DOCTYPE html>
           <html>
