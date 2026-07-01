@@ -68,4 +68,88 @@ jobs:
           </head>
           <body>
           <table id="header"><tr>
-          <td><svg height="40" viewBox="0 0 32 32" width="40" xmlns="http://www.w3.org/2000/svg" fill="#fff"><path d="M16 2C12 2 9 5 9 9c0 2.1.8 4 2.2 5.4C10 16 8 19.3 8 23c0 3.3 2.7 6 6 6h4c3.3 0 6-2.7 6-6 0-3.7-2-7-3.2-8.6C22.2 13 23 11.1 23 9c0-4-3-7-7-7zm0 2c2.8 0 5 2.2 5 5s-2.2 5-5 5-5-2.2-5-5 2.2-5 5-5zm-4 12.1c1.2-.7 2.5-1.1 4-1.1s2.8.4 4 1.1C21.
+          <td><svg height="40" viewBox="0 0 32 32" width="40" xmlns="http://www.w3.org/2000/svg" fill="#fff"><path d="M16 2C12 2 9 5 9 9c0 2.1.8 4 2.2 5.4C10 16 8 19.3 8 23c0 3.3 2.7 6 6 6h4c3.3 0 6-2.7 6-6 0-3.7-2-7-3.2-8.6C22.2 13 23 11.1 23 9c0-4-3-7-7-7zm0 2c2.8 0 5 2.2 5 5s-2.2 5-5 5-5-2.2-5-5 2.2-5 5-5zm-4 12.1c1.2-.7 2.5-1.1 4-1.1s2.8.4 4 1.1C21.2 17.7 22 20.2 22 23c0 2.2-1.8 4-4 4h-4c-2.2 0-4-1.8-4-4 0-2.8.8-5.3 2-6.9z"/></svg></td>
+          <td class="main"><h1>index : kernel/git/docs/linux.git</h1><span class="desc">🇧🇷 Documentação do Kernel Linux em pt_BR | Gerenciado por Daniel Pereira</span></td>
+          </tr></table>
+          <div class="nav-links">
+          <a href="log.html">log</a> | <a href="files.html">tree</a> | <a href="aguardando.html" class="active">Aguardando Tradução</a> | <a href="andamento.html">Sendo Traduzidos</a>
+          </div>
+          <hr/>
+          <div id="content">
+          <table id="log">
+          <thead><tr><th class="commit-msg">Caminho do Arquivo Upstream (Clique para solicitar)</th><th>Status</th></tr></thead>
+          <tbody>$TABELA_AGUARDANDO</tbody>
+          </table>
+          </div>
+          </body>
+          </html>
+          EOF
+
+          # 4. Cria a página estilizada: Sendo Traduzidos
+          cat <<EOF > andamento.html
+          <!DOCTYPE html>
+          <html>
+          <head>
+          <meta charset="UTF-8"><title>Arquivos Sendo Traduzidos</title>
+          <link rel="stylesheet" type="text/css" href="style.css" />
+          </head>
+          <body>
+          <table id="header"><tr>
+          <td><svg height="40" viewBox="0 0 32 32" width="40" xmlns="http://www.w3.org/2000/svg" fill="#fff"><path d="M16 2C12 2 9 5 9 9c0 2.1.8 4 2.2 5.4C10 16 8 19.3 8 23c0 3.3 2.7 6 6 6h4c3.3 0 6-2.7 6-6 0-3.7-2-7-3.2-8.6C22.2 13 23 11.1 23 9c0-4-3-7-7-7zm0 2c2.8 0 5 2.2 5 5s-2.2 5-5 5-5-2.2-5-5 2.2-5 5-5zm-4 12.1c1.2-.7 2.5-1.1 4-1.1s2.8.4 4 1.1C21.2 17.7 22 20.2 22 23c0 2.2-1.8 4-4 4h-4c-2.2 0-4-1.8-4-4 0-2.8.8-5.3 2-6.9z"/></svg></td>
+          <td class="main"><h1>index : kernel/git/docs/linux.git</h1><span class="desc">🇧🇷 Documentação do Kernel Linux em pt_BR | Gerenciado por Daniel Pereira</span></td>
+          </tr></table>
+          <div class="nav-links">
+          <a href="log.html">log</a> | <a href="files.html">tree</a> | <a href="aguardando.html">Aguardando Tradução</a> | <a href="andamento.html" class="active">Sendo Traduzidos</a>
+          </div>
+          <hr/>
+          <div id="content">
+          <table id="log">
+          <thead><tr><th class="commit-msg">Arquivo em Desenvolvimento</th><th class="author">Responsável / Autor</th></tr></thead>
+          <tbody>$TABELA_ANDAMENTO</tbody>
+          </table>
+          </div>
+          </body>
+          </html>
+          EOF
+
+          # 5. Cria e força a folha de estilo injetar as cores escuras clássicas do cgit em tudo de forma fixa
+          cat <<EOF > style.css
+          body { background-color: #1a1a1a !important; color: #ccc !important; font-family: monospace !important; padding: 20px; }
+          h1, h2, h3, h4, .main h1 { color: #fff !important; font-size: 18px; margin: 0; }
+          .desc { color: #888 !important; font-size: 12px; }
+          a { color: #fff !important; text-decoration: none; }
+          a:hover { text-decoration: underline; }
+          .nav-links { margin: 15px 0; font-size: 13px; color: #666; }
+          .nav-links a { color: #fff; font-weight: bold; margin: 0 5px; }
+          .nav-links a.active { color: #ff55ff !important; }
+          hr { border: 0; border-top: 1px solid #333; margin: 15px 0; }
+          table#log { width: 100%; border-collapse: collapse; font-size: 13px; }
+          table#log th { background-color: #2d2d2d !important; color: #999 !important; text-align: left; padding: 5px; }
+          table#log td { border-bottom: 1px solid #2d2d2d !important; padding: 6px 5px; }
+          .age { color: #55ff55 !important; }
+          .author { color: #ff55ff !important; }
+          .commit-msg { color: #fff !important; }
+          EOF
+
+          # 6. Atualiza o cabeçalho e menu de todas as páginas geradas automaticamente pelo stagit
+          find . -name "*.html" -exec sed -i 's#<span class="desc">.*</span>#<span class="desc">🇧🇷 Documentação do Kernel Linux em pt_BR | Gerenciado por Daniel Pereira</span>#g' {} +
+          find . -name "*.html" -exec sed -i 's#<a href="files.html">tree</a>#<a href="files.html">tree</a> | <a href="aguardando.html">Aguardando Tradução</a> | <a href="andamento.html">Sendo Traduzidos</a>#g' {} +
+
+          # 7. SOLUÇÃO COMPLETA: Cria um redirecionamento limpo que joga o usuário para o log.html sem quebrar os caminhos relativos
+          cat <<EOF > index.html
+          <!DOCTYPE html>
+          <html>
+          <head>
+          <meta http-equiv="refresh" content="0; url=log.html">
+          <title>Redirecionando...</title>
+          </head>
+          <body>
+          </body>
+          </html>
+          EOF
+
+      - name: 🚀 Deploy em Tempo Real para o GitHub Pages
+        uses: JamesIves/github-pages-deploy-action@v4
+        with:
+          folder: public
+          branch: gh-pages
