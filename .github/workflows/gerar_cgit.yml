@@ -15,7 +15,7 @@ jobs:
       - name: 📥 Clonar Repositório com Histórico Completo
         uses: actions/checkout@v4
         with:
-          fetch-depth: 0 # Mantém TODO o histórico de commits real
+          fetch-depth: 0 # Garante TODO o histórico de commits real
 
       - name: 🛠️ Compilar Stagit direto do Código Fonte
         run: |
@@ -30,8 +30,10 @@ jobs:
         run: |
           mkdir public
           cd public
+          # Gera a estrutura interna primeiro
           stagit ..
-          stagit-index .. > index.html
+          # Cria o index de repositórios padrão
+          stagit-index .. > index_projetos.html
 
       - name: 🎛️ Customizar Interface, Injetar Identidade e Tabelas de Status
         run: |
@@ -41,7 +43,7 @@ jobs:
           TABELA_AGUARDANDO=""
           while IFS= read -r linha || [ -n "$linha" ]; do
             if [ ! -z "$linha" ]; then
-              TABELA_AGUARDANDO="$TABELA_AGUARDANDO<tr><td class='commit-msg'>⚠️ $linha</td><td><span class='branch-tag' style='background-color: #ff5555;'>Pendente</span></td></tr>"
+              TABELA_AGUARDANDO="$TABELA_AGUARDANDO<tr><td class='commit-msg'>⚠️ $linha</td><td><span class='branch-tag' style='background-color: #ff5555; color: #000; padding: 1px 4px; font-size: 11px; font-weight: bold; border-radius: 2px;'>Pendente</span></td></tr>"
             fi
           done < ../aguardando_traducao.txt
 
@@ -49,10 +51,9 @@ jobs:
           TABELA_ANDAMENTO=""
           while IFS= read -r linha || [ -n "$linha" ]; do
             if [ ! -z "$linha" ]; then
-              # Separa o arquivo do responsável se tiver o padrão " - Responsável:"
               ARQUIVO=$(echo "$linha" | cut -d'-' -f1)
               RESPONSAVEL=$(echo "$linha" | cut -d'-' -f2)
-              TABELA_ANDAMENTO="$TABELA_ANDAMENTO<tr><td class='commit-msg'>⏳ $ARQUIVO</td><td class='author'>$RESPONSAVEL</td></tr>"
+              TABELA_ANDAMENTO="$TABELA_ANDAMENTO<tr><td class='commit-msg'>⏳ $ARQUIVO</td><td class='author' style='color: #ff55ff;'>$RESPONSAVEL</td></tr>"
             fi
           done < ../em_traducao.txt
 
@@ -70,7 +71,7 @@ jobs:
           <td class="main"><h1>index : kernel/git/docs/linux.git</h1><span class="desc">🇧🇷 Documentação do Kernel Linux em pt_BR | Gerenciado por Daniel Pereira</span></td>
           </tr></table>
           <div class="nav-links">
-          <a href="index.html">log</a> | <a href="files.html">tree</a> | <a href="aguardando.html" class="active">Aguardando Tradução</a> | <a href="andamento.html">Sendo Traduzidos</a>
+          <a href="log.html">log</a> | <a href="files.html">tree</a> | <a href="aguardando.html" class="active">Aguardando Tradução</a> | <a href="andamento.html">Sendo Traduzidos</a>
           </div>
           <hr/>
           <div id="content">
@@ -97,7 +98,7 @@ jobs:
           <td class="main"><h1>index : kernel/git/docs/linux.git</h1><span class="desc">🇧🇷 Documentação do Kernel Linux em pt_BR | Gerenciado por Daniel Pereira</span></td>
           </tr></table>
           <div class="nav-links">
-          <a href="index.html">log</a> | <a href="files.html">tree</a> | <a href="aguardando.html">Aguardando Tradução</a> | <a href="andamento.html" class="active">Sendo Traduzidos</a>
+          <a href="log.html">log</a> | <a href="files.html">tree</a> | <a href="aguardando.html">Aguardando Tradução</a> | <a href="andamento.html" class="active">Sendo Traduzidos</a>
           </div>
           <hr/>
           <div id="content">
@@ -110,9 +111,12 @@ jobs:
           </html>
           EOF
 
-          # 5. Injeta a identidade brasileira, o "Gerenciado por mim" e os novos links no cabeçalho de TODAS as páginas padrão do cgit
+          # 5. Injeta a identidade brasileira e os novos links no cabeçalho de TODAS as páginas padrão
           find . -name "*.html" -exec sed -i 's#<span class="desc">.*</span>#<span class="desc">🇧🇷 Documentação do Kernel Linux em pt_BR | Gerenciado por Daniel Pereira</span>#g' {} +
           find . -name "*.html" -exec sed -i 's#<a href="files.html">tree</a>#<a href="files.html">tree</a> | <a href="aguardando.html">Aguardando Tradução</a> | <a href="andamento.html">Sendo Traduzidos</a>#g' {} +
+
+          # 6. O PULO DO GATO: Faz a página inicial (index.html) ser diretamente a tela escura de LOGS de commits
+          cp log.html index.html
 
       - name: 🚀 Deploy em Tempo Real para o GitHub Pages
         uses: JamesIves/github-pages-deploy-action@v4
