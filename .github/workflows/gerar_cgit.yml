@@ -12,7 +12,7 @@ jobs:
   build-and-deploy:
     runs-on: ubuntu-latest
     steps:
-      - name: 📥 Clonar Repositório com Histórico Completíssimo
+      - name: 📥 Clonar Repositório com Histórico Completo
         uses: actions/checkout@v4
         with:
           fetch-depth: 0
@@ -58,10 +58,13 @@ jobs:
             fi
           done < ../em_traducao.txt
 
-          # Cabeçalho padrão unificado para as páginas customizadas
-          HEADER_HTML="<table id='header'><tr><td><svg height='40' viewBox='0 0 32 32' width='40' xmlns='http://www.w3.org/2000/svg' fill='#fff'><path d='M16 2C12 2 9 5 9 9c0 2.1.8 4 2.2 5.4C10 16 8 19.3 8 23c0 3.3 2.7 6 6 6h4c3.3 0 6-2.7 6-6 0-3.7-2-7-3.2-8.6C22.2 13 23 11.1 23 9c0-4-3-7-7-7zm0 2c2.8 0 5 2.2 5 5s-2.2 5-5 5-5-2.2-5-5 2.2-5 5-5zm-4 12.1c1.2-.7 2.5-1.1 4-1.1s2.8.4 4 1.1C21.2 17.7 22 20.2 22 23c0 2.2-1.8 4-4 4h-4c-2.2 0-4-1.8-4-4 0-2.8.8-5.3 2-6.9z'/></svg></td><td class='main'><h1>index : kernel/git/docs/linux.git</h1><span class='desc'>🇧🇷 Documentação do Kernel Linux em pt_BR | Gerenciado por Daniel Pereira</span></td></tr></table>"
+          # 3. Cria a estrutura de cabeçalho padrão unificada
+          cat <<EOF > /tmp/topo_menu.html
+          <table id='header'><tr><td><svg height='40' viewBox='0 0 32 32' width='40' xmlns='http://www.w3.org/2000/svg' fill='#fff'><path d='M16 2C12 2 9 5 9 9c0 2.1.8 4 2.2 5.4C10 16 8 19.3 8 23c0 3.3 2.7 6 6 6h4c3.3 0 6-2.7 6-6 0-3.7-2-7-3.2-8.6C22.2 13 23 11.1 23 9c0-4-3-7-7-7zm0 2c2.8 0 5 2.2 5 5s-2.2 5-5 5-5-2.2-5-5 2.2-5 5-5zm-4 12.1c1.2-.7 2.5-1.1 4-1.1s2.8.4 4 1.1C21.2 17.7 22 20.2 22 23c0 2.2-1.8 4-4 4h-4c-2.2 0-4-1.8-4-4 0-2.8.8-5.3 2-6.9z'/></svg></td><td class='main'><h1>index : kernel/git/docs/linux.git</h1><span class='desc'>🇧🇷 Documentação do Kernel Linux em pt_BR | Gerenciado por Daniel Pereira</span></td></tr></table>
+          <div class='nav-links'><a href='log.html'>log</a> | <a href='files.html'>tree</a> | <a href='aguardando.html'>Aguardando Tradução</a> | <a href='andamento.html'>Sendo Traduzidos</a></div><hr/>
+          EOF
 
-          # 3. Cria a página estilizada: Aguardando Tradução
+          # 4. Cria a página estilizada: Aguardando Tradução
           cat <<EOF > aguardando.html
           <!DOCTYPE html>
           <html>
@@ -70,11 +73,7 @@ jobs:
           <link rel="stylesheet" type="text/css" href="style.css" />
           </head>
           <body>
-          $HEADER_HTML
-          <div class="nav-links">
-          <a href="log.html">log</a> | <a href="files.html">tree</a> | <a href="aguardando.html" class="active">Aguardando Tradução</a> | <a href="andamento.html">Sendo Traduzidos</a>
-          </div>
-          <hr/>
+          $(cat /tmp/topo_menu.html | sed 's/href="aguardando.html"/href="aguardando.html" class="active"/g')
           <div id="content">
           <table id="log">
           <thead><tr><th class="commit-msg">Caminho do Arquivo Upstream (Clique para solicitar)</th><th>Status</th></tr></thead>
@@ -85,7 +84,7 @@ jobs:
           </html>
           EOF
 
-          # 4. Cria a página estilizada: Sendo Traduzidos
+          # 5. Cria a página estilizada: Sendo Traduzidos
           cat <<EOF > andamento.html
           <!DOCTYPE html>
           <html>
@@ -94,11 +93,7 @@ jobs:
           <link rel="stylesheet" type="text/css" href="style.css" />
           </head>
           <body>
-          $HEADER_HTML
-          <div class="nav-links">
-          <a href="log.html">log</a> | <a href="files.html">tree</a> | <a href="aguardando.html">Aguardando Tradução</a> | <a href="andamento.html" class="active">Sendo Traduzidos</a>
-          </div>
-          <hr/>
+          $(cat /tmp/topo_menu.html | sed 's/href="andamento.html"/href="andamento.html" class="active"/g')
           <div id="content">
           <table id="log">
           <thead><tr><th class="commit-msg">Arquivo em Desenvolvimento</th><th class="author">Responsável / Autor</th></tr></thead>
@@ -109,16 +104,16 @@ jobs:
           </html>
           EOF
 
-          # 5. Sobrescreve o style.css para garantir o tema escuro idêntico ao kernel em todas as abas
+          # 6. Sobrescreve o style.css para aplicar o tema escuro idêntico ao cgit oficial
           cat <<EOF > style.css
           body { background-color: #111111 !important; color: #cccccc !important; font-family: monospace !important; padding: 20px; }
           h1, h2, h3, h4, .main h1 { color: #ffffff !important; font-size: 20px; margin: 0; font-weight: bold; }
           .desc { color: #999999 !important; font-size: 13px; display: block; margin-top: 5px; }
-          a { color: #ff55ff !important; text-decoration: none; }
+          a { color: #55ff55 !important; text-decoration: none; }
           a:hover { text-decoration: underline; }
           .nav-links { margin: 15px 0; font-size: 14px; color: #555; font-weight: bold; }
-          .nav-links a { color: #ffffff !important; margin: 0 8px; }
-          .nav-links a.active { color: #ff55ff !important; border-bottom: 2px solid #ff55ff; }
+          .nav-links a { color: #ffffff !important; margin: 0 8px; text-decoration: underline; }
+          .nav-links a.active { color: #ff55ff !important; border-bottom: 2px solid #ff55ff; text-decoration: none; }
           hr { border: 0; border-top: 1px solid #333333; margin: 15px 0; }
           table { width: 100%; border-collapse: collapse; font-size: 13px; margin-top: 10px; background-color: #111111; }
           th { background-color: #222222 !important; color: #999999 !important; text-align: left; padding: 8px; font-weight: bold; border-bottom: 2px solid #333333; }
@@ -131,10 +126,15 @@ jobs:
           #header .main { padding-left: 15px; }
           EOF
 
-          # 6. Em vez de confiar no sed do menu original do stagit, injetamos nossa barra de navegação no topo de todos os arquivos HTML
-          find . -name "*.html" ! -name "aguardando.html" ! -name "andamento.html" ! -name "index.html" -exec sed -i "1s|^|${HEADER_HTML}<div class='nav-links'><a href='log.html'>log</a> \| <a href='files.html'>tree</a> \| <a href='aguardando.html'>Aguardando Tradução</a> \| <a href='andamento.html'>Sendo Traduzidos</a></div><hr/>|" {} +
+          # 7. ABORDAGEM ROBUSTA: Junta o topo do menu a todas as páginas geradas nativamente pelo stagit (sem usar sed perigoso)
+          for arquivo in *.html; do
+            if [ "$arquivo" != "aguardando.html" ] && [ "$arquivo" != "andamento.html" ] && [ "$arquivo" != "index.html" ]; then
+              cat /tmp/topo_menu.html "$arquivo" > /tmp/mesclado.html
+              mv /tmp/mesclado.html "$arquivo"
+            fi
+          done
 
-          # 7. Redirecionamento instantâneo do index principal para a tela de logs
+          # 8. Redirecionamento instantâneo e limpo do index para a tela de logs
           cat <<EOF > index.html
           <!DOCTYPE html>
           <html>
@@ -142,3 +142,9 @@ jobs:
           <body></body>
           </html>
           EOF
+
+      - name: 🚀 Deploy em Tempo Real para o GitHub Pages
+        uses: JamesIves/github-pages-deploy-action@v4
+        with:
+          folder: public
+          branch: gh-pages
