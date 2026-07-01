@@ -45,7 +45,7 @@ jobs:
           make
           sudo make install
 
-      - name: n8n Preparar Customizações e Tabelas de Status
+      - name: 🎛️ Preparar Customizações e Tabelas de Status
         run: |
           mkdir public
           
@@ -103,7 +103,7 @@ jobs:
               
               if [ -z "$URL_ISSUE" ] || [ "$URL_ISSUE" = "null" ]; then
                 TITULO_ISSUE="[Ciclo: ${TODAY_DATE}] Tradução de ${ARQ_LIMPO}"
-                CORPO_ISSUE="## 📑 Guia de Tradução: \`${ARQ_LIMPO}\`%0A%0AOlá! Esta é uma discussão automatizada para coordenar a tradução do arquivo upstream.%0A%0ASe você deseja assumir este arquivo, **comente nesta Issue** avisando o mantenedor @Daniel-Pereira-Linux!%0A%0A---%0A%0A### ⚙️ Passo 0: Configurando sua Identidade no Git%0A\`\`\`bash%0Agit config --global user.name \"Seu Nome Completo\"%0Agit config --global user.email \"seu_email@provedor.com\"%0A\`\`\`%0A%0A### 🚀 Passo a Passo para Contribuir%0A%0A#### 1. Configurando o Ambiente e o Upstream (Repositório do Corbet)%0A\`\`\`bash%0Agit clone https://github.com/Daniel-Pereira-Linux/kernel-docs-br.git%0Acd kernel-docs-br%0A%0Agit remote add upstream https://git.kernel.org/pub/scm/linux/kernel/git/docs/linux.git%0Agit fetch upstream docs-next%0A\`\`\`%0A%0A#### 2. Criando sua Branch de Trabalho%0A\`\`\`bash%0Agit checkout -b traducao-\$(basename ${ARQ_LIMPO} .rst) origin/docs-next%0A\`\`\`%0A%0A#### 3. Traduzindo o Arquivo%0A- Crie ou edite o arquivo espelho exatamente em: \`pt_BR/${ARQ_LIMPO}\`.%0A- Mantenha tabelas e marcações Sphinx idênticos.%0A%0A#### 4. Validando Localmente%0A\`\`\`bash%0Amake htmldocs%0A\`\`\`%0A%0A#### 5. Padronização do Commit (Formato Oficial do Kernel)%0A\`\`\`bash%0Agit add pt_BR/${ARQ_LIMPO}%0Agit commit -s -m \"docs: pt_BR: Tradução de \$(basename ${ARQ_LIMPO})\"%0A\`\`\`%0A%0A---%0A%0A### 🧪 🤖 Sistema de Pré-Revisão Automatizada (CI/CD na Issue)%0ANão tem o Sphinx instalado? O robô faz o teste para você!%0A1. Anexe o seu arquivo \`.patch\` em um comentário nesta Issue.%0A2. Escreva no mesmo comentário a frase: **\`analise o meu patch\`**.%0A3. O robô baixará o anexo, aplicará na árvore do Corbet e rodará o \`./scripts/checkpatch.pl\` e o \`make htmldocs\`, postando o veredito aqui e aguardando o mantenedor @Daniel-Pereira-Linux."
+                CORPO_ISSUE="## 📑 Guia de Tradução: \`${ARQ_LIMPO}\`%0A%0AOlá! Esta é uma discussão automatizada para coordenar a tradução do arquivo upstream.%0A%0ASe você deseja assumir este arquivo, **comente nesta Issue** avisando o mantenedor @Daniel-Pereira-Linux!%0A%0A---%0A%0A### ⚙️ Passo 0: Configurando sua Identidade no Git%0A\`\`\`bash%0Agit config --global user.name 'Seu Nome Completo'%0Agit config --global user.email 'seu_email@provedor.com'%0A\`\`\`%0A%0A### 🚀 Passo a Passo para Contribuir%0A%0A#### 1. Configurando o Ambiente e o Upstream (Repositório do Corbet)%0A\`\`\`bash%0Agit clone https://github.com/Daniel-Pereira-Linux/kernel-docs-br.git%0Acd kernel-docs-br%0A%0Agit remote add upstream https://git.kernel.org/pub/scm/linux/kernel/git/docs/linux.git%0Agit fetch upstream docs-next%0A\`\`\`%0A%0A#### 2. Criando sua Branch de Trabalho%0A\`\`\`bash%0Agit checkout -b traducao-\$(basename ${ARQ_LIMPO} .rst) origin/docs-next%0A\`\`\`%0A%0A#### 3. Traduzindo o Arquivo%0A- Crie ou edite o arquivo espelho exatamente em: \`pt_BR/${ARQ_LIMPO}\`.%0A- Mantenha tabelas e marcações Sphinx idênticos.%0A%0A#### 4. Validando Localmente%0A\`\`\`bash%0Amake htmldocs%0A\`\`\`%0A%0A#### 5. Padronização do Commit (Formato Oficial do Kernel)%0A\`\`\`bash%0Agit add pt_BR/${ARQ_LIMPO}%0Agit commit -s -m \"docs: pt_BR: Tradução de \$(basename ${ARQ_LIMPO})\"%0A\`\`\`%0A%0A---%0A%0A### 🧪 🤖 Sistema de Pré-Revisão Automatizada (CI/CD na Issue)%0ANão tem o Sphinx instalado? O robô faz o teste para você!%0A1. Anexe o seu arquivo \`.patch\` em um comentário nesta Issue.%0A2. Escreva no mesmo comentário a frase: **\`analise o meu patch\`**.%0A3. O robô baixará o anexo, aplicará na árvore do Corbet e rodará o \`./scripts/checkpatch.pl\` e o \`make htmldocs\`, postando o veredito aqui e aguardando o mantenedor @Daniel-Pereira-Linux."
                 
                 URL_ISSUE=$(gh issue create --title "$TITULO_ISSUE" --body "$CORPO_ISSUE" --label "aguardando-traducao" || echo "${REPO_URL}/issues")
               else
@@ -251,7 +251,6 @@ jobs:
       - name: 🗜️ Isolar e Baixar arquivo .patch do Comentário
         run: |
           mkdir -p /tmp/patches
-          # Captura links que terminam com .patch ou anexos de texto do GitHub no corpo do comentário
           PATCH_URL=$(echo "$COMMENT_BODY" | grep -oE 'https://github.com/[^ ]+\.patch' | head -n 1 || echo "")
           
           if [ -z "$PATCH_URL" ]; then
