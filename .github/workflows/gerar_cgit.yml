@@ -1,0 +1,69 @@
+name: Gerar Interface cgit Dinâmica
+
+on:
+  push:
+    branches:
+      - docs-next
+
+permissions:
+  contents: write
+
+jobs:
+  build-and-deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - name: 📥 Clonar Repositório com Histórico Completo
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: 🛠️ Instalar Stagit (Gerador Oficial)
+        run: |
+          sudo apt-get update
+          sudo apt-get install stagit -y
+
+      - name: 🌐 Gerar Base do cgit com Commits Reais
+        run: |
+          mkdir public
+          cd public
+          stagit ..
+          stagit-index .. > index.html
+
+      - name: 🎛️ Injetar Abas Customizadas e Modificar Menu
+        run: |
+          cd public
+          
+          CONTEUDO_AGUARDANDO=$(sed 's/$/<br>/' ../aguardando_traducao.txt)
+          CONTEUDO_EM_ANDAMENTO=$(sed 's/$/<br>/' ../em_traducao.txt)
+
+          cat <<EOF > aguardando.html
+          <!DOCTYPE html>
+          <html>
+          <head><meta charset="UTF-8"><title>Arquivos Aguardando Tradução</title><link rel="stylesheet" type="text/css" href="style.css" /></head>
+          <body>
+          <div class="header"><strong>index : kernel/git/docs/linux.git</strong></div>
+          <div class="nav-links"><a href="index.html">log</a> | <a href="files.html">tree</a> | <a href="aguardando.html" class="active">Aguardando Tradução</a> | <a href="andamento.html">Sendo Traduzidos</a></div>
+          <hr/><pre>$CONTEUDO_AGUARDANDO</pre>
+          </body>
+          </html>
+          EOF
+
+          cat <<EOF > andamento.html
+          <!DOCTYPE html>
+          <html>
+          <head><meta charset="UTF-8"><title>Arquivos Sendo Traduzidos</title><link rel="stylesheet" type="text/css" href="style.css" /></head>
+          <body>
+          <div class="header"><strong>index : kernel/git/docs/linux.git</strong></div>
+          <div class="nav-links"><a href="index.html">log</a> | <a href="files.html">tree</a> | <a href="aguardando.html">Aguardando Tradução</a> | <a href="andamento.html" class="active">Sendo Traduzidos</a></div>
+          <hr/><pre>$CONTEUDO_EM_ANDAMENTO</pre>
+          </body>
+          </html>
+          EOF
+
+          find . -name "*.html" -exec sed -i 's|<a href="files.html">tree</a>|<a href="files.html">tree</a> | <a href="aguardando.html">Aguardando Tradução</a> | <a href="andamento.html">Sendo Traduzidos</a>|g' {} +
+
+      - name: 🚀 Deploy em Tempo Real para o GitHub Pages
+        uses: JamesIves/github-pages-deploy-action@v4
+        with:
+          folder: public
+          branch: gh-pages

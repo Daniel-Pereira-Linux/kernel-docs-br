@@ -1,0 +1,3 @@
+Documentation/process/submit-checklist.rst
+Documentation/process/kernel-docs.rst
+Documentation/maintainer/maintainer-entry-profile.rst

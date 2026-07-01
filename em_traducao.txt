@@ -1,0 +1,2 @@
+Documentation/process/howto.rst - Responsável: Daniel Pereira
+Documentation/networking/netdevsim.rst - Responsável: Amanda Corrêa
