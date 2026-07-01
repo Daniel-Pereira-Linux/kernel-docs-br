@@ -15,7 +15,7 @@ jobs:
       - name: 📥 Clonar Repositório com Histórico Completo
         uses: actions/checkout@v4
         with:
-          fetch-depth: 0
+          fetch-depth: 0 # Mantém TODO o histórico de commits real
 
       - name: 🛠️ Compilar Stagit direto do Código Fonte
         run: |
@@ -33,38 +33,85 @@ jobs:
           stagit ..
           stagit-index .. > index.html
 
-      - name: 🎛️ Injetar Abas Customizadas e Modificar Menu
+      - name: 🎛️ Customizar Interface, Injetar Identidade e Tabelas de Status
         run: |
           cd public
           
-          CONTEUDO_AGUARDANDO=$(sed 's/$/<br>/' ../aguardando_traducao.txt)
-          CONTEUDO_EM_ANDAMENTO=$(sed 's/$/<br>/' ../em_traducao.txt)
+          # 1. Monta a tabela de arquivos Aguardando Tradução baseada no seu arquivo txt
+          TABELA_AGUARDANDO=""
+          while IFS= read -r linha || [ -n "$linha" ]; do
+            if [ ! -z "$linha" ]; then
+              TABELA_AGUARDANDO="$TABELA_AGUARDANDO<tr><td class='commit-msg'>⚠️ $linha</td><td><span class='branch-tag' style='background-color: #ff5555;'>Pendente</span></td></tr>"
+            fi
+          done < ../aguardando_traducao.txt
 
+          # 2. Monta a tabela de arquivos Sendo Traduzidos baseada no seu arquivo txt
+          TABELA_ANDAMENTO=""
+          while IFS= read -r linha || [ -n "$linha" ]; do
+            if [ ! -z "$linha" ]; then
+              # Separa o arquivo do responsável se tiver o padrão " - Responsável:"
+              ARQUIVO=$(echo "$linha" | cut -d'-' -f1)
+              RESPONSAVEL=$(echo "$linha" | cut -d'-' -f2)
+              TABELA_ANDAMENTO="$TABELA_ANDAMENTO<tr><td class='commit-msg'>⏳ $ARQUIVO</td><td class='author'>$RESPONSAVEL</td></tr>"
+            fi
+          done < ../em_traducao.txt
+
+          # 3. Cria a página estilizada: Aguardando Tradução
           cat <<EOF > aguardando.html
           <!DOCTYPE html>
           <html>
-          <head><meta charset="UTF-8"><title>Arquivos Aguardando Tradução</title><link rel="stylesheet" type="text/css" href="style.css" /></head>
+          <head>
+          <meta charset="UTF-8"><title>Arquivos Aguardando Tradução</title>
+          <link rel="stylesheet" type="text/css" href="style.css" />
+          </head>
           <body>
-          <div class="header"><strong>index : kernel/git/docs/linux.git</strong></div>
-          <div class="nav-links"><a href="index.html">log</a> | <a href="files.html">tree</a> | <a href="aguardando.html" class="active">Aguardando Tradução</a> | <a href="andamento.html">Sendo Traduzidos</a></div>
-          <hr/><pre>$CONTEUDO_AGUARDANDO</pre>
+          <table id="header"><tr>
+          <td><svg height="40" viewBox="0 0 32 32" width="40" xmlns="http://www.w3.org/2000/svg" fill="#fff"><path d="M16 2C12 2 9 5 9 9c0 2.1.8 4 2.2 5.4C10 16 8 19.3 8 23c0 3.3 2.7 6 6 6h4c3.3 0 6-2.7 6-6 0-3.7-2-7-3.2-8.6C22.2 13 23 11.1 23 9c0-4-3-7-7-7zm0 2c2.8 0 5 2.2 5 5s-2.2 5-5 5-5-2.2-5-5 2.2-5 5-5zm-4 12.1c1.2-.7 2.5-1.1 4-1.1s2.8.4 4 1.1C21.2 17.7 22 20.2 22 23c0 2.2-1.8 4-4 4h-4c-2.2 0-4-1.8-4-4 0-2.8.8-5.3 2-6.9z"/></svg></td>
+          <td class="main"><h1>index : kernel/git/docs/linux.git</h1><span class="desc">🇧🇷 Documentação do Kernel Linux em pt_BR | Gerenciado por Daniel Pereira</span></td>
+          </tr></table>
+          <div class="nav-links">
+          <a href="index.html">log</a> | <a href="files.html">tree</a> | <a href="aguardando.html" class="active">Aguardando Tradução</a> | <a href="andamento.html">Sendo Traduzidos</a>
+          </div>
+          <hr/>
+          <div id="content">
+          <table id="log">
+          <thead><tr><th class="commit-msg">Caminho do Arquivo Upstream</th><th>Status</th></tr></thead>
+          <tbody>$TABELA_AGUARDANDO</tbody>
+          </table>
+          </div>
           </body>
           </html>
           EOF
 
+          # 4. Cria a página estilizada: Sendo Traduzidos
           cat <<EOF > andamento.html
           <!DOCTYPE html>
           <html>
-          <head><meta charset="UTF-8"><title>Arquivos Sendo Traduzidos</title><link rel="stylesheet" type="text/css" href="style.css" /></head>
+          <head>
+          <meta charset="UTF-8"><title>Arquivos Sendo Traduzidos</title>
+          <link rel="stylesheet" type="text/css" href="style.css" />
+          </head>
           <body>
-          <div class="header"><strong>index : kernel/git/docs/linux.git</strong></div>
-          <div class="nav-links"><a href="index.html">log</a> | <a href="files.html">tree</a> | <a href="aguardando.html">Aguardando Tradução</a> | <a href="andamento.html" class="active">Sendo Traduzidos</a></div>
-          <hr/><pre>$CONTEUDO_EM_ANDAMENTO</pre>
+          <table id="header"><tr>
+          <td><svg height="40" viewBox="0 0 32 32" width="40" xmlns="http://www.w3.org/2000/svg" fill="#fff"><path d="M16 2C12 2 9 5 9 9c0 2.1.8 4 2.2 5.4C10 16 8 19.3 8 23c0 3.3 2.7 6 6 6h4c3.3 0 6-2.7 6-6 0-3.7-2-7-3.2-8.6C22.2 13 23 11.1 23 9c0-4-3-7-7-7zm0 2c2.8 0 5 2.2 5 5s-2.2 5-5 5-5-2.2-5-5 2.2-5 5-5zm-4 12.1c1.2-.7 2.5-1.1 4-1.1s2.8.4 4 1.1C21.2 17.7 22 20.2 22 23c0 2.2-1.8 4-4 4h-4c-2.2 0-4-1.8-4-4 0-2.8.8-5.3 2-6.9z"/></svg></td>
+          <td class="main"><h1>index : kernel/git/docs/linux.git</h1><span class="desc">🇧🇷 Documentação do Kernel Linux em pt_BR | Gerenciado por Daniel Pereira</span></td>
+          </tr></table>
+          <div class="nav-links">
+          <a href="index.html">log</a> | <a href="files.html">tree</a> | <a href="aguardando.html">Aguardando Tradução</a> | <a href="andamento.html" class="active">Sendo Traduzidos</a>
+          </div>
+          <hr/>
+          <div id="content">
+          <table id="log">
+          <thead><tr><th class="commit-msg">Arquivo em Desenvolvimento</th><th class="author">Responsável</th></tr></thead>
+          <tbody>$TABELA_ANDAMENTO</tbody>
+          </table>
+          </div>
           </body>
           </html>
           EOF
 
-          # Ajustado o delimitador do sed de / para # para evitar o conflito com as URLs
+          # 5. Injeta a identidade brasileira, o "Gerenciado por mim" e os novos links no cabeçalho de TODAS as páginas padrão do cgit
+          find . -name "*.html" -exec sed -i 's#<span class="desc">.*</span>#<span class="desc">🇧🇷 Documentação do Kernel Linux em pt_BR | Gerenciado por Daniel Pereira</span>#g' {} +
           find . -name "*.html" -exec sed -i 's#<a href="files.html">tree</a>#<a href="files.html">tree</a> | <a href="aguardando.html">Aguardando Tradução</a> | <a href="andamento.html">Sendo Traduzidos</a>#g' {} +
 
       - name: 🚀 Deploy em Tempo Real para o GitHub Pages
