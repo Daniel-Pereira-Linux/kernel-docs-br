@@ -4,6 +4,8 @@ on:
   push:
     branches:
       - docs-next
+  schedule:
+    - cron: '0 3 * * *'
 
 permissions:
   contents: write
@@ -66,7 +68,7 @@ jobs:
           <div class='nav-links'><a href='log.html' id='link-log'>Histórico de Commits</a> | <a href='files.html' id='link-tree'>Árvore de Arquivos</a> | <a href='aguardando.html' id='link-aguardando'>⚠️ Aguardando Tradução</a> | <a href='andamento.html' id='link-andamento'>⏳ Sendo Traduzidos</a> | <a href='desatualizados.html' id='link-desatualizados'>🚨 Desatualizados (Upstream)</a></div><hr/>
           EOF
 
-          # 3. Processar tabela Aguardando Tradução com link de Issue no GitHub
+          # 3. Processar tabela Aguardando Tradução
           REPO_URL="https://github.com/Daniel-Pereira-Linux/kernel-docs-br"
           TABELA_AGUARDANDO=""
           while IFS= read -r linha || [ -n "$linha" ]; do
@@ -79,20 +81,19 @@ jobs:
             fi
           done < aguardando_traducao.txt
 
-          # 4. Processar tabela Sendo Traduzidos com cronômetro matemático de 30 dias
+          # 4. Processar tabela Sendo Traduzidos com Parse Seguro contra Hífens no nome do arquivo
           TABELA_ANDAMENTO=""
           NOW_EPOCH=$(date +%s)
           
           while IFS= read -r linha || [ -n "$linha" ]; do
             if [ ! -z "$(echo "$linha" | xargs)" ]; then
-              ARQUIVO=$(echo "$linha" | cut -d'-' -f1 | xargs)
-              RESPONSAVEL=$(echo "$linha" | cut -d'-' -f2 | sed 's/Responsável://g' | xargs)
-              DATA_STR=$(echo "$linha" | cut -d'-' -f3 | sed 's/Início://g' | xargs)
+              # Parse robusto de trás para frente usando hífens cercados por espaços como delimitadores reais
+              DATA_STR=$(echo "$linha" | grep -o 'Início: [0-9]\{4\}-[0-9]\{2\}-[0-9]\{2\}' | sed 's/Início://g' | xargs)
+              RESPONSAVEL=$(echo "$linha" | grep -o 'Responsável: [^-]*' | sed 's/Responsável://g' | xargs)
+              ARQUIVO=$(echo "$linha" | sed 's/ - Responsável:.*//g' | xargs)
               
-              # Caso não tenha data informada no arquivo, assume a data do build para não quebrar
               if [ -z "$DATA_STR" ]; then DATA_STR=$(date +%Y-%m-%d); fi
               
-              # Cálculos de tempo Unix Epoch
               START_EPOCH=$(date -d "$DATA_STR" +%s 2>/dev/null || date +%s)
               DAYS_PAST=$(( (NOW_EPOCH - START_EPOCH) / 86400 ))
               DAYS_LEFT=$(( 30 - DAYS_PAST ))
@@ -103,14 +104,12 @@ jobs:
                 CRONOMETRO="<span style='background-color: #ff3333; color: #fff; padding: 2px 6px; border-radius: 3px; font-weight: bold;'>🚨 Prazo Excedido (${DAYS_LEFT#-} dias)</span>"
               fi
               
-              # Formata a data para exibição pt_BR (DD/MM/AAAA)
               DATA_BR=$(date -d "$DATA_STR" +"%d/%m/%Y" 2>/dev/null || echo "$DATA_STR")
-              
               TABELA_ANDAMENTO="${TABELA_ANDAMENTO}<tr><td>⏳ ${ARQUIVO}</td><td style='color: #ff55ff; font-weight: bold;'>${RESPONSAVEL}</td><td>${DATA_BR}</td><td>${CRONOMETRO}</td></tr>"
             fi
           done < em_traducao.txt
 
-          # 5. LÓGICA DE DETECÇÃO UPSTREAM AVANÇADA
+          # 5. LÓGICA DE DETECÇÃO UPSTREAM
           git clone --bare https://git.kernel.org/pub/scm/linux/kernel/git/docs/linux.git /tmp/upstream_corbet
           cd /tmp/upstream_corbet
           FILES_UPDATED_UPSTREAM=$(git log -n 200 --name-only --pretty=format: origin/docs-next | grep '\.rst$' | sort -u)
