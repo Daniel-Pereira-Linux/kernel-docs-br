@@ -30,7 +30,7 @@ jobs:
         run: |
           mkdir public
           
-          # 1. CSS Definitivo: Força o tema escuro e MATA todos os menus nativos redundantes do stagit
+          # 1. CSS Definitivo: Força o tema escuro e oculta os menus nativos redundantes do stagit
           cat <<EOF > public/style.css
           body { background-color: #111111 !important; color: #cccccc !important; font-family: monospace !important; padding: 20px; margin: 0; }
           h1 { color: #ffffff !important; font-size: 22px; margin: 0; font-weight: bold; }
@@ -47,25 +47,23 @@ jobs:
           hr { border: 0; border-top: 1px solid #333333; margin: 20px 0; }
           table { width: 100%; border-collapse: collapse; font-size: 13px; margin-top: 15px; }
           th { background-color: #222222 !important; color: #aaaaaa !important; text-align: left; padding: 10px; font-weight: bold; border-bottom: 2px solid #333333; }
-          td { border-bottom: 1px solid #222222 !important; padding: 10px; color: #cccccc; }
+          td { border-bottom: 1px solid #222222 !important; padding: 10px; color: #cccccc; vertical-align: middle; }
           tr:hover td { background-color: #1a1a1a !important; }
           #header-table { width: 100%; margin-bottom: 10px; }
           #header-table td { border: none !important; padding: 0; }
           #header-table .main-td { padding-left: 15px; vertical-align: middle; }
           
-          /* 🚫 ESCONDE OS MENUS ORIGINAIS DO STAGIT SOLICITADOS */
+          /* Esconde os menus originais do stagit */
           table#header, table.line-info, td.links, .line { display: none !important; }
           table[id="header"] { display: none !important; }
           #log.gitsubmenu, .links, #git-logo { display: none !important; }
-          /* Esconde a caixa cinza intermediária 'kernel-docs-br Unnamed repository...' */
-          table:nth-of-type(2) { id: dummy; } 
           body > table:first-of-type { display: none !important; }
           EOF
 
-          # 2. Montar cabeçalho unificado com o Símbolo do Brasil 🇧🇷 e as abas estáticas solicitadas
+          # 2. Montar cabeçalho unificado com as 5 abas estáticas solicitadas
           cat <<EOF > /tmp/global_header.html
           <table id='header-table'><tr><td><svg height='45' viewBox='0 0 32 32' width='45' xmlns='http://www.w3.org/2000/svg' fill='#fff'><path d='M16 2C12 2 9 5 9 9c0 2.1.8 4 2.2 5.4C10 16 8 19.3 8 23c0 3.3 2.7 6 6 6h4c3.3 0 6-2.7 6-6 0-3.7-2-7-3.2-8.6C22.2 13 23 11.1 23 9c0-4-3-7-7-7zm0 2c2.8 0 5 2.2 5 5s-2.2 5-5 5-5-2.2-5-5 2.2-5 5-5zm-4 12.1c1.2-.7 2.5-1.1 4-1.1s2.8.4 4 1.1C21.2 17.7 22 20.2 22 23c0 2.2-1.8 4-4 4h-4c-2.2 0-4-1.8-4-4 0-2.8.8-5.3 2-6.9z'/></svg></td><td class='main-td'><h1>index : kernel/git/docs/linux.git</h1><span class='desc'>🇧🇷 Documentação do Kernel Linux em pt_BR | Gerenciado por Daniel Pereira</span></td></tr></table>
-          <div class='nav-links'><a href='log.html' id='link-log'>Histórico de Commits</a> | <a href='files.html' id='link-tree'>Árvore de Arquivos</a> | <a href='aguardando.html' id='link-aguardando'>⚠️ Aguardando Tradução</a> | <a href='andamento.html' id='link-andamento'>⏳ Sendo Traduzidos</a></div><hr/>
+          <div class='nav-links'><a href='log.html' id='link-log'>Histórico de Commits</a> | <a href='files.html' id='link-tree'>Árvore de Arquivos</a> | <a href='aguardando.html' id='link-aguardando'>⚠️ Aguardando Tradução</a> | <a href='andamento.html' id='link-andamento'>⏳ Sendo Traduzidos</a> | <a href='desatualizados.html' id='link-desatualizados'>🚨 Desatualizados (Upstream)</a></div><hr/>
           EOF
 
           # 3. Processar tabela Aguardando Tradução com link de Issue no GitHub
@@ -81,17 +79,66 @@ jobs:
             fi
           done < aguardando_traducao.txt
 
-          # 4. Processar tabela Sendo Traduzidos
+          # 4. Processar tabela Sendo Traduzidos com cronômetro matemático de 30 dias
           TABELA_ANDAMENTO=""
+          NOW_EPOCH=$(date +%s)
+          
           while IFS= read -r linha || [ -n "$linha" ]; do
             if [ ! -z "$(echo "$linha" | xargs)" ]; then
               ARQUIVO=$(echo "$linha" | cut -d'-' -f1 | xargs)
-              RESPONSAVEL=$(echo "$linha" | cut -d'-' -f2 | xargs)
-              TABELA_ANDAMENTO="${TABELA_ANDAMENTO}<tr><td>⏳ ${ARQUIVO}</td><td style='color: #ff55ff; font-weight: bold;'>${RESPONSAVEL}</td></tr>"
+              RESPONSAVEL=$(echo "$linha" | cut -d'-' -f2 | sed 's/Responsável://g' | xargs)
+              DATA_STR=$(echo "$linha" | cut -d'-' -f3 | sed 's/Início://g' | xargs)
+              
+              # Caso não tenha data informada no arquivo, assume a data do build para não quebrar
+              if [ -z "$DATA_STR" ]; then DATA_STR=$(date +%Y-%m-%d); fi
+              
+              # Cálculos de tempo Unix Epoch
+              START_EPOCH=$(date -d "$DATA_STR" +%s 2>/dev/null || date +%s)
+              DAYS_PAST=$(( (NOW_EPOCH - START_EPOCH) / 86400 ))
+              DAYS_LEFT=$(( 30 - DAYS_PAST ))
+              
+              if [ $DAYS_LEFT -gt 0 ]; then
+                CRONOMETRO="<span style='background-color: #22a422; color: #fff; padding: 2px 6px; border-radius: 3px; font-weight: bold;'>⏳ Faltam ${DAYS_LEFT} dias</span>"
+              else
+                CRONOMETRO="<span style='background-color: #ff3333; color: #fff; padding: 2px 6px; border-radius: 3px; font-weight: bold;'>🚨 Prazo Excedido (${DAYS_LEFT#-} dias)</span>"
+              fi
+              
+              # Formata a data para exibição pt_BR (DD/MM/AAAA)
+              DATA_BR=$(date -d "$DATA_STR" +"%d/%m/%Y" 2>/dev/null || echo "$DATA_STR")
+              
+              TABELA_ANDAMENTO="${TABELA_ANDAMENTO}<tr><td>⏳ ${ARQUIVO}</td><td style='color: #ff55ff; font-weight: bold;'>${RESPONSAVEL}</td><td>${DATA_BR}</td><td>${CRONOMETRO}</td></tr>"
             fi
           done < em_traducao.txt
 
-          # 5. Gerar as páginas estáticas customizadas com nomes de abas fixas e idênticas
+          # 5. LÓGICA DE DETECÇÃO UPSTREAM AVANÇADA
+          git clone --bare https://git.kernel.org/pub/scm/linux/kernel/git/docs/linux.git /tmp/upstream_corbet
+          cd /tmp/upstream_corbet
+          FILES_UPDATED_UPSTREAM=$(git log -n 200 --name-only --pretty=format: origin/docs-next | grep '\.rst$' | sort -u)
+          TABELA_DESATUALIZADOS=""
+          cd -
+          
+          for arq in $FILES_UPDATED_UPSTREAM; do
+            if [ -f "pt_BR/${arq}" ]; then
+              cd /tmp/upstream_corbet
+              COMMIT_HASH=$(git log -n 1 --pretty=format:"%H" origin/docs-next -- "${arq}")
+              COMMIT_SUBJECT=$(git log -n 1 --pretty=format:"%s" origin/docs-next -- "${arq}")
+              COMMIT_DATE=$(git log -n 1 --pretty=format:"%ad" --date=short origin/docs-next -- "${arq}")
+              cd -
+              
+              UPSTREAM_COMMIT_URL="https://git.kernel.org/pub/scm/linux/kernel/git/docs/linux.git/commit/?h=docs-next&id=${COMMIT_HASH}"
+              TITLE_DISCUSS="Revisao Necessaria: pt_BR/${arq}"
+              BODY_DISCUSS="O arquivo upstream '${arq}' recebeu atualizacoes de Jonathan Corbet no commit [${COMMIT_HASH}](${UPSTREAM_COMMIT_URL}) com a mensagem: '${COMMIT_SUBJECT}'.%0A%0AUse esta issue como painel de comentarios para debater quais trechos precisam ser revisados na versao pt_BR."
+              LINK_COMENTARIOS="${REPO_URL}/issues/new?title=${TITLE_DISCUSS}&body=${BODY_DISCUSS}"
+              
+              TABELA_DESATUALIZADOS="${TABELA_DESATUALIZADOS}<tr><td>🚨 <span style='color: #ffffff; font-weight: bold;'>Documentation/${arq}</span></td><td><span style='color: #888; font-size: 12px;'>${COMMIT_DATE}</span></td><td><a href='${UPSTREAM_COMMIT_URL}' target='_blank' style='color: #55ff55; text-decoration: underline;'>${COMMIT_HASH:0:7} - ${COMMIT_SUBJECT:0:40}...</a></td><td><a href='${LINK_COMENTARIOS}' target='_blank' style='color: #ff55ff; text-decoration: underline;'>💬 Painel de Comentários</a></td></tr>"
+            fi
+          done
+
+          if [ -z "${TABELA_DESATUALIZADOS}" ]; then
+            TABELA_DESATUALIZADOS="<tr><td colspan='4' style='color: #55ff55; text-align: center; padding: 20px;'>✅ Excelente! Todos os arquivos traduzidos estão 100% em sincronia com os commits mais recentes de Corbet!</td></tr>"
+          fi
+
+          # 6. Gerar as páginas estáticas customizadas com as 5 abas fixas
           cat <<EOF > public/aguardando.html
           <!DOCTYPE html><html><head><meta charset="UTF-8"><title>Arquivos Aguardando Tradução</title><link rel="stylesheet" type="text/css" href="style.css" /></head><body>
           $(cat /tmp/global_header.html | sed 's/id="link-aguardando"/id="link-aguardando" class="active"/g')
@@ -102,7 +149,14 @@ jobs:
           cat <<EOF > public/andamento.html
           <!DOCTYPE html><html><head><meta charset="UTF-8"><title>Arquivos Sendo Traduzidos</title><link rel="stylesheet" type="text/css" href="style.css" /></head><body>
           $(cat /tmp/global_header.html | sed 's/id="link-andamento"/id="link-andamento" class="active"/g')
-          <table><thead><tr><th style="width: 75%;">Arquivo em Desenvolvimento</th><th>Responsável / Autor</th></tr></thead><tbody>${TABELA_ANDAMENTO}</tbody></table>
+          <table><thead><tr><th style="width: 45%;">Arquivo em Desenvolvimento</th><th style="width: 25%;">Responsável / Autor</th><th style="width: 15%;">Data de Início</th><th>Contagem Regressiva (SLA)</th></tr></thead><tbody>${TABELA_ANDAMENTO}</tbody></table>
+          </body></html>
+          EOF
+
+          cat <<EOF > public/desatualizados.html
+          <!DOCTYPE html><html><head><meta charset="UTF-8"><title>Arquivos Desatualizados Upstream</title><link rel="stylesheet" type="text/css" href="style.css" /></head><body>
+          $(cat /tmp/global_header.html | sed 's/id="link-desatualizados"/id="link-desatualizados" class="active"/g')
+          <table><thead><tr><th style="width: 40%;">Arquivo Traduzido</th><th style="width: 12%;">Data Upstream</th><th style="width: 33%;">Commit Modificador (Corbet)</th><th>Fórum</th></tr></thead><tbody>${TABELA_DESATUALIZADOS}</tbody></table>
           </body></html>
           EOF
 
@@ -112,27 +166,23 @@ jobs:
           stagit ..
           stagit-index .. > index_projetos.html
 
-      - name: 🎛️ Injetar Menu Fixo por Cima de Tudo e expurgar cabeçalhos antigos
+      - name: 🎛️ Mesclar Cabeçalho e Menu Global nas Páginas Nativas do Stagit
         run: |
           cd public
-          
           for arquivo in log.html files.html refs.html; do
             if [ -f "$arquivo" ]; then
-              # Prepara o cabeçalho correto aplicando o estado active na aba correta
               cat /tmp/global_header.html > /tmp/saida.html
               if [ "$arquivo" = "log.html" ]; then
                 sed -i 's/id="link-log"/id="link-log" class="active"/g' /tmp/saida.html
               elif [ "$arquivo" = "files.html" ]; then
                 sed -i 's/id="link-tree"/id="link-tree" class="active"/g' /tmp/saida.html
               fi
-              
-              # Injeta o conteúdo original por baixo de forma direta
               cat "$arquivo" >> /tmp/saida.html
               mv /tmp/saida.html "$arquivo"
             fi
           done
 
-          # Limpa o arquivo index principal para redirecionar instantaneamente
+          # Redirecionamento limpo da raiz
           cat <<EOF > index.html
           <!DOCTYPE html><html><head><meta http-equiv="refresh" content="0; url=log.html"></head><body></body></html>
           EOF
