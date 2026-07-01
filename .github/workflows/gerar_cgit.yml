@@ -15,7 +15,7 @@ jobs:
       - name: 📥 Clonar Repositório com Histórico Completo
         uses: actions/checkout@v4
         with:
-          fetch-depth: 0 # Garante TODO o histórico de commits real
+          fetch-depth: 0
 
       - name: 🛠️ Compilar Stagit direto do Código Fonte
         run: |
@@ -30,29 +30,34 @@ jobs:
         run: |
           mkdir public
           cd public
-          # Gera a estrutura interna primeiro
           stagit ..
-          # Cria o index de repositórios padrão
           stagit-index .. > index_projetos.html
 
       - name: 🎛️ Customizar Interface, Injetar Identidade e Tabelas de Status
         run: |
           cd public
           
-          # 1. Monta a tabela de arquivos Aguardando Tradução baseada no seu arquivo txt
+          # Copia o CSS padrão do stagit para garantir que as páginas customizadas herdem o estilo
+          cp style.css de_backup.css
+
+          # 1. Monta a tabela de arquivos Aguardando Tradução com link de e-mail (mailto)
           TABELA_AGUARDANDO=""
           while IFS= read -r linha || [ -n "$linha" ]; do
             if [ ! -z "$linha" ]; then
-              TABELA_AGUARDANDO="$TABELA_AGUARDANDO<tr><td class='commit-msg'>⚠️ $linha</td><td><span class='branch-tag' style='background-color: #ff5555; color: #000; padding: 1px 4px; font-size: 11px; font-weight: bold; border-radius: 2px;'>Pendente</span></td></tr>"
+              # Codifica espaços e caracteres para a URL do e-mail
+              ASSUNTO="Solicitacao de Traducao: $linha"
+              CORPO="Ola Daniel,%0D%0A%0D%0AGostaria de solicitar a traducao ou me voluntariar para traduzir o arquivo: $linha.%0D%0A%0D%0AMeu Nome/E-mail para registro: "
+              
+              TABELA_AGUARDANDO="$TABELA_AGUARDANDO<tr><td class='commit-msg'>⚠️ <a href='mailto:daniel.pereira.eng.sre@gmail.com?subject=$ASSUNTO&body=$CORPO' style='color: #55ff55; text-decoration: underline;'>$linha</a></td><td><span class='branch-tag' style='background-color: #ff5555; color: #000; padding: 1px 4px; font-size: 11px; font-weight: bold; border-radius: 2px;'>Clique para Solicitar</span></td></tr>"
             fi
           done < ../aguardando_traducao.txt
 
-          # 2. Monta a tabela de arquivos Sendo Traduzidos baseada no seu arquivo txt
+          # 2. Monta a tabela de arquivos Sendo Traduzidos
           TABELA_ANDAMENTO=""
           while IFS= read -r linha || [ -n "$linha" ]; do
             if [ ! -z "$linha" ]; then
-              ARQUIVO=$(echo "$linha" | cut -d'-' -f1)
-              RESPONSAVEL=$(echo "$linha" | cut -d'-' -f2)
+              ARQUIVO=$(echo "$linha" | cut -d'-' -f1 | xargs)
+              RESPONSAVEL=$(echo "$linha" | cut -d'-' -f2 | xargs)
               TABELA_ANDAMENTO="$TABELA_ANDAMENTO<tr><td class='commit-msg'>⏳ $ARQUIVO</td><td class='author' style='color: #ff55ff;'>$RESPONSAVEL</td></tr>"
             fi
           done < ../em_traducao.txt
@@ -71,12 +76,12 @@ jobs:
           <td class="main"><h1>index : kernel/git/docs/linux.git</h1><span class="desc">🇧🇷 Documentação do Kernel Linux em pt_BR | Gerenciado por Daniel Pereira</span></td>
           </tr></table>
           <div class="nav-links">
-          <a href="log.html">log</a> | <a href="files.html">tree</a> | <a href="aguardando.html" class="active">Aguardando Tradução</a> | <a href="andamento.html">Sendo Traduzidos</a>
+          <a href="index.html">log</a> | <a href="files.html">tree</a> | <a href="aguardando.html" class="active">Aguardando Tradução</a> | <a href="andamento.html">Sendo Traduzidos</a>
           </div>
           <hr/>
           <div id="content">
           <table id="log">
-          <thead><tr><th class="commit-msg">Caminho do Arquivo Upstream</th><th>Status</th></tr></thead>
+          <thead><tr><th class="commit-msg">Caminho do Arquivo Upstream (Clique para solicitar)</th><th>Status</th></tr></thead>
           <tbody>$TABELA_AGUARDANDO</tbody>
           </table>
           </div>
@@ -98,12 +103,12 @@ jobs:
           <td class="main"><h1>index : kernel/git/docs/linux.git</h1><span class="desc">🇧🇷 Documentação do Kernel Linux em pt_BR | Gerenciado por Daniel Pereira</span></td>
           </tr></table>
           <div class="nav-links">
-          <a href="log.html">log</a> | <a href="files.html">tree</a> | <a href="aguardando.html">Aguardando Tradução</a> | <a href="andamento.html" class="active">Sendo Traduzidos</a>
+          <a href="index.html">log</a> | <a href="files.html">tree</a> | <a href="aguardando.html">Aguardando Tradução</a> | <a href="andamento.html" class="active">Sendo Traduzidos</a>
           </div>
           <hr/>
           <div id="content">
           <table id="log">
-          <thead><tr><th class="commit-msg">Arquivo em Desenvolvimento</th><th class="author">Responsável</th></tr></thead>
+          <thead><tr><th class="commit-msg">Arquivo em Desenvolvimento</th><th class="author">Responsável / Autor</th></tr></thead>
           <tbody>$TABELA_ANDAMENTO</tbody>
           </table>
           </div>
@@ -111,11 +116,21 @@ jobs:
           </html>
           EOF
 
-          # 5. Injeta a identidade brasileira e os novos links no cabeçalho de TODAS as páginas padrão
+          # 5. Força a folha de estilo injetar as cores escuras clássicas do cgit em todas as páginas para não ficar branco
+          cat <<EOF >> style.css
+          body { background-color: #1a1a1a !important; color: #ccc !important; font-family: monospace !important; }
+          h1, h2, h3, h4 { color: #fff !important; }
+          a { color: #fff !important; }
+          #log th { background-color: #2d2d2d !important; color: #999 !important; }
+          #log td { border-bottom: 1px solid #2d2d2d !important; }
+          .age { color: #55ff55 !important; }
+          EOF
+
+          # 6. Atualiza o cabeçalho e menu de todas as páginas geradas automaticamente pelo stagit
           find . -name "*.html" -exec sed -i 's#<span class="desc">.*</span>#<span class="desc">🇧🇷 Documentação do Kernel Linux em pt_BR | Gerenciado por Daniel Pereira</span>#g' {} +
           find . -name "*.html" -exec sed -i 's#<a href="files.html">tree</a>#<a href="files.html">tree</a> | <a href="aguardando.html">Aguardando Tradução</a> | <a href="andamento.html">Sendo Traduzidos</a>#g' {} +
 
-          # 6. O PULO DO GATO: Faz a página inicial (index.html) ser diretamente a tela escura de LOGS de commits
+          # 7. Faz a página principal (index.html) exibir direto a tela escura de LOGS de commits
           cp log.html index.html
 
       - name: 🚀 Deploy em Tempo Real para o GitHub Pages
