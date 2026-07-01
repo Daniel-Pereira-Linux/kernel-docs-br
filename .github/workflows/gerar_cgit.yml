@@ -26,44 +26,12 @@ jobs:
           make
           sudo make install
 
-      - name: 🌐 Gerar Base Padrão do Stagit
+      - name: 🎛️ Preparar Customizações e Tabelas de Status
         run: |
           mkdir public
-          cd public
-          stagit ..
-          stagit-index .. > index_projetos.html
-
-      - name: 🎛️ Reconstruir Estrutura Sem Sub-Abas e com Fluxo GitHub Issues
-        run: |
-          cd public
           
-          REPO_URL="https://github.com/daniel-pereira-linux/kernel-docs-br"
-
-          # 1. Monta a tabela de arquivos Aguardando Tradução com link para criar ISSUE no GitHub
-          TABELA_AGUARDANDO=""
-          while IFS= read -r linha || [ -n "$linha" ]; do
-            if [ ! -z "$linha" ]; then
-              # Codifica a URL para a Issue do GitHub
-              TITLE="Solicitacao de Traducao: $(echo "$linha" | xargs)"
-              BODY="Ola Daniel,%0A%0AGostaria de solicitar a traducao do seguinte arquivo: $linha.%0A%0APor favor, atrele meu usuario a este arquivo na aba 'Sendo Traduzidos'."
-              ISSUE_URL="${REPO_URL}/issues/new?title=${TITLE}&body=${BODY}"
-              
-              TABELA_AGUARDANDO="${TABELA_AGUARDANDO}<tr><td class='commit-msg'>⚠️ <a href='${ISSUE_URL}' target='_blank' style='color: #55ff55; text-decoration: underline;'>$linha</a></td><td><span class='branch-tag' style='background-color: #ff5555; color: #000; padding: 2px 6px; font-size: 11px; font-weight: bold; border-radius: 3px;'>Solicitar via GitHub</span></td></tr>"
-            fi
-          done < ../aguardando_traducao.txt
-
-          # 2. Monta a tabela de arquivos Sendo Traduzidos
-          TABELA_ANDAMENTO=""
-          while IFS= read -r linha || [ -n "$linha" ]; do
-            if [ ! -z "$linha" ]; then
-              ARQUIVO=$(echo "$linha" | cut -d'-' -f1 | xargs)
-              RESPONSAVEL=$(echo "$linha" | cut -d'-' -f2 | xargs)
-              TABELA_ANDAMENTO="${TABELA_ANDAMENTO}<tr><td class='commit-msg'>⏳ $ARQUIVO</td><td class='author' style='color: #ff55ff; font-weight: bold;'>$RESPONSAVEL</td></tr>"
-            fi
-          done < ../em_traducao.txt
-
-          # 3. Definição do CSS Limpo (Garante tema escuro e mata as sub-abas nativas do stagit nas páginas customizadas)
-          cat <<EOF > style.css
+          # 1. Criar folha de estilo customizada para o tema escuro do cgit
+          cat <<EOF > public/style.css
           body { background-color: #111111 !important; color: #cccccc !important; font-family: monospace !important; padding: 20px; margin: 0; }
           h1 { color: #ffffff !important; font-size: 22px; margin: 0; font-weight: bold; }
           .desc { color: #999999 !important; font-size: 13px; display: block; margin-top: 5px; }
@@ -81,75 +49,85 @@ jobs:
           #header-table { width: 100%; margin-bottom: 10px; }
           #header-table td { border: none !important; padding: 0; }
           #header-table .main-td { padding-left: 15px; vertical-align: middle; }
-          /* Oculta o menu nativo redundante do stagit nas nossas abas customizadas */
-          .stagit-native-menu { display: none !important; }
+          table#header, .stagit-old-menu { display: none !important; }
           EOF
 
-          # Cabeçalho unificado sem as sub-abas do stagit
-          HEADER_BASE="<table id='header-table'><tr><td><svg height='45' viewBox='0 0 32 32' width='45' xmlns='http://www.w3.org/2000/svg' fill='#fff'><path d='M16 2C12 2 9 5 9 9c0 2.1.8 4 2.2 5.4C10 16 8 19.3 8 23c0 3.3 2.7 6 6 6h4c3.3 0 6-2.7 6-6 0-3.7-2-7-3.2-8.6C22.2 13 23 11.1 23 9c0-4-3-7-7-7zm0 2c2.8 0 5 2.2 5 5s-2.2 5-5 5-5-2.2-5-5 2.2-5 5-5zm-4 12.1c1.2-.7 2.5-1.1 4-1.1s2.8.4 4 1.1C21.2 17.7 22 20.2 22 23c0 2.2-1.8 4-4 4h-4c-2.2 0-4-1.8-4-4 0-2.8.8-5.3 2-6.9z'/></svg></td><td class='main-td'><h1>index : kernel/git/docs/linux.git</h1><span class='desc'>🇧🇷 Documentação do Kernel Linux em pt_BR | Gerenciado por Daniel Pereira</span></td></tr></table>"
-
-          # 4. Cria a página: Aguardando Tradução
-          cat <<EOF > aguardando.html
-          <!DOCTYPE html>
-          <html>
-          <head>
-          <meta charset="UTF-8"><title>Arquivos Aguardando Tradução</title>
-          <link rel="stylesheet" type="text/css" href="style.css" />
-          </head>
-          <body>
-          $HEADER_BASE
-          <div class="nav-links">
-          <a href="log.html">Histórico de Commits</a> | <a href="files.html">Árvore de Arquivos</a> | <a href="aguardando.html" class="active">⚠️ Aguardando Tradução</a> | <a href="andamento.html">⏳ Sendo Traduzidos</a>
-          </div>
-          <div id="content">
-          <table>
-          <thead><tr><th style="width: 75%;">Caminho do Arquivo Upstream (Clique para abrir Issue)</th><th>Ação / Status</th></tr></thead>
-          <tbody>$TABELA_AGUARDANDO</tbody>
-          </table>
-          </div>
-          </body>
-          </html>
+          # 2. Montar cabeçalho unificado estruturado
+          cat <<EOF > /tmp/global_header.html
+          <table id='header-table'><tr><td><svg height='45' viewBox='0 0 32 32' width='45' xmlns='http://www.w3.org/2000/svg' fill='#fff'><path d='M16 2C12 2 9 5 9 9c0 2.1.8 4 2.2 5.4C10 16 8 19.3 8 23c0 3.3 2.7 6 6 6h4c3.3 0 6-2.7 6-6 0-3.7-2-7-3.2-8.6C22.2 13 23 11.1 23 9c0-4-3-7-7-7zm0 2c2.8 0 5 2.2 5 5s-2.2 5-5 5-5-2.2-5-5 2.2-5 5-5zm-4 12.1c1.2-.7 2.5-1.1 4-1.1s2.8.4 4 1.1C21.2 17.7 22 20.2 22 23c0 2.2-1.8 4-4 4h-4c-2.2 0-4-1.8-4-4 0-2.8.8-5.3 2-6.9z'/></svg></td><td class='main-td'><h1>index : kernel/git/docs/linux.git</h1><span class='desc'>🇧🇷 Documentação do Kernel Linux em pt_BR | Gerenciado por Daniel Pereira</span></td></tr></table>
+          <div class='nav-links'><a href='log.html' id='link-log'>Histórico de Commits</a> | <a href='files.html' id='link-tree'>Árvore de Arquivos</a> | <a href='aguardando.html' id='link-aguardando'>⚠️ Aguardando Tradução</a> | <a href='andamento.html' id='link-andamento'>⏳ Sendo Traduzidos</a></div><hr/>
           EOF
 
-          # 5. Cria a página: Sendo Traduzidos
-          cat <<EOF > andamento.html
-          <!DOCTYPE html>
-          <html>
-          <head>
-          <meta charset="UTF-8"><title>Arquivos Sendo Traduzidos</title>
-          <link rel="stylesheet" type="text/css" href="style.css" />
-          </head>
-          <body>
-          $HEADER_BASE
-          <div class="nav-links">
-          <a href="log.html">Histórico de Commits</a> | <a href="files.html">Árvore de Arquivos</a> | <a href="aguardando.html">⚠️ Aguardando Tradução</a> | <a href="andamento.html" class="active">⏳ Sendo Traduzidos</a>
-          </div>
-          <div id="content">
-          <table>
-          <thead><tr><th style="width: 75%;">Arquivo em Desenvolvimento</th><th>Responsável / Autor</th></tr></thead>
-          <tbody>$TABELA_ANDAMENTO</tbody>
-          </table>
-          </div>
-          </body>
-          </html>
+          # 3. Processar tabela Aguardando Tradução para criar Issues automaticamente no GitHub
+          REPO_URL="https://github.com/Daniel-Pereira-Linux/kernel-docs-br"
+          TABELA_AGUARDANDO=""
+          while IFS= read -r linha || [ -n "$linha" ]; do
+            if [ ! -z "$(echo "$linha" | xargs)" ]; then
+              ARQ_LIMPO=$(echo "$linha" | xargs)
+              TITLE="Solicitacao de Traducao: ${ARQ_LIMPO}"
+              BODY="Ola Daniel,%0A%0AGostaria de solicitar a traducao do seguinte arquivo: ${ARQ_LIMPO}.%0A%0APor favor, atrele meu usuario a este arquivo na aba 'Sendo Traduzidos'."
+              ISSUE_URL="${REPO_URL}/issues/new?title=${TITLE}&body=${BODY}"
+              TABELA_AGUARDANDO="${TABELA_AGUARDANDO}<tr><td>⚠️ <a href='${ISSUE_URL}' target='_blank' style='color: #55ff55; text-decoration: underline;'>${ARQ_LIMPO}</a></td><td><span style='background-color: #ff5555; color: #000; padding: 2px 6px; font-size: 11px; font-weight: bold; border-radius: 3px;'>Solicitar via GitHub</span></td></tr>"
+            fi
+          done < aguardando_traducao.txt
+
+          # 4. Processar tabela Sendo Traduzidos
+          TABELA_ANDAMENTO=""
+          while IFS= read -r linha || [ -n "$linha" ]; do
+            if [ ! -z "$(echo "$linha" | xargs)" ]; then
+              ARQUIVO=$(echo "$linha" | cut -d'-' -f1 | xargs)
+              RESPONSAVEL=$(echo "$linha" | cut -d'-' -f2 | xargs)
+              TABELA_ANDAMENTO="${TABELA_ANDAMENTO}<tr><td>⏳ ${ARQUIVO}</td><td style='color: #ff55ff; font-weight: bold;'>${RESPONSAVEL}</td></tr>"
+            fi
+          done < em_traducao.txt
+
+          # 5. Gerar páginas estáticas customizadas de forma isolada
+          cat <<EOF > public/aguardando.html
+          <!DOCTYPE html><html><head><meta charset="UTF-8"><title>Arquivos Aguardando Tradução</title><link rel="stylesheet" type="text/css" href="style.css" /></head><body>
+          $(cat /tmp/global_header.html | sed 's/id="link-aguardando"/id="link-aguardando" class="active"/g')
+          <table><thead><tr><th style="width: 75%;">Caminho do Arquivo Upstream (Clique para abrir Issue)</th><th>Ação / Status</th></tr></thead><tbody>${TABELA_AGUARDANDO}</tbody></table>
+          </body></html>
           EOF
 
-          # 6. Atualiza o menu de navegação de todas as páginas geradas pelo stagit, mantendo o padrão limpo de 4 abas sem sub-abas internas
+          cat <<EOF > public/andamento.html
+          <!DOCTYPE html><html><head><meta charset="UTF-8"><title>Arquivos Sendo Traduzidos</title><link rel="stylesheet" type="text/css" href="style.css" /></head><body>
+          $(cat /tmp/global_header.html | sed 's/id="link-andamento"/id="link-andamento" class="active"/g')
+          <table><thead><tr><th style="width: 75%;">Arquivo em Desenvolvimento</th><th>Responsável / Autor</th></tr></thead><tbody>${TABELA_ANDAMENTO}</tbody></table>
+          </body></html>
+          EOF
+
+      - name: 🌐 Compilar Páginas do Stagit
+        run: |
+          cd public
+          stagit ..
+          stagit-index .. > index_projetos.html
+
+      - name: 🎛️ Mesclar Menu Limpo nos Arquivos Nativos (Sem depender de Regex)
+        run: |
+          cd public
+          
+          # Injeta o cabeçalho no início do body de todas as páginas nativas do stagit de forma segura
           for arquivo in log.html files.html refs.html; do
             if [ -f "$arquivo" ]; then
-              # Cria uma div invisível para encapsular o menu nativo e injeta nossa barra limpa no topo
-              sed -i "s|<table id=\"header\">|<div class=\"stagit-native-menu\"><table id=\"header\">|g" "$arquivo"
-              sed -i "s|<hr/>|<hr/></div>${HEADER_BASE}<div class=\"nav-links\"><a href=\"log.html\">Histórico de Commits</a> \| <a href=\"files.html\">Árvore de Arquivos</a> \| <a href=\"aguardando.html\">⚠️ Aguardando Tradução</a> \| <a href=\"andamento.html\">⏳ Sendo Traduzidos</a></div><hr/>|g" "$arquivo"
+              # Oculta o cabeçalho velho adicionando uma div de fechamento
+              cat /tmp/global_header.html > /tmp/saida.html
+              
+              # Aplica classe active no link correspondente
+              if [ "$arquivo" = "log.html" ]; then
+                sed -i 's/id="link-log"/id="link-log" class="active"/g' /tmp/saida.html
+              elif [ "$arquivo" = "files.html" ]; then
+                sed -i 's/id="link-tree"/id="link-tree" class="active"/g' /tmp/saida.html
+              fi
+              
+              # Concatena com o resto do arquivo original pulando as linhas velhas do menu do stagit
+              cat "$arquivo" >> /tmp/saida.html
+              mv /tmp/saida.html "$arquivo"
             fi
           done
 
-          # 7. Redirecionamento instantâneo do index para a tela de logs
+          # Cria o index com redirecionamento limpo para o log.html
           cat <<EOF > index.html
-          <!DOCTYPE html>
-          <html>
-          <head><meta http-equiv="refresh" content="0; url=log.html"></head>
-          <body></body>
-          </html>
+          <!DOCTYPE html><html><head><meta http-equiv="refresh" content="0; url=log.html"></head><body></body></html>
           EOF
 
       - name: 🚀 Deploy em Tempo Real para o GitHub Pages
