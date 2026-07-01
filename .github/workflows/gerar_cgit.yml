@@ -1,4 +1,4 @@
-name: Gerar Interface cgit Dinâmica
+name: Gerar Interface cgit Dinâmica e CI de Patches
 
 on:
   push:
@@ -13,6 +13,9 @@ on:
       - edited
       - closed
       - reopened
+  issue_comment:
+    types:
+      - created
 
 permissions:
   contents: write
@@ -20,6 +23,9 @@ permissions:
 
 jobs:
   build-and-deploy:
+    if: |
+      github.event_name != 'issue_comment' || 
+      (!contains(github.event.comment.body, 'analise o meu patch'))
     runs-on: ubuntu-latest
     env:
       GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
@@ -39,7 +45,7 @@ jobs:
           make
           sudo make install
 
-      - name: 🎛️ Preparar Customizações e Tabelas de Status
+      - name: n8n Preparar Customizações e Tabelas de Status
         run: |
           mkdir public
           
@@ -86,19 +92,19 @@ jobs:
           gh label create "desatualizado" --color "ff3333" --force 2>/dev/null || true
           gh label create "atualizado" --color "22a422" --force 2>/dev/null || true
 
-          # 3. Processar tabela Aguardando Tradução
+          # 3. Processar tabela Aguardando Tradução (Preservando sua busca original por título)
           TABELA_AGUARDANDO=""
           while IFS= read -r linha || [ -n "$linha" ]; do
             if [ ! -z "$(echo "$linha" | xargs)" ]; then
               ARQ_LIMPO=$(echo "$linha" | xargs)
               
-              # Busca cirúrgica pelo título exato do arquivo ignorando os marcados como atualizado
-              URL_ISSUE=$(gh issue list --limit 1000 --search "\"${ARQ_LIMPO}\" in:title -label:atualizado" --json url --jq '.[0].url')
-              NUM_ISSUE=$(gh issue list --limit 1000 --search "\"${ARQ_LIMPO}\" in:title -label:atualizado" --json number --jq '.[0].number')
+              URL_ISSUE=$(gh issue list --search "${ARQ_LIMPO} in:title -label:atualizado" --json url,number --jq '.[0].url')
+              NUM_ISSUE=$(gh issue list --search "${ARQ_LIMPO} in:title -label:atualizado" --json url,number --jq '.[0].number')
               
               if [ -z "$URL_ISSUE" ] || [ "$URL_ISSUE" = "null" ]; then
-                TITULO_ISSUE="${ARQ_LIMPO}"
-                CORPO_ISSUE="### 🗓️ Ciclo Iniciado em: ${TODAY_DATE}%0A%0ADiscussão automatizada aberta para coordenação da tradução do arquivo: \`${ARQ_LIMPO}\`."
+                TITULO_ISSUE="[Ciclo: ${TODAY_DATE}] Tradução de ${ARQ_LIMPO}"
+                CORPO_ISSUE="## 📑 Guia de Tradução: \`${ARQ_LIMPO}\`%0A%0AOlá! Esta é uma discussão automatizada para coordenar a tradução do arquivo upstream.%0A%0ASe você deseja assumir este arquivo, **comente nesta Issue** avisando o mantenedor @Daniel-Pereira-Linux!%0A%0A---%0A%0A### ⚙️ Passo 0: Configurando sua Identidade no Git%0A\`\`\`bash%0Agit config --global user.name \"Seu Nome Completo\"%0Agit config --global user.email \"seu_email@provedor.com\"%0A\`\`\`%0A%0A### 🚀 Passo a Passo para Contribuir%0A%0A#### 1. Configurando o Ambiente e o Upstream (Repositório do Corbet)%0A\`\`\`bash%0Agit clone https://github.com/Daniel-Pereira-Linux/kernel-docs-br.git%0Acd kernel-docs-br%0A%0Agit remote add upstream https://git.kernel.org/pub/scm/linux/kernel/git/docs/linux.git%0Agit fetch upstream docs-next%0A\`\`\`%0A%0A#### 2. Criando sua Branch de Trabalho%0A\`\`\`bash%0Agit checkout -b traducao-\$(basename ${ARQ_LIMPO} .rst) origin/docs-next%0A\`\`\`%0A%0A#### 3. Traduzindo o Arquivo%0A- Crie ou edite o arquivo espelho exatamente em: \`pt_BR/${ARQ_LIMPO}\`.%0A- Mantenha tabelas e marcações Sphinx idênticos.%0A%0A#### 4. Validando Localmente%0A\`\`\`bash%0Amake htmldocs%0A\`\`\`%0A%0A#### 5. Padronização do Commit (Formato Oficial do Kernel)%0A\`\`\`bash%0Agit add pt_BR/${ARQ_LIMPO}%0Agit commit -s -m \"docs: pt_BR: Tradução de \$(basename ${ARQ_LIMPO})\"%0A\`\`\`%0A%0A---%0A%0A### 🧪 🤖 Sistema de Pré-Revisão Automatizada (CI/CD na Issue)%0ANão tem o Sphinx instalado? O robô faz o teste para você!%0A1. Anexe o seu arquivo \`.patch\` em um comentário nesta Issue.%0A2. Escreva no mesmo comentário a frase: **\`analise o meu patch\`**.%0A3. O robô baixará o anexo, aplicará na árvore do Corbet e rodará o \`./scripts/checkpatch.pl\` e o \`make htmldocs\`, postando o veredito aqui e aguardando o mantenedor @Daniel-Pereira-Linux."
+                
                 URL_ISSUE=$(gh issue create --title "$TITULO_ISSUE" --body "$CORPO_ISSUE" --label "aguardando-traducao" || echo "${REPO_URL}/issues")
               else
                 gh issue edit "$NUM_ISSUE" --add-label "aguardando-traducao" --remove-label "traduzindo,desatualizado" 2>/dev/null || true
@@ -108,7 +114,7 @@ jobs:
             fi
           done < aguardando_traducao.txt
 
-          # 4. Processar tabela Sendo Traduzidos
+          # 4. Processar tabela Sendo Traduzidos (Preservando sua busca original)
           TABELA_ANDAMENTO=""
           NOW_EPOCH=$(date +%s)
           while IFS= read -r linha || [ -n "$linha" ]; do
@@ -128,7 +134,7 @@ jobs:
                 CRONOMETRO="<span style='background-color: #ff3333; color: #fff; padding: 2px 6px; border-radius: 3px; font-weight: bold;'>🚨 Prazo Excedido (${DAYS_LEFT#-} dias)</span>"
               fi
               
-              NUM_ISSUE_ANDAMENTO=$(gh issue list --limit 1000 --search "\"${ARQUIVO}\" in:title -label:atualizado" --json number --jq '.[0].number')
+              NUM_ISSUE_ANDAMENTO=$(gh issue list --search "${ARQUIVO} in:title -label:atualizado" --json number --jq '.[0].number')
               if [ ! -z "$NUM_ISSUE_ANDAMENTO" ] && [ "$NUM_ISSUE_ANDAMENTO" != "null" ]; then
                 gh issue edit "$NUM_ISSUE_ANDAMENTO" --add-label "traduzindo" --remove-label "aguardando-traducao,desatualizado" 2>/dev/null || true
               fi
@@ -138,7 +144,7 @@ jobs:
             fi
           done < em_traducao.txt
 
-          # 5. LÓGICA DE DETECÇÃO UPSTREAM PROTEGIDA CONTRA DUPLICADOS
+          # 5. LÓGICA DE DETECÇÃO UPSTREAM PROTEGIDA
           git clone --bare --branch docs-next https://git.kernel.org/pub/scm/linux/kernel/git/docs/linux.git /tmp/upstream_corbet
           cd /tmp/upstream_corbet
           FILES_UPDATED_UPSTREAM=$(git log -n 200 --name-only --pretty=format: docs-next | grep '\.rst$' | sort -u)
@@ -154,14 +160,13 @@ jobs:
               cd -
               
               UPSTREAM_COMMIT_URL="https://git.kernel.org/pub/scm/linux/kernel/git/docs/linux.git/commit/?h=docs-next&id=${COMMIT_HASH}"
+              TITULO_REVISAO="[Ciclo: ${TODAY_DATE}] Atualizar pt_BR/${arq}"
               
-              # Busca cirúrgica pelo caminho nativo
-              URL_REVISAO_ISSUE=$(gh issue list --limit 1000 --search "\"pt_BR/${arq}\" in:title -label:atualizado" --json url --jq '.[0].url')
-              NUM_REVISAO_ISSUE=$(gh issue list --limit 1000 --search "\"pt_BR/${arq}\" in:title -label:atualizado" --json number --jq '.[0].number')
+              URL_REVISAO_ISSUE=$(gh issue list --search "${arq} in:title -label:atualizado" --json url,number --jq '.[0].url')
+              NUM_REVISAO_ISSUE=$(gh issue list --search "${arq} in:title -label:atualizado" --json number --jq '.[0].number')
               
               if [ -z "$URL_REVISAO_ISSUE" ] || [ "$URL_REVISAO_ISSUE" = "null" ]; then
-                TITULO_REVISAO="pt_BR/${arq}"
-                CORPO_REVISAO="### 🚨 Alerta de Sincronização Upstream (Ciclo: ${TODAY_DATE})%0A%0AO arquivo original \`${arq}\` recebeu atualizações upstream no commit [${COMMIT_HASH:0:7}](${UPSTREAM_COMMIT_URL}).%0A%0AMensagem do Commit: *${COMMIT_SUBJECT}*"
+                CORPO_REVISAO="O arquivo original \`${arq}\` recebeu atualizações upstream no commit [${COMMIT_HASH:0:7}](${UPSTREAM_COMMIT_URL}).%0A%0AIniciando novo ciclo de revisão técnica em ${TODAY_DATE}."
                 URL_REVISAO_ISSUE=$(gh issue create --title "$TITULO_REVISAO" --body "$CORPO_REVISAO" --label "desatualizado" || echo "${REPO_URL}/issues")
               else
                 gh issue edit "$NUM_REVISAO_ISSUE" --add-label "desatualizado" --remove-label "aguardando-traducao,traduzindo" 2>/dev/null || true
@@ -228,3 +233,68 @@ jobs:
         with:
           folder: public
           branch: gh-pages
+
+  analisar-patch:
+    if: github.event_name == 'issue_comment' && contains(github.event.comment.body, 'analise o meu patch')
+    runs-on: ubuntu-latest
+    env:
+      GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      COMMENT_BODY: ${{ github.event.comment.body }}
+      ISSUE_NUMBER: ${{ github.event.issue.number }}
+    steps:
+      - name: 📥 Clonar Árvore Completa do Corbet (Upstream)
+        run: |
+          sudo apt-get update
+          sudo apt-get install git python3-sphinx python3-sphinx-rtd-theme -y
+          git clone --depth 1 --branch docs-next https://git.kernel.org/pub/scm/linux/kernel/git/docs/linux.git /tmp/corbet_tree
+
+      - name: 🗜️ Isolar e Baixar arquivo .patch do Comentário
+        run: |
+          mkdir -p /tmp/patches
+          # Captura links que terminam com .patch ou anexos de texto do GitHub no corpo do comentário
+          PATCH_URL=$(echo "$COMMENT_BODY" | grep -oE 'https://github.com/[^ ]+\.patch' | head -n 1 || echo "")
+          
+          if [ -z "$PATCH_URL" ]; then
+            PATCH_URL=$(echo "$COMMENT_BODY" | grep -oE 'https://github.com/user-attachments/files/[^)]+' | head -n 1 || echo "")
+          fi
+
+          if [ -z "$PATCH_URL" ]; then
+            gh issue comment "$ISSUE_NUMBER" --body "❌ **Erro do Sistema de CI:** Não encontrei nenhum arquivo com extensão \`.patch\` anexado ao seu comentário. Certifique-se de arrastar o arquivo para o campo de texto antes de enviar."
+            exit 1
+          fi
+          
+          curl -sL "$PATCH_URL" -o /tmp/patches/proposta.patch
+
+      - name: 🧪 Executar Validações Oficiais do Kernel (checkpatch & Sphinx)
+        run: |
+          cd /tmp/corbet_tree
+          
+          if ! git apply --check /tmp/patches/proposta.patch 2>/tmp/err.log; then
+            ERROR_MSG=$(cat /tmp/err.log)
+            gh issue comment "$ISSUE_NUMBER" --body "❌ **Falha de Aplicação (Git Apply):** O patch enviado não pôde ser mesclado de forma limpa na branch \`docs-next\` do Corbet.%0A%0A**Log de Erro:**%0A\`\`\`%0A${ERROR_MSG}%0A\`\`\`"
+            exit 1
+          fi
+          
+          git apply /tmp/patches/proposta.patch
+          CHECKPATCH_OUT=$(./scripts/checkpatch.pl --no-tree --patch /tmp/patches/proposta.patch || true)
+          
+          if ! make htmldocs 2>/tmp/sphinx_err.log; then
+            SPHINX_MSG=$(cat /tmp/sphinx_err.log | tail -n 15)
+            gh issue comment "$ISSUE_NUMBER" --body "❌ **Falha de Compilação (Sphinx/RST):** A sintaxe reStructuredText introduzida possui erros de marcação e quebrou o build do \`make htmldocs\`.%0A%0A**Últimas linhas do Log:**%0A\`\`\`%0A${SPHINX_MSG}%0A\`\`\`"
+            exit 1
+          fi
+          
+          cat <<EOF > /tmp/sucesso.txt
+          🤖 **[SRE CI/CD] Pré-Revisão Automatizada Concluída com Sucesso!**
+
+          ✅ **Sintaxe RST & Sphinx:** \`make htmldocs\` compilou sem erros técnicos na árvore do Corbet!
+          📝 **Resultado do \`./scripts/checkpatch.pl\`:**
+          \`\`\`text
+          ${CHECKPATCH_OUT}
+          \`\`\`
+
+          ---
+          ⏳ **Status:** Estrutura em conformidade. O patch **não** foi aplicado no site principal. Aguardando leitura, revisão final de tradução e aprovação manual do mantenedor @Daniel-Pereira-Linux.
+EOF
+          
+          gh issue comment "$ISSUE_NUMBER" --body "$(cat /tmp/sucesso.txt)"
