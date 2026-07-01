@@ -6,6 +6,13 @@ on:
       - docs-next
   schedule:
     - cron: '0 3 * * *'
+  issues:
+    types:
+      - labeled
+      - unlabeled
+      - edited
+      - closed
+      - reopened
 
 permissions:
   contents: write
@@ -17,9 +24,10 @@ jobs:
     env:
       GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
     steps:
-      - name: 📥 Clonar Repositório com Histórico Completo
+      - name: 📥 Clonar Repositório na Branch Correta (docs-next)
         uses: actions/checkout@v4
         with:
+          ref: docs-next # Garante que o build use sempre os arquivos de texto da branch docs-next
           fetch-depth: 0
 
       - name: 🛠️ Compilar Stagit direto do Código Fonte
@@ -72,7 +80,7 @@ jobs:
           REPO_URL="https://github.com/${{ github.repository }}"
           TODAY_DATE=$(date +"%d/%m/%Y")
 
-          # 2.5 Inicialização de Infra de Labels (Cria caso não existam)
+          # 2.5 Inicialização de Infra de Labels
           gh label create "aguardando-traducao" --color "ffaa00" --force 2>/dev/null || true
           gh label create "traduzindo" --color "0055ff" --force 2>/dev/null || true
           gh label create "desatualizado" --color "ff3333" --force 2>/dev/null || true
@@ -84,17 +92,15 @@ jobs:
             if [ ! -z "$(echo "$linha" | xargs)" ]; then
               ARQ_LIMPO=$(echo "$linha" | xargs)
               
-              # Busca por issue ativa (ignora as tagueadas como 'atualizado')
+              # Filtro restritivo: Ignora de verdade as mudadas para 'atualizado'
               URL_ISSUE=$(gh issue list --search "${ARQ_LIMPO} in:title -label:atualizado" --json url,number --jq '.[0].url')
               NUM_ISSUE=$(gh issue list --search "${ARQ_LIMPO} in:title -label:atualizado" --json url,number --jq '.[0].number')
               
               if [ -z "$URL_ISSUE" ] || [ "$URL_ISSUE" = "null" ]; then
-                # Cria uma inteiramente nova se não houver ativa
                 TITULO_ISSUE="[Ciclo: ${TODAY_DATE}] Tradução de ${ARQ_LIMPO}"
                 CORPO_ISSUE="Discussão automatizada iniciada em ${TODAY_DATE} para coordenação da tradução do arquivo: \`${ARQ_LIMPO}\`."
                 URL_ISSUE=$(gh issue create --title "$TITULO_ISSUE" --body "$CORPO_ISSUE" --label "aguardando-traducao" || echo "${REPO_URL}/issues")
               else
-                # Se já existir uma ativa, garante que ela herda ou mantém a label correta
                 gh issue edit "$NUM_ISSUE" --add-label "aguardando-traducao" --remove-label "traduzindo,desatualizado" 2>/dev/null || true
               fi
               
@@ -102,7 +108,7 @@ jobs:
             fi
           done < aguardando_traducao.txt
 
-          # 4. Processar tabela Sendo Traduzidos (Transição automática para 'traduzindo')
+          # 4. Processar tabela Sendo Traduzidos
           TABELA_ANDAMENTO=""
           NOW_EPOCH=$(date +%s)
           while IFS= read -r linha || [ -n "$linha" ]; do
@@ -122,7 +128,6 @@ jobs:
                 CRONOMETRO="<span style='background-color: #ff3333; color: #fff; padding: 2px 6px; border-radius: 3px; font-weight: bold;'>🚨 Prazo Excedido (${DAYS_LEFT#-} dias)</span>"
               fi
               
-              # LÓGICA DE HERANÇA: Busca a issue ativa do arquivo para mudar a label para 'traduzindo'
               NUM_ISSUE_ANDAMENTO=$(gh issue list --search "${ARQUIVO} in:title -label:atualizado" --json number --jq '.[0].number')
               if [ ! -z "$NUM_ISSUE_ANDAMENTO" ] && [ "$NUM_ISSUE_ANDAMENTO" != "null" ]; then
                 gh issue edit "$NUM_ISSUE_ANDAMENTO" --add-label "traduzindo" --remove-label "aguardando-traducao,desatualizado" 2>/dev/null || true
@@ -149,18 +154,16 @@ jobs:
               cd -
               
               UPSTREAM_COMMIT_URL="https://git.kernel.org/pub/scm/linux/kernel/git/docs/linux.git/commit/?h=docs-next&id=${COMMIT_HASH}"
+              TITULO_REVISAO="[Ciclo: ${TODAY_DATE}] Atualizar pt_BR/${arq}"
               
-              # Busca se tem issue ativa
+              # Se o arquivo foi marcado manual como 'atualizado', essa query vai retornar vazio e uma NOVA issue sera gerada se o arquivo persistir
               URL_REVISAO_ISSUE=$(gh issue list --search "${arq} in:title -label:atualizado" --json url,number --jq '.[0].url')
               NUM_REVISAO_ISSUE=$(gh issue list --search "${arq} in:title -label:atualizado" --json url,number --jq '.[0].number')
               
               if [ -z "$URL_REVISAO_ISSUE" ] || [ "$URL_REVISAO_ISSUE" = "null" ]; then
-                # Se não tem issue ativa (ou se a antiga já virou 'atualizado'), cria uma zerada com nova data
-                TITULO_REVISAO="[Ciclo: ${TODAY_DATE}] Atualizar pt_BR/${arq}"
                 CORPO_REVISAO="O arquivo original \`${arq}\` recebeu atualizações upstream no commit [${COMMIT_HASH:0:7}](${UPSTREAM_COMMIT_URL}).%0A%0AIniciando novo ciclo de revisão técnica em ${TODAY_DATE}."
                 URL_REVISAO_ISSUE=$(gh issue create --title "$TITULO_REVISAO" --body "$CORPO_REVISAO" --label "desatualizado" || echo "${REPO_URL}/issues")
               else
-                # Se tem uma issue ativa, força a label a virar 'desatualizado'
                 gh issue edit "$NUM_REVISAO_ISSUE" --add-label "desatualizado" --remove-label "aguardando-traducao,traduzindo" 2>/dev/null || true
               fi
               
