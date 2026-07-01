@@ -64,7 +64,8 @@ jobs:
           </html>
           EOF
 
-          find . -name "*.html" -exec sed -i 's|<a href="files.html">tree</a>|<a href="files.html">tree</a> | <a href="aguardando.html">Aguardando Tradução</a> | <a href="andamento.html">Sendo Traduzidos</a>|g' {} +
+          # Ajustado o delimitador do sed de / para # para evitar o conflito com as URLs
+          find . -name "*.html" -exec sed -i 's#<a href="files.html">tree</a>#<a href="files.html">tree</a> | <a href="aguardando.html">Aguardando Tradução</a> | <a href="andamento.html">Sendo Traduzidos</a>#g' {} +
 
       - name: 🚀 Deploy em Tempo Real para o GitHub Pages
         uses: JamesIves/github-pages-deploy-action@v4
