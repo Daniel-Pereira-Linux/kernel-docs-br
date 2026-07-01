@@ -30,17 +30,20 @@ jobs:
         run: |
           mkdir public
           
-          # 1. Criar folha de estilo customizada para o tema escuro do cgit
+          # 1. CSS Definitivo: Força o tema escuro e MATA todos os menus nativos redundantes do stagit
           cat <<EOF > public/style.css
           body { background-color: #111111 !important; color: #cccccc !important; font-family: monospace !important; padding: 20px; margin: 0; }
           h1 { color: #ffffff !important; font-size: 22px; margin: 0; font-weight: bold; }
           .desc { color: #999999 !important; font-size: 13px; display: block; margin-top: 5px; }
           a { color: #55ff55 !important; text-decoration: none; }
           a:hover { text-decoration: underline; }
-          .nav-links { margin: 20px 0; font-size: 14px; color: #555; font-weight: bold; background-color: #1a1a1a; padding: 10px; border-radius: 4px; }
-          .nav-links a { color: #ffffff !important; margin: 0 12px; text-decoration: none; padding: 4px 8px; }
+          
+          /* Menu Global Fixo Customizado */
+          .nav-links { margin: 20px 0; font-size: 14px; color: #555; font-weight: bold; background-color: #1a1a1a; padding: 12px; border-radius: 4px; }
+          .nav-links a { color: #ffffff !important; margin: 0 12px; text-decoration: none; padding: 6px 10px; }
           .nav-links a:hover { background-color: #2a2a2a; border-radius: 2px; }
           .nav-links a.active { color: #ff55ff !important; font-weight: bold; background-color: #252525; border-radius: 2px; }
+          
           hr { border: 0; border-top: 1px solid #333333; margin: 20px 0; }
           table { width: 100%; border-collapse: collapse; font-size: 13px; margin-top: 15px; }
           th { background-color: #222222 !important; color: #aaaaaa !important; text-align: left; padding: 10px; font-weight: bold; border-bottom: 2px solid #333333; }
@@ -49,16 +52,23 @@ jobs:
           #header-table { width: 100%; margin-bottom: 10px; }
           #header-table td { border: none !important; padding: 0; }
           #header-table .main-td { padding-left: 15px; vertical-align: middle; }
-          table#header, .stagit-old-menu { display: none !important; }
+          
+          /* 🚫 ESCONDE OS MENUS ORIGINAIS DO STAGIT SOLICITADOS */
+          table#header, table.line-info, td.links, .line { display: none !important; }
+          table[id="header"] { display: none !important; }
+          #log.gitsubmenu, .links, #git-logo { display: none !important; }
+          /* Esconde a caixa cinza intermediária 'kernel-docs-br Unnamed repository...' */
+          table:nth-of-type(2) { id: dummy; } 
+          body > table:first-of-type { display: none !important; }
           EOF
 
-          # 2. Montar cabeçalho unificado estruturado
+          # 2. Montar cabeçalho unificado com o Símbolo do Brasil 🇧🇷 e as abas estáticas solicitadas
           cat <<EOF > /tmp/global_header.html
           <table id='header-table'><tr><td><svg height='45' viewBox='0 0 32 32' width='45' xmlns='http://www.w3.org/2000/svg' fill='#fff'><path d='M16 2C12 2 9 5 9 9c0 2.1.8 4 2.2 5.4C10 16 8 19.3 8 23c0 3.3 2.7 6 6 6h4c3.3 0 6-2.7 6-6 0-3.7-2-7-3.2-8.6C22.2 13 23 11.1 23 9c0-4-3-7-7-7zm0 2c2.8 0 5 2.2 5 5s-2.2 5-5 5-5-2.2-5-5 2.2-5 5-5zm-4 12.1c1.2-.7 2.5-1.1 4-1.1s2.8.4 4 1.1C21.2 17.7 22 20.2 22 23c0 2.2-1.8 4-4 4h-4c-2.2 0-4-1.8-4-4 0-2.8.8-5.3 2-6.9z'/></svg></td><td class='main-td'><h1>index : kernel/git/docs/linux.git</h1><span class='desc'>🇧🇷 Documentação do Kernel Linux em pt_BR | Gerenciado por Daniel Pereira</span></td></tr></table>
           <div class='nav-links'><a href='log.html' id='link-log'>Histórico de Commits</a> | <a href='files.html' id='link-tree'>Árvore de Arquivos</a> | <a href='aguardando.html' id='link-aguardando'>⚠️ Aguardando Tradução</a> | <a href='andamento.html' id='link-andamento'>⏳ Sendo Traduzidos</a></div><hr/>
           EOF
 
-          # 3. Processar tabela Aguardando Tradução para criar Issues automaticamente no GitHub
+          # 3. Processar tabela Aguardando Tradução com link de Issue no GitHub
           REPO_URL="https://github.com/Daniel-Pereira-Linux/kernel-docs-br"
           TABELA_AGUARDANDO=""
           while IFS= read -r linha || [ -n "$linha" ]; do
@@ -81,7 +91,7 @@ jobs:
             fi
           done < em_traducao.txt
 
-          # 5. Gerar páginas estáticas customizadas de forma isolada
+          # 5. Gerar as páginas estáticas customizadas com nomes de abas fixas e idênticas
           cat <<EOF > public/aguardando.html
           <!DOCTYPE html><html><head><meta charset="UTF-8"><title>Arquivos Aguardando Tradução</title><link rel="stylesheet" type="text/css" href="style.css" /></head><body>
           $(cat /tmp/global_header.html | sed 's/id="link-aguardando"/id="link-aguardando" class="active"/g')
@@ -102,30 +112,27 @@ jobs:
           stagit ..
           stagit-index .. > index_projetos.html
 
-      - name: 🎛️ Mesclar Menu Limpo nos Arquivos Nativos (Sem depender de Regex)
+      - name: 🎛️ Injetar Menu Fixo por Cima de Tudo e expurgar cabeçalhos antigos
         run: |
           cd public
           
-          # Injeta o cabeçalho no início do body de todas as páginas nativas do stagit de forma segura
           for arquivo in log.html files.html refs.html; do
             if [ -f "$arquivo" ]; then
-              # Oculta o cabeçalho velho adicionando uma div de fechamento
+              # Prepara o cabeçalho correto aplicando o estado active na aba correta
               cat /tmp/global_header.html > /tmp/saida.html
-              
-              # Aplica classe active no link correspondente
               if [ "$arquivo" = "log.html" ]; then
                 sed -i 's/id="link-log"/id="link-log" class="active"/g' /tmp/saida.html
               elif [ "$arquivo" = "files.html" ]; then
                 sed -i 's/id="link-tree"/id="link-tree" class="active"/g' /tmp/saida.html
               fi
               
-              # Concatena com o resto do arquivo original pulando as linhas velhas do menu do stagit
+              # Injeta o conteúdo original por baixo de forma direta
               cat "$arquivo" >> /tmp/saida.html
               mv /tmp/saida.html "$arquivo"
             fi
           done
 
-          # Cria o index com redirecionamento limpo para o log.html
+          # Limpa o arquivo index principal para redirecionar instantaneamente
           cat <<EOF > index.html
           <!DOCTYPE html><html><head><meta http-equiv="refresh" content="0; url=log.html"></head><body></body></html>
           EOF
