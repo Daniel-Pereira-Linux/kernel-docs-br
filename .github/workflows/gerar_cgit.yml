@@ -17,10 +17,14 @@ jobs:
         with:
           fetch-depth: 0
 
-      - name: 🛠️ Instalar Stagit (Gerador Oficial)
+      - name: 🛠️ Compilar Stagit direto do Código Fonte
         run: |
           sudo apt-get update
-          sudo apt-get install stagit -y
+          sudo apt-get install libgit2-dev -y
+          git clone git://codemadness.org/stagit /tmp/stagit
+          cd /tmp/stagit
+          make
+          sudo make install
 
       - name: 🌐 Gerar Base do cgit com Commits Reais
         run: |
