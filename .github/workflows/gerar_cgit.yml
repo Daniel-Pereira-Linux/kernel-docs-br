@@ -314,7 +314,7 @@ jobs:
           sed -n '/```diff/,/```/p' /tmp/comment_raw.txt | grep -v '```' > /tmp/patches/proposta.patch
 
           if [ ! -s /tmp/patches/proposta.patch ]; then
-            gh issue comment "$ISSUE_NUMBER" --body "❌ **Erro do Sistema de CI:** Não encontrei nenhum bloco de código formatado com \`\`\`diff \`\`\` contendo o patch no seu comentário."
+            gh issue comment "$ISSUE_NUMBER" --repo ${{ github.repository }} --body "❌ **Erro do Sistema de CI:** Não encontrei nenhum bloco de código formatado com \`\`\`diff \`\`\` contendo o patch no seu comentário."
             exit 1
           fi
 
@@ -324,7 +324,7 @@ jobs:
           
           if ! git apply --check /tmp/patches/proposta.patch 2>/tmp/err.log; then
             ERROR_MSG=$(cat /tmp/err.log)
-            gh issue comment "$ISSUE_NUMBER" --body "❌ **Falha de Aplicação (Git Apply):** O patch enviado não pôde ser mesclado de forma limpa na branch \`docs-next\` do Corbet.%0A%0A**Log de Erro:**%0A\`\`\`%0A${ERROR_MSG}%0A\`\`\`"
+            gh issue comment "$ISSUE_NUMBER" --repo ${{ github.repository }} --body "❌ **Falha de Aplicação (Git Apply):** O patch enviado não pôde ser mesclado de forma limpa na branch \`docs-next\` do Corbet.%0A%0A**Log de Erro:**%0A\`\`\`%0A${ERROR_MSG}%0A\`\`\`"
             exit 1
           fi
           
@@ -333,8 +333,8 @@ jobs:
           
           if ! make htmldocs 2>/tmp/sphinx_err.log; then
             SPHINX_MSG=$(cat /tmp/sphinx_err.log | tail -n 15)
-            gh issue comment "$ISSUE_NUMBER" --body "❌ **Falha de Compilação (Sphinx/RST):** A sintaxe reStructuredText introduzida possui erros de marcação e quebrou o build do \`make htmldocs\`.%0A%0A**Últimas linhas do Log:**%0A\`\`\`%0A${SPHINX_MSG}%0A\`\`\`"
+            gh issue comment "$ISSUE_NUMBER" --repo ${{ github.repository }} --body "❌ **Falha de Compilação (Sphinx/RST):** A sintaxe reStructuredText introduzida possui erros de marcação e quebrou o build do \`make htmldocs\`.%0A%0A**Últimas linhas do Log:**%0A\`\`\`%0A${SPHINX_MSG}%0A\`\`\`"
             exit 1
           fi
           
-          gh issue comment "$ISSUE_NUMBER" --body "🤖 **[SRE CI/CD] Pré-Revisão Automatizada Concluída com Sucesso!**%0A%0A✅ **Sintaxe RST & Sphinx:** \`make htmldocs\` compilou sem erros técnicos na árvore do Corbet!%0A📝 **Resultado do \`./scripts/checkpatch.pl\`:**%0A\`\`\`text%0A${CHECKPATCH_OUT}%0A\`\`\`%0A%0A---%0A⏳ **Status:** Estrutura em conformidade. O patch **não** foi aplicado no site principal. Aguardando leitura, revisão final de tradução e aprovação manual do mantenedor @Daniel-Pereira-Linux."
+          gh issue comment "$ISSUE_NUMBER" --repo ${{ github.repository }} --body "🤖 **[SRE CI/CD] Pré-Revisão Automatizada Concluída com Sucesso!**%0A%0A✅ **Sintaxe RST & Sphinx:** \`make htmldocs\` compilou sem erros técnicos na árvore do Corbet!%0A📝 **Resultado do \`./scripts/checkpatch.pl\`:**%0A\`\`\`text%0A${CHECKPATCH_OUT}%0A\`\`\`%0A%0A---%0A⏳ **Status:** Estrutura em conformidade. O patch **não** foi aplicado no site principal. Aguardando leitura, revisão final de tradução e aprovação manual do mantenedor @Daniel-Pereira-Linux."
