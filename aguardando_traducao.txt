@@ -2,7 +2,6 @@ Documentation/process/submit-checklist.rst
 Documentation/maintainer/maintainer-entry-profile.rst
 Documentation/process/code-of-conduct-interpretation.rst
 Documentation/process/code-of-conduct.rst
-Documentation/process/coding-style.rst
 Documentation/process/debugging
 Documentation/process/deprecated.rst
 Documentation/process/email-clients.rst
