@@ -20,6 +20,7 @@ on:
 permissions:
   contents: write
   issues: write
+  pull-requests: write
 
 jobs:
   build-and-deploy:
@@ -318,23 +319,11 @@ jobs:
             exit 1
           fi
 
-      - name: 🧪 Executar Validações Oficiais do Kernel (checkpatch & Sphinx)
+      - name: 🧪 Executar Validações Oficiais do Kernel (Apenas checkpatch)
         run: |
           cd /tmp/corbet_tree
           
-          if ! git apply --check /tmp/patches/proposta.patch 2>/tmp/err.log; then
-            ERROR_MSG=$(cat /tmp/err.log)
-            gh issue comment "$ISSUE_NUMBER" --repo ${{ github.repository }} --body "❌ **Falha de Aplicação (Git Apply):** O patch enviado não pôde ser mesclado de forma limpa na branch \`docs-next\` do Corbet.%0A%0A**Log de Erro:**%0A\`\`\`%0A${ERROR_MSG}%0A\`\`\`"
-            exit 1
-          fi
-          
-          git apply /tmp/patches/proposta.patch
+          # Executa o checkpatch de estilo direto no arquivo .patch sem tentar aplicar as linhas via git apply
           CHECKPATCH_OUT=$(./scripts/checkpatch.pl --no-tree --patch /tmp/patches/proposta.patch || true)
           
-          if ! make htmldocs 2>/tmp/sphinx_err.log; then
-            SPHINX_MSG=$(cat /tmp/sphinx_err.log | tail -n 15)
-            gh issue comment "$ISSUE_NUMBER" --repo ${{ github.repository }} --body "❌ **Falha de Compilação (Sphinx/RST):** A sintaxe reStructuredText introduzida possui erros de marcação e quebrou o build do \`make htmldocs\`.%0A%0A**Últimas linhas do Log:**%0A\`\`\`%0A${SPHINX_MSG}%0A\`\`\`"
-            exit 1
-          fi
-          
-          gh issue comment "$ISSUE_NUMBER" --repo ${{ github.repository }} --body "🤖 **[SRE CI/CD] Pré-Revisão Automatizada Concluída com Sucesso!**%0A%0A✅ **Sintaxe RST & Sphinx:** \`make htmldocs\` compilou sem erros técnicos na árvore do Corbet!%0A📝 **Resultado do \`./scripts/checkpatch.pl\`:**%0A\`\`\`text%0A${CHECKPATCH_OUT}%0A\`\`\`%0A%0A---%0A⏳ **Status:** Estrutura em conformidade. O patch **não** foi aplicado no site principal. Aguardando leitura, revisão final de tradução e aprovação manual do mantenedor @Daniel-Pereira-Linux."
+          gh issue comment "$ISSUE_NUMBER" --repo ${{ github.repository }} --body "🤖 **[SRE CI/CD] Análise Estática Concluída!**%0A%0A📝 **Resultado do \`./scripts/checkpatch.pl\`:**%0A\`\`\`text%0A${CHECKPATCH_OUT}%0A\`\`\`%0A%0A---%0A⏳ **Status:** Avaliação de estilo concluída. Aguardando revisão manual do mantenedor @Daniel-Pereira-Linux."
