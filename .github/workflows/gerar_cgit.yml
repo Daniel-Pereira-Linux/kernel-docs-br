@@ -105,7 +105,6 @@ jobs:
               if [ -z "$URL_ISSUE" ] || [ "$URL_ISSUE" = "null" ]; then
                 TITULO_ISSUE="[Ciclo: ${TODAY_DATE}] Tradução de ${ARQ_LIMPO}"
                 
-                # Gerando o corpo usando herestring limpo sem escapes de URL
                 read -r -d '' CORPO_ISSUE <<'EOF' || true
           ## 📑 Guia de Tradução
 
@@ -165,7 +164,7 @@ jobs:
             fi
           done < aguardando_traducao.txt
 
-          # 4. Processar tabela Sendo Traduzidos (Preservando sua busca original)
+          # 4. Processar tabela Sendo Traduzidos
           TABELA_ANDAMENTO=""
           NOW_EPOCH=$(date +%s)
           while IFS= read -r linha || [ -n "$linha" ]; do
@@ -292,28 +291,33 @@ jobs:
       GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       COMMENT_BODY: ${{ github.event.comment.body }}
       ISSUE_NUMBER: ${{ github.event.issue.number }}
+      COMMENT_ID: ${{ github.event.comment.id }}
     steps:
+      - name: 📥 Inicializar Workspace Base
+        uses: actions/checkout@v4
+        with:
+          ref: docs-next
+
       - name: 📥 Clonar Árvore Completa do Corbet (Upstream)
         run: |
           sudo apt-get update
           sudo apt-get install git python3-sphinx python3-sphinx-rtd-theme -y
           git clone --depth 1 --branch docs-next https://git.kernel.org/pub/scm/linux/kernel/git/docs/linux.git /tmp/corbet_tree
 
-      - name: 🗜️ Isolar e Baixar arquivo .patch do Comentário
+      - name: 🗜️ Extrair Patch Diretamente do Texto do Comentário
         run: |
           mkdir -p /tmp/patches
-          PATCH_URL=$(echo "$COMMENT_BODY" | grep -oE 'https://github.com/[^ ]+\.patch' | head -n 1 || echo "")
           
-          if [ -z "$PATCH_URL" ]; then
-            PATCH_URL=$(echo "$COMMENT_BODY" | grep -oE 'https://github.com/user-attachments/files/[^)]+' | head -n 1 || echo "")
-          fi
+          # Baixa o texto cru do comentário via GitHub CLI usando o token do workspace inicializado
+          gh api repos/${{ github.repository }}/issues/comments/${{ COMMENT_ID }} --jq '.body' > /tmp/comment_raw.txt
+          
+          # Isola o conteúdo que está estritamente dentro das crases de diff
+          sed -n '/```diff/,/```/p' /tmp/comment_raw.txt | grep -v '```' > /tmp/patches/proposta.patch
 
-          if [ -z "$PATCH_URL" ]; then
-            gh issue comment "$ISSUE_NUMBER" --body "❌ **Erro do Sistema de CI:** Não encontrei nenhum arquivo com extensão \`.patch\` anexado ao seu comentário. Certifique-se de arrastar o arquivo para o campo de texto antes de enviar."
+          if [ ! -s /tmp/patches/proposta.patch ]; then
+            gh issue comment "$ISSUE_NUMBER" --body "❌ **Erro do Sistema de CI:** Não encontrei nenhum bloco de código formatado com \`\`\`diff \`\`\` contendo o patch no seu comentário."
             exit 1
           fi
-          
-          curl -sL "$PATCH_URL" -o /tmp/patches/proposta.patch
 
       - name: 🧪 Executar Validações Oficiais do Kernel (checkpatch & Sphinx)
         run: |
@@ -334,5 +338,4 @@ jobs:
             exit 1
           fi
           
-          # Removendo redirecionamentos que herdam heredocs aninhados complexos
           gh issue comment "$ISSUE_NUMBER" --body "🤖 **[SRE CI/CD] Pré-Revisão Automatizada Concluída com Sucesso!**%0A%0A✅ **Sintaxe RST & Sphinx:** \`make htmldocs\` compilou sem erros técnicos na árvore do Corbet!%0A📝 **Resultado do \`./scripts/checkpatch.pl\`:**%0A\`\`\`text%0A${CHECKPATCH_OUT}%0A\`\`\`%0A%0A---%0A⏳ **Status:** Estrutura em conformidade. O patch **não** foi aplicado no site principal. Aguardando leitura, revisão final de tradução e aprovação manual do mantenedor @Daniel-Pereira-Linux."
