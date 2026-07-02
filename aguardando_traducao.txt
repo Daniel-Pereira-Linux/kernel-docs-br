@@ -19,3 +19,4 @@ Documentation/process/stable-kernel-rules.rst
 Documentation/process/submit-checklist.rst
 Documentation/process/submitting-patches.rst
 Documentation/process/threat-model.rst
+Documentation/process/coding-style.rst
