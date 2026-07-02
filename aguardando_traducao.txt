@@ -4,7 +4,6 @@ Documentation/process/code-of-conduct-interpretation.rst
 Documentation/process/code-of-conduct.rst
 Documentation/process/debugging
 Documentation/process/deprecated.rst
-Documentation/process/email-clients.rst
 Documentation/process/embargoed-hardware-issues.rst
 Documentation/process/handling-regressions.rst
 Documentation/process/index.rst
