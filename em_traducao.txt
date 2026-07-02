@@ -1,3 +1,4 @@
+Documentation/process/coding-style.rst - Responsável: Ygor Otávio - Início: 2026-07-01
 Documentation/process/generated-content.rst - Responsável: Amanda Corrêa - Início: 2026-07-01
 Documentation/process/management-style.rst - Responsável: Amanda Corrêa - Início: 2026-07-01
 Documentation/process/volatile-considered-harmful.rst - Responsável: Amanda Corrêa - Início: 2026-07-01
