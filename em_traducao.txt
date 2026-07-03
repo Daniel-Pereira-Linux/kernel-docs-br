@@ -5,3 +5,4 @@ Documentation/process/management-style.rst - Responsável: Amanda Corrêa - Iní
 Documentation/process/volatile-considered-harmful.rst - Responsável: Amanda Corrêa - Início: 2026-07-01
 Documentation/process/coding-assistants.rst - Responsável: Fabio Silva - Início: 2026-07-01
 Documentation/process/cve.rst - Responsável: Fabio Silva - Início: 2026-07-01
+Documentation/process/stable-kernel-rules.rst - Responsável: Matheus Patriota - Início: 2026-07-03
