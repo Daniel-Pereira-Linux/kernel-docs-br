@@ -1,7 +1,3 @@
-Analisando a imagem image.png, o workflow falhou instantaneamente (com **0s** de duração). Isso indica um **erro de sintaxe** que impediu o GitHub de conseguir ler o arquivo YAML.
-O culpado está logo na primeira linha: escrevemos Name: com a inicial maiúscula, mas o motor do GitHub Actions é estritamente case-sensitive e espera obrigatoriamente **name:** (tudo em minúsculo).
-Aqui está o YAML corrigido. É só copiar e substituir:
-```yaml
 name: Gerar Interface cgit Dinâmica e CI de Patches
 
 on:
@@ -17,6 +13,9 @@ on:
       - edited
       - closed
       - reopened
+  issue_comment:
+    types:
+      - created
 
 permissions:
   contents: write
@@ -25,6 +24,9 @@ permissions:
 
 jobs:
   build-and-deploy:
+    if: |
+      github.event_name != 'issue_comment' || 
+      (!contains(github.event.comment.body, 'analise o meu patch'))
     runs-on: ubuntu-latest
     env:
       GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
@@ -97,13 +99,34 @@ jobs:
 
           # 🌍 Texto Base Unificado do Guia de Tradução para Injeção Dinâmica nas Issues
           read -r -d '' CORPO_PADRAO_ISSUE <<'EOF' || true
-          ## 📑 Coordenação de Tradução Técnica
+          ## 📑 Guia Unificado de Contribuição Técnico
 
-          Olá! Esta é uma discussão automatizada para coordenar a tradução deste arquivo upstream.
+          Olá! Esta é uma discussão automatizada e gerenciada para coordenar a tradução do arquivo upstream.
 
-          📖 **Manual de Envio Oficial:** Para entender como configurar seu ambiente, rodar testes de estilo localmente e enviar o patch por e-mail diretamente para o mantenedor, acesse nossa aba dedicada: [🚀 Como Contribuir](https://daniel-pereira-linux.github.io/kernel-docs-br/como-contribuir.html).
+          📖 **Manual Completo Interativo:** Você pode checar o passo a passo completo, regras de configuração do Gmail para Git e geração de patches direto na aba do nosso site oficial: [🚀 Como Contribuir](https://daniel-pereira-linux.github.io/kernel-docs-br/como-contribuir.html).
 
-          Por favor, sinalize nesta Issue se você está assumindo o arquivo para que o status da tabela global seja atualizado corretamente!
+          ---
+
+          ### ⚙️ Resumo Rápido para Desenvolvimento:
+
+          #### 1. Clonando o Upstream Correto
+          ```bash
+          git config --global user.name "Seu Nome Completo"
+          git config --global user.email "seu_email@provedor.com"
+          git clone --branch docs-next --single-branch --depth=1 [https://git.kernel.org/pub/scm/linux/kernel/git/docs/linux.git](https://git.kernel.org/pub/scm/linux/kernel/git/docs/linux.git)
+          cd linux
+          git checkout -b traducao-trabalho
+          ```
+
+          #### 2. Estrutura do Commit (Em Inglês com Assinatura)
+          ```bash
+          git commit -s -m "docs: pt_BR: process: Translate the patch followthrough guide" -m "Translates the section to Brazilian Portuguese."
+          ```
+
+          ---
+
+          ### 🚀 Próximos Passos
+          Após finalizar a sua tradução local e validar a formatação do código, acesse o guia completo na aba do site ou entre em contato direto com o mantenedor **Daniel Pereira** via WhatsApp ou e-mail (**danielmaraboo@gmail.com**) para coordenar o envio e a revisão técnica final do seu patch.
           EOF
 
           # 3. Processar tabela Aguardando Tradução + Sincronizar Corpo de Issues Ativas
@@ -178,7 +201,7 @@ jobs:
               NUM_REVISAO_ISSUE=$(gh issue list --search "${arq} in:title -label:atualizado" --json number --jq '.[0].number')
               
               if [ -z "$URL_REVISAO_ISSUE" ] || [ "$URL_REVISAO_ISSUE" = "null" ]; then
-                CORPO_REVISAO="O arquivo original \`${arq}\` recebeu updates no commit [${COMMIT_HASH:0:7}](${UPSTREAM_COMMIT_URL}). Iniciando novo ciclo de revisão técnica."
+                CORPO_REVISAO="O arquivo original \`${arq}\` recebeu atualizações upstream no commit [${COMMIT_HASH:0:7}](${UPSTREAM_COMMIT_URL}). Iniciando novo ciclo de revisão técnica."
                 URL_REVISAO_ISSUE=$(gh issue create --title "$TITULO_REVISAO" --body "$CORPO_REVISAO" --label "desatualizado" || echo "${REPO_URL}/issues")
               else
                 gh issue edit "$NUM_REVISAO_ISSUE" --add-label "desatualizado" --remove-label "aguardando-traducao,traduzindo" 2>/dev/null || true
@@ -214,54 +237,69 @@ jobs:
           </body></html>
           EOF
 
-          # 7. Injetar o Guia de Contribuição com Configuração de E-mail, Formatação de Patch e Checkpatch
+          # 7. Injetar a página do Guia de Contribuição Técnico (HTML) na Web com encerramento direto via E-mail/WhatsApp
           cat <<EOF > public/como-contribuir.html
           <!DOCTYPE html><html><head><meta charset="UTF-8"><title>Guia de Contribuição — Kernel Linux</title><link rel="stylesheet" type="text/css" href="style.css" /></head><body>
           $(cat /tmp/global_header.html | sed 's/id="link-guia"/id="link-guia" class="active"/g')
           
           <h1>🚀 Guia de Contribuição — Tradução da Documentação do Kernel Linux</h1>
           <div class="guia-box">
-            <b>Bem-vindo ao esforço oficial de tradução da documentação do Kernel Linux para o Português do Brasil (pt_BR)!</b><br><br>
-            Como este projeto segue rigorosamente o modelo de desenvolvimento oficial da comunidade Linux, o envio de contribuições é feito via <b>Patches por E-mail</b>.<br><br>
-            ⚠️ <b>Nota sobre o fluxo do Kernel:</b> O Kernel Linux é extremamente rígido com padrões de qualidade e padronização técnica. Por isso, <b>é perfeitamente normal e comum que o mantenedor solicite melhorias e que você precisa enviar várias versões do seu patch (v2, v3, v4...)</b> antes que ele seja finalmente aceito e integrado à árvore principal. Não desanime! Cada revisão aproxima seu código do padrão oficial.
+            Bem-vindo ao esforço de tradução oficial da documentação do Kernel Linux para o Português do Brasil (pt_BR)! Este projeto visa aproximar desenvolvedores e entusiastas lusófonos do ecossistema de desenvolvimento da infraestrutura base do Linux.<br><br>
+            Abaixo, você encontrará o guia definitivo com o passo a passo exato para configurar seu ambiente, localizar os arquivos, traduzir e enviar suas contribuições usando a infraestrutura do Git de forma limpa e profissional.
           </div>
 
-          <div class="step-title">⚙️ Passo 1: Configurando o Git e Identidade (Executado apenas uma vez)</div>
-          <p>O Kernel exige seu nome real e e-mail válido para a assinatura do DCO (Developer Certificate of Origin):</p>
-          <div class="code-block">git config --global user.name "Seu Nome Completo"
-          git config --global user.email "seu_email@gmail.com"</div>
+          <div class="step-title">🔐 Passo 0: Preparar sua Conta do Gmail (Senha de App)</div>
+          <p>O Gmail exige uma "Senha de App" de 16 dígitos isolada para scripts externos. Acesse sua Conta Google -> Segurança -> Verificação em duas etapas -> Senhas de app. Gere uma chave chamada 'Git Sendmail' e copie-a.</p>
 
-          <div class="step-title">📧 Passo 2: Configurando o Git Send-Email com o Gmail (Executado apenas uma vez)</div>
-          <p>Para enviar patches direto do seu terminal usando o Gmail, você precisa gerar uma <b>Senha de App</b> na sua Conta do Google (com a Verificação em duas etapas ativa). Depois, execute as configurações abaixo:</p>
-          <div class="code-block">git config --global sendemail.smtpserver smtp.gmail.com
+          <div class="step-title">⚙️ Passo 1: Configurando sua Identidade e SMTP no Git</div>
+          <p>Instale o módulo de email do Git (<tt>sudo apt install git-email</tt>) e vincule sua conta do Gmail globalmente:</p>
+          <div class="code-block">git config --global user.name "Seu Nome Completo"
+          git config --global user.email "seu_email@gmail.com"
+          git config --global sendemail.smtpserver smtp.gmail.com
           git config --global sendemail.smtpserverport 587
           git config --global sendemail.smtpencryption tls
-          git config --global sendemail.smtpuser seu_email@gmail.com
-          git config --global sendemail.smtppass "sua_senha_de_app_aqui"</div>
+          git config --global sendemail.smtpuser "seu_email@gmail.com"
+          git config --global sendemail.smtppass ""</div>
 
-          <div class="step-title">📥 Passo 3: Clonando o Ambiente de Trabalho</div>
-          <p>Trabalhamos em sincronia direta com a árvore upstream de desenvolvimento de documentação:</p>
+          <div class="step-title">📥 Passo 2: Clonando o Ambiente de Trabalho</div>
+          <p>Trabalhamos sincronizados com a árvore upstream de documentação gerenciada por Jonathan Corbet. Clone apenas a branch de desenvolvimento ativa:</p>
           <div class="code-block">git clone --branch docs-next --single-branch --depth=1 https://git.kernel.org/pub/scm/linux/kernel/git/docs/linux.git
-          cd linux
-          git checkout -b traducao-nome-do-arquivo</div>
+          cd linux</div>
 
-          <div class="step-title">✍️ Passo 4: Tradução e Criação do Commit Padrão</div>
-          <p>Faça as alterações ou crie seu arquivo traduzido respeitando rigorosamente o espelhamento de pastas (ex: <tt>Documentation/translations/pt_BR/process/arquivo.rst</tt>). Ao commitar, use obrigatoriamente o parâmetro <tt>-s</tt> para assinar e escreva o título em inglês:</p>
-          <div class="code-block">git commit -s -m "docs: pt_BR: process: Translate the patch followthrough guide" -m "Translates the section to Brazilian Portuguese."</div>
+          <div class="step-title">🚀 Passo 3: Criando uma Branch de Trabalho</div>
+          <p>Crie uma branch isolada e descritiva para o arquivo que você vai assumir:</p>
+          <div class="code-block">git checkout -b traducao-nome-do-arquivo</div>
 
-          <div class="step-title">📦 Passo 5: Gerando o Arquivo de Patch de Forma Correta</div>
-          <p>Não use redirection simples do diff. Para submissões formais do Kernel, use o comando <tt>format-patch</tt> com base na branch atual para isolar o seu commit em um arquivo estruturado:</p>
-          <div class="code-block">git format-patch docs-next..HEAD</div>
-          <p>Isso gerará um arquivo com extensão <tt>.patch</tt> (ex: <tt>0001-docs-pt_BR-process-Translate-....patch</tt>) contendo metadados completos e sua assinatura.</p>
+          <div class="step-title">📂 Passo 4: Localizando e Traduzindo o Arquivo</div>
+          <p>O Kernel Linux organiza as traduções espelhando exatamente a estrutura de pastas do arquivo original em inglês.</p>
+          <ul>
+            <li><b>1. Localize o arquivo original:</b> Os arquivos em inglês ficam no diretório raiz <tt>Documentation/</tt> (ex: <tt>Documentation/process/...</tt>).</li>
+            <li><b>2. Crie ou edite o arquivo em português:</b> Coloque a sua tradução na pasta equivalente dentro do idioma de destino: <tt>Documentation/translations/pt_BR/process/arquivo.rst</tt>.</li>
+            <li><b>3. Mantenha a formatação:</b> Mantenha marcações Sphinx e tabelas reStructuredText (<tt>.rst</tt>) idênticas ao inglês.</li>
+            <li><b>4. Preserve a licença:</b> Mantenha o cabeçalho de licença intacto no topo do arquivo (ex: <tt>.. SPDX-License-Identifier: GPL-2.0</tt>).</li>
+          </ul>
 
-          <div class="step-title">🧪 Passo 6: Rodando a Validação com o Checkpatch</div>
-          <p>Antes de enviar a alteração, use a ferramenta de análise estática nativa do Kernel para garantir que não há erros de espaçamento, quebras de linhas ou sintaxe:</p>
-          <div class="code-block">./scripts/checkpatch.pl 0001-*.patch</div>
-          <p>Se o script retornar <b>total: 0 errors, 0 warnings</b>, o patch está pronto para envio. Caso contrário, ajuste o código, refaça o commit e gere o patch novamente.</p>
+          <div class="step-title">🧪 Passo 5: Validando Localmente (Build e checkpatch)</div>
+          <p>Para garantir que a sintaxe do seu arquivo <tt>.rst</tt> e o estilo de escrita estejam perfeitos, execute as validações nativas na raiz do repositório:</p>
+          <div class="code-block"># 1. Build do manual técnico em HTML
+          make htmldocs
 
-          <div class="step-title">🚀 Passo 7: Enviando o Patch por E-mail</div>
-          <p>Com tudo validado com sucesso e nenhuma falha apontada no terminal, dispare o patch diretamente para a caixa de revisão do mantenedor:</p>
-          <div class="code-block">git send-email --to="Daniel Pereira &lt;danielmaraboo@gmail.com&gt;" 0001-*.patch</div>
+          # 2. Análise estática do estilo do Kernel direto no arquivo de patch gerado
+          ./scripts/checkpatch.pl --no-tree --patch 0001-*.patch</div>
+
+          <div class="step-title">✍️ Passo 6: Padronização do Commit e Geração do Patch (Em Inglês)</div>
+          <p>A mensagem do commit deve ser escrita estritamente em <b>inglês</b> e incluir obrigatoriamente a linha de assinatura (<tt>Signed-off-by</tt>) gerada pela flag <tt>-s</tt>:</p>
+          <div class="code-block">git commit -s -m "docs: pt_BR: process: Translate the patch followthrough guide" -m "Translates the section to Brazilian Portuguese."
+          
+          # Gerando o arquivo .patch estruturado oficial
+          git format-patch -1 HEAD</div>
+
+          <div class="step-title">🚀 Passo 7: Próximos Passos e Envio Técnico</div>
+          <p>Após gerar o arquivo <tt>.patch</tt> oficial e garantir que as checagens locais passaram sem erros, sua tradução está pronta para ser integrada! Para prosseguir com a revisão técnica e merge na árvore pt_BR, entre em contato direto com o mantenedor:</p>
+          <ul>
+            <li><b>E-mail Oficial:</b> <a href="mailto:danielmaraboo@gmail.com" style="color: #55ff55;">danielmaraboo@gmail.com</a></li>
+            <li><b>Alinhamento Direto:</b> Procure por <b>Daniel Pereira</b> via WhatsApp para saber o próximo passo e receber as orientações de merge.</li>
+          </ul>
 
           </body></html>
           EOF
@@ -298,4 +336,45 @@ jobs:
           folder: public
           branch: gh-pages
 
-```
+  analisar-patch:
+    if: github.event_name == 'issue_comment' && contains(github.event.comment.body, 'analise o meu patch')
+    runs-on: ubuntu-latest
+    env:
+      GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      COMMENT_BODY: ${{ github.event.comment.body }}
+      ISSUE_NUMBER: ${{ github.event.issue.number }}
+    steps:
+      - name: 📥 Inicializar Workspace Base
+        uses: actions/checkout@v4
+        with:
+          ref: docs-next
+
+      - name: 📥 Clonar Árvore Completa do Corbet (Upstream)
+        run: |
+          sudo apt-get update
+          sudo apt-get install git python3-sphinx python3-sphinx-rtd-theme -y
+          git clone --depth 1 --branch docs-next https://git.kernel.org/pub/scm/linux/kernel/git/docs/linux.git /tmp/corbet_tree
+
+      - name: 🗜️ Extrair Patch Diretamente do Texto do Comentário
+        run: |
+          mkdir -p /tmp/patches
+          
+          # Baixa o texto cru injetando o ID dinâmico do contexto do evento diretamente no escopo do shell
+          gh api repos/${{ github.repository }}/issues/comments/${{ github.event.comment.id }} --jq '.body' > /tmp/comment_raw.txt
+          
+          # Isola o conteúdo que está estritamente dentro das crases de diff
+          sed -n '/```diff/,/```/p' /tmp/comment_raw.txt | grep -v '```' > /tmp/patches/proposta.patch
+
+          if [ ! -s /tmp/patches/proposta.patch ]; then
+            gh issue comment "$ISSUE_NUMBER" --repo ${{ github.repository }} --body "❌ **Erro do Sistema de CI:** Não encontrei nenhum bloco de código formatado com \`\`\`diff \`\`\` contendo o patch no seu comentário."
+            exit 1
+          fi
+
+      - name: 🧪 Executar Validações Oficiais do Kernel (Apenas checkpatch)
+        run: |
+          cd /tmp/corbet_tree
+          
+          # Executa o checkpatch de estilo direto no arquivo .patch sem tentar aplicar as linhas via git apply
+          CHECKPATCH_OUT=$(./scripts/checkpatch.pl --no-tree --patch /tmp/patches/proposta.patch || true)
+          
+          gh issue comment "$ISSUE_NUMBER" --repo ${{ github.repository }} --body "🤖 **[SRE CI/CD] Análise Estática Concluída!**%0A%0A📝 **Resultado do \`./scripts/checkpatch.pl\`:**%0A\`\`\`text%0A${CHECKPATCH_OUT}%0A\`\`\`%0A%0A---%0A⏳ **Status:** Avaliação de estilo concluída. Aguardando revisão manual do mantenedor @Daniel-Pereira-Linux."
