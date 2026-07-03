@@ -1,6 +1,8 @@
-Aqui está o arquivo completo e unificado para o seu workflow do GitHub Actions (.github/workflows/main.yml), contendo todas as remoções, correções de e-mail e a nova seção informativa no guia de contribuição.
+Analisando a imagem image.png, o workflow falhou instantaneamente (com **0s** de duração). Isso indica um **erro de sintaxe** que impediu o GitHub de conseguir ler o arquivo YAML.
+O culpado está logo na primeira linha: escrevemos Name: com a inicial maiúscula, mas o motor do GitHub Actions é estritamente case-sensitive e espera obrigatoriamente **name:** (tudo em minúsculo).
+Aqui está o YAML corrigido. É só copiar e substituir:
 ```yaml
-Name: Gerar Interface cgit Dinâmica e CI de Patches
+name: Gerar Interface cgit Dinâmica e CI de Patches
 
 on:
   push:
@@ -221,7 +223,7 @@ jobs:
           <div class="guia-box">
             <b>Bem-vindo ao esforço oficial de tradução da documentação do Kernel Linux para o Português do Brasil (pt_BR)!</b><br><br>
             Como este projeto segue rigorosamente o modelo de desenvolvimento oficial da comunidade Linux, o envio de contribuições é feito via <b>Patches por E-mail</b>.<br><br>
-            ⚠️ <b>Nota sobre o fluxo do Kernel:</b> O Kernel Linux é extremamente rígido com padrões de qualidade e padronização técnica. Por isso, <b>é perfeitamente normal e comum que o mantenedor solicite melhorias e que você precise enviar várias versões do seu patch (v2, v3, v4...)</b> antes que ele seja finalmente aceito e integrado à árvore principal. Não desanime! Cada revisão aproxima seu código do padrão oficial.
+            ⚠️ <b>Nota sobre o fluxo do Kernel:</b> O Kernel Linux é extremamente rígido com padrões de qualidade e padronização técnica. Por isso, <b>é perfeitamente normal e comum que o mantenedor solicite melhorias e que você precisa enviar várias versões do seu patch (v2, v3, v4...)</b> antes que ele seja finalmente aceito e integrado à árvore principal. Não desanime! Cada revisão aproxima seu código do padrão oficial.
           </div>
 
           <div class="step-title">⚙️ Passo 1: Configurando o Git e Identidade (Executado apenas uma vez)</div>
@@ -248,7 +250,7 @@ jobs:
           <div class="code-block">git commit -s -m "docs: pt_BR: process: Translate the patch followthrough guide" -m "Translates the section to Brazilian Portuguese."</div>
 
           <div class="step-title">📦 Passo 5: Gerando o Arquivo de Patch de Forma Correta</div>
-          <p>Não use redirection simples do diff. Para submissões formais do Kernel, use o comando <tt>format-patch</tt> com base na branch atual para isolar o seu commit in um arquivo estruturado:</p>
+          <p>Não use redirection simples do diff. Para submissões formais do Kernel, use o comando <tt>format-patch</tt> com base na branch atual para isolar o seu commit em um arquivo estruturado:</p>
           <div class="code-block">git format-patch docs-next..HEAD</div>
           <p>Isso gerará um arquivo com extensão <tt>.patch</tt> (ex: <tt>0001-docs-pt_BR-process-Translate-....patch</tt>) contendo metadados completos e sua assinatura.</p>
 
