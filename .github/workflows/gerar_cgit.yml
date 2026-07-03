@@ -82,7 +82,7 @@ jobs:
           body > table:first-of-type { display: none !important; }
           EOF
 
-          # 2. Montar cabeçalho unificado com a nova aba "Como Contribuir"
+          # 2. Montar cabeçalho unificado com a aba "Como Contribuir"
           cat <<EOF > /tmp/global_header.html
           <table id='header-table'><tr><td><svg height='45' viewBox='0 0 32 32' width='45' xmlns='http://www.w3.org/2000/svg' fill='#fff'><path d='M16 2C12 2 9 5 9 9c0 2.1.8 4 2.2 5.4C10 16 8 19.3 8 23c0 3.3 2.7 6 6 6h4c3.3 0 6-2.7 6-6 0-3.7-2-7-3.2-8.6C22.2 13 23 11.1 23 9c0-4-3-7-7-7zm0 2c2.8 0 5 2.2 5 5s-2.2 5-5 5-5-2.2-5-5 2.2-5 5-5zm-4 12.1c1.2-.7 2.5-1.1 4-1.1s2.8.4 4 1.1C21.2 17.7 22 20.2 22 23c0 2.2-1.8 4-4 4h-4c-2.2 0-4-1.8-4-4 0-2.8.8-5.3 2-6.9z'/></svg></td><td class='main-td'><h1>index : kernel/git/docs/linux.git</h1><span class='desc'>🇧🇷 Documentação do Kernel Linux em pt_BR | Gerenciado por Daniel Pereira</span></td></tr></table>
           <div class='nav-links'><a href='log.html' id='link-log'>Histórico de Commits</a> | <a href='files.html' id='link-tree'>Árvore de Arquivos</a> | <a href='aguardando.html' id='link-aguardando'>⚠️ Aguardando Tradução</a> | <a href='andamento.html' id='link-andamento'>⏳ Sendo Traduzidos</a> | <a href='desatualizados.html' id='link-desatualizados'>🚨 Desatualizados (Upstream)</a> | <a href='como-contribuir.html' id='link-guia'>🚀 Como Contribuir</a></div><hr/>
@@ -103,7 +103,7 @@ jobs:
 
           Olá! Esta é uma discussão automatizada e gerenciada para coordenar a tradução do arquivo upstream.
 
-          📖 **Manual Completo Interativo:** Você pode checar o passo a passo completo, regras de configuração do Gmail para Git e geração de patches direto na aba do nosso site oficial: [🚀 Como Contribuir](https://daniel-pereira-linux.github.io/kernel-docs-br/como-contribuir.html).
+          📖 **Manual Completo Interativo:** Você pode checar o passo a passo completo, regras de configuração do Gmail para Git, padrões de descrição em inglês para **v1, v2 e patches de séries (múltiplos commits)** direto na aba do nosso site oficial: [🚀 Como Contribuir](https://daniel-pereira-linux.github.io/kernel-docs-br/como-contribuir.html).
 
           ---
 
@@ -118,7 +118,7 @@ jobs:
           git checkout -b traducao-trabalho
           ```
 
-          #### 2. Estrutura do Commit (Em Inglês com Assinatura)
+          #### 2. Estrutura Base do Commit (Em Inglês com Assinatura)
           ```bash
           git commit -s -m "docs: pt_BR: process: Translate the patch followthrough guide" -m "Translates the section to Brazilian Portuguese."
           ```
@@ -126,7 +126,7 @@ jobs:
           ---
 
           ### 🚀 Próximos Passos
-          Após finalizar a sua tradução local e validar a formatação do código, acesse o guia completo na aba do site ou entre em contato direto com o mantenedor **Daniel Pereira** via WhatsApp ou e-mail (**danielmaraboo@gmail.com**) para coordenar o envio e a revisão técnica final do seu patch.
+          Após finalizar a sua tradução local e validar a formatação do código, acesse o guia completo na aba do site para entender como gerar os patches oficiais do Git e entre em contato direto com o mantenedor **Daniel Pereira** via WhatsApp ou e-mail (**danielmaraboo@gmail.com**) para coordenar o envio e a revisão técnica final do seu patch.
           EOF
 
           # 3. Processar tabela Aguardando Tradução + Sincronizar Corpo de Issues Ativas
@@ -237,7 +237,7 @@ jobs:
           </body></html>
           EOF
 
-          # 7. Injetar a página do Guia de Contribuição Técnico (HTML) na Web com encerramento direto via E-mail/WhatsApp
+          # 7. Injetar a página do Guia de Contribuição Completo Técnico (HTML) na Web
           cat <<EOF > public/como-contribuir.html
           <!DOCTYPE html><html><head><meta charset="UTF-8"><title>Guia de Contribuição — Kernel Linux</title><link rel="stylesheet" type="text/css" href="style.css" /></head><body>
           $(cat /tmp/global_header.html | sed 's/id="link-guia"/id="link-guia" class="active"/g')
@@ -279,26 +279,61 @@ jobs:
             <li><b>4. Preserve a licença:</b> Mantenha o cabeçalho de licença intacto no topo do arquivo (ex: <tt>.. SPDX-License-Identifier: GPL-2.0</tt>).</li>
           </ul>
 
-          <div class="step-title">🧪 Passo 5: Validando Localmente (Build e checkpatch)</div>
-          <p>Para garantir que a sintaxe do seu arquivo <tt>.rst</tt> e o estilo de escrita estejam perfeitos, execute as validações nativas na raiz do repositório:</p>
-          <div class="code-block"># 1. Build do manual técnico em HTML
+          <div class="step-title">✍️ Passo 5: Como Adicionar uma Boa Descrição de Commit (Padrão Kernel)</div>
+          <p>A mensagem do commit deve ser curta, direta, escrita estritamente em <b>inglês</b> e conter a assinatura obrigatória (<tt>-s</tt>). Siga o modelo padrão do subsistema:</p>
+          <div class="code-block"># Sintaxe do Comando:
+          git commit -s -m "docs: pt_BR: [subsistema]: [Ação em formato Imperativo]" -m "[Corpo explicativo do commit]"
+
+          # Exemplo Prático para o diretório process:
+          git commit -s -m "docs: pt_BR: process: Translate the coding assistants guide" -m "Translates the documentation regarding AI coding assistants into Brazilian Portuguese, maintaining consistency with original formatting rules."</div>
+
+          <div class="step-title">🔄 Passo 6: Lógica de Revisão e Envio de Versão 2 (v2)</div>
+          <p>Se o mantenedor solicitar correções na sua tradução, você nunca deve criar um novo commit acumulado. Você deve alterar o commit existente usando o <tt>--amend</tt>, ajustar a descrição indicando as mudanças da nova versão e gerar o patch com a flag <tt>-v2</tt>:</p>
+          <div class="code-block"># 1. Faça os ajustes necessários no arquivo .rst
+          # 2. Amende o commit existente abrindo o editor para atualizar a descrição:
+          git commit --amend
+
+          # --- EXEMPLO DE MODELO DE DESCRIÇÃO PARA V2 (Abraço no histórico) ---
+          # docs: pt_BR: process: Translate the coding assistants guide
+          # 
+          # Translates the section into Brazilian Portuguese.
+          # 
+          # Changes since v1:
+          #  - Fix typos and grammar inconsistencies inside section 3.
+          #  - Align table indentations to avoid Sphinx build compilation warnings.
+          # 
+          # Signed-off-by: Seu Nome &lt;seu_email@gmail.com&gt;
+          # ---------------------------------------------------------------------
+
+          # 3. Gere o arquivo .patch já rotulado como v2 de forma nativa:
+          git format-patch -1 HEAD -v2
+          # (Isso gerará o arquivo: v2-0001-docs-pt_BR-process-Translate...patch)</div>
+
+          <div class="step-title">📦 Passo 7: Como Lidar com Múltiplos Commits (Patch de Séries)</div>
+          <p>Se a sua alteração for grande e exigir mais de um commit isolado na mesma branch (ex: um commit traduzindo o arquivo e outro commit atualizando o índice principal), você deve gerar uma **Série de Patches** com uma Carta de Apresentação (<tt>--cover-letter</tt>):</p>
+          <div class="code-block"># 1. Gere a série de patches apontando para a branch base (docs-next) adicionando marcadores de numeração:
+          git format-patch docs-next --cover-letter -o /tmp/patches/
+
+          # 2. Acesse a pasta e edite o arquivo '0000-cover-letter.patch' para adicionar o título geral e resumo da sua série em inglês:
+          # Subject: [PATCH 0/2] docs: pt_BR: process: Comprehensive translation series
+          # Bloco de texto descrevendo o escopo geral dos 2 patches abaixo.
+
+          # 3. Exemplo de envio de múltiplos commits (sequência exata via send-email):
+          git send-email /tmp/patches/v2-0000-cover-letter.patch /tmp/patches/v2-0001-*.patch /tmp/patches/v2-0002-*.patch</div>
+
+          <div class="step-title">🧪 Passo 8: Validando Tudo Localmente antes de Enviar</div>
+          <p>Antes de disparar qualquer patch individual ou série, garanta o check verde rodando as ferramentas oficiais na raiz do projeto:</p>
+          <div class="code-block"># 1. Build nativo do Sphinx (Não pode cuspir Warnings ou Errors na sua pasta pt_BR)
           make htmldocs
 
-          # 2. Análise estática do estilo do Kernel direto no arquivo de patch gerado
-          ./scripts/checkpatch.pl --no-tree --patch 0001-*.patch</div>
+          # 2. Executar o script oficial de validação estática de estilo do Kernel nos patches gerados:
+          ./scripts/checkpatch.pl --no-tree --patch /tmp/patches/*.patch</div>
 
-          <div class="step-title">✍️ Passo 6: Padronização do Commit e Geração do Patch (Em Inglês)</div>
-          <p>A mensagem do commit deve ser escrita estritamente em <b>inglês</b> e incluir obrigatoriamente a linha de assinatura (<tt>Signed-off-by</tt>) gerada pela flag <tt>-s</tt>:</p>
-          <div class="code-block">git commit -s -m "docs: pt_BR: process: Translate the patch followthrough guide" -m "Translates the section to Brazilian Portuguese."
-          
-          # Gerando o arquivo .patch estruturado oficial
-          git format-patch -1 HEAD</div>
-
-          <div class="step-title">🚀 Passo 7: Próximos Passos e Envio Técnico</div>
-          <p>Após gerar o arquivo <tt>.patch</tt> oficial e garantir que as checagens locais passaram sem erros, sua tradução está pronta para ser integrada! Para prosseguir com a revisão técnica e merge na árvore pt_BR, entre em contato direto com o mantenedor:</p>
+          <div class="step-title">🚀 Passo 9: Próximos Passos e Envio Técnico</div>
+          <p>Após gerar o arquivo <tt>.patch</tt> oficial (seja v1, v2 ou séries) e garantir que as checagens locais passaram limpas, sua tradução está pronta! Para prosseguir com o merge na árvore oficial pt_BR, entre em contato direto com o mantenedor:</p>
           <ul>
             <li><b>E-mail Oficial:</b> <a href="mailto:danielmaraboo@gmail.com" style="color: #55ff55;">danielmaraboo@gmail.com</a></li>
-            <li><b>Alinhamento Direto:</b> Procure por <b>Daniel Pereira</b> via WhatsApp para saber o próximo passo e receber as orientações de merge.</li>
+            <li><b>Alinhamento Direto:</b> Procure por <b>Daniel Pereira</b> via WhatsApp para saber o próximo passo e receber as orientações de homologação.</li>
           </ul>
 
           </body></html>
