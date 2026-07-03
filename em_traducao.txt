@@ -1,4 +1,10 @@
 Documentation/process/programming-language.rst - Responsável: Abel Philippe - Início: 2026-07-01
+Documentation/process/submit-checklist.rst - Responsável: Daniel Pereira - Início: 2026-07-03
+Documentation/maintainer/maintainer-entry-profile.rs - Responsável: Daniel Pereira - Início: 2026-07-03
+Documentation/process/code-of-conduct-interpretation.rs - Responsável: Daniel Pereira - Início: 2026-07-03
+Documentation/process/code-of-conduct.rst - Responsável: Daniel Pereira - Início: 2026-07-03
+Documentation/process/debugging - Responsável: Daniel Pereira - Início: 2026-07-03
+Documentation/process/deprecated.rst - Responsável: Daniel Pereira - Início: 2026-07-03
 Documentation/process/email-clients.rst - Responsável: Ygor Otávio - Início: 2026-07-01
 Documentation/process/generated-content.rst - Responsável: Amanda Corrêa - Início: 2026-07-01
 Documentation/process/management-style.rst - Responsável: Amanda Corrêa - Início: 2026-07-01
