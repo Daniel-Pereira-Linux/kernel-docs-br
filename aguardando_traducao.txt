@@ -6,7 +6,6 @@ Documentation/process/kernel-enforcement-statement.rst
 Documentation/process/maintainer-pgp-guide.rst
 Documentation/process/maintainers.rst
 Documentation/process/researcher-guidelines.rst
-Documentation/process/security-bugs.rst
 Documentation/process/stable-api-nonsense.rst
 Documentation/process/submit-checklist.rst
 Documentation/process/submitting-patches.rst
