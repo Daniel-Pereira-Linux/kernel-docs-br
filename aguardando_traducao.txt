@@ -4,7 +4,6 @@ Documentation/process/index.rst
 Documentation/process/kernel-driver-statement.rst
 Documentation/process/kernel-enforcement-statement.rst
 Documentation/process/maintainer-pgp-guide.rst
-Documentation/process/maintainers.rst
 Documentation/process/researcher-guidelines.rst
 Documentation/process/stable-api-nonsense.rst
 Documentation/process/submit-checklist.rst
