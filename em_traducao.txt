@@ -6,4 +6,3 @@ Documentation/process/volatile-considered-harmful.rst - Responsável: Amanda Cor
 Documentation/process/coding-assistants.rst - Responsável: Fabio Silva - Início: 2026-07-01
 Documentation/process/cve.rst - Responsável: Fabio Silva - Início: 2026-07-01
 Documentation/process/stable-kernel-rules.rst - Responsável: Matheus Patriota - Início: 2026-07-03
-Documentation/process/security-bugs.rst - Responsável: Álysson Gleyson - Início: 2026-07-04
