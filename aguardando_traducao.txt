@@ -1,7 +1,6 @@
 Documentation/process/kernel-driver-statement.rst
 Documentation/process/kernel-enforcement-statement.rst
 Documentation/process/maintainer-pgp-guide.rst
-Documentation/process/researcher-guidelines.rst
 Documentation/process/submit-checklist.rst
 Documentation/process/submitting-patches.rst
 Documentation/process/threat-model.rst
