@@ -1,6 +1,3 @@
-Documentation/process/embargoed-hardware-issues.rst
-Documentation/process/handling-regressions.rst
-Documentation/process/index.rst
 Documentation/process/kernel-driver-statement.rst
 Documentation/process/kernel-enforcement-statement.rst
 Documentation/process/maintainer-pgp-guide.rst
