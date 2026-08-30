@@ -17,9 +17,6 @@ jobs:
         with:
           python-version: '3.11'
 
-      - name: Instalar Dependências (b4 e Gemini)
-        run: pip install b4 google-genai
-
       - name: Cache da Árvore do Kernel
         id: cache-linux
         uses: actions/cache@v3
@@ -32,11 +29,12 @@ jobs:
         run: |
           git clone --depth 1 https://git.kernel.org/pub/scm/linux/kernel/git/docs/linux.git linux
 
-      - name: Preparar ambiente do Kernel
+      - name: Preparar dependências (Kernel + Public Inbox + Gemini)
         run: |
           sudo apt-get update
-          sudo apt-get install -y perl texlive-latex-base texlive-latex-extra graphviz imagemagick
+          sudo apt-get install -y perl texlive-latex-base texlive-latex-extra graphviz imagemagick public-inbox
           pip install -r linux/Documentation/sphinx/requirements.txt || true
+          pip install google-genai
           
       - name: Atualizar Árvore do Kernel
         run: |
@@ -45,12 +43,13 @@ jobs:
           git reset --hard FETCH_HEAD
           git clean -fdx
 
-      - name: Baixar Patches do Lore (linux-doc)
+      - name: Baixar Patches do Lore (linux-doc via lei)
         run: |
           mkdir -p patches
-          b4 q "s:pt_BR AND (s:PATCH OR s:patch) AND d:30.days.ago.." -l linux-doc -o patches/ || echo "Nenhum patch novo"
+          # Ferramenta oficial do Kernel para buscar e-mails
+          lei q -f mboxrd -o patches/resultados.mbx -I https://lore.kernel.org/linux-doc/ "s:pt_BR AND (s:PATCH OR s:patch) AND d:30.days.ago.." || echo "Nenhum patch novo ou erro no lei"
 
-      - name: Rodar a IA
+      - name: Rodar a IA (Miguel)
         env:
           GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
         run: python bot_revisor.py
@@ -58,11 +57,11 @@ jobs:
       - name: Mudar para branch gh-pages e salvar resultados
         run: |
           mv reviews.json /tmp/reviews.json || echo "[]" > /tmp/reviews.json
-          git config --global user.name 'Bot Revisor IA'
-          git config --global user.email 'bot@kernel-docs-br.com'
+          git config --global user.name 'Miguel Revisor IA'
+          git config --global user.email 'miguel@kernel-docs-br.com'
           git fetch origin gh-pages
           git checkout gh-pages
           mv /tmp/reviews.json data_reviews.json
           git add data_reviews.json
-          git commit -m "docs: 🤖 IA Atualizou as revisões gramaticais, checkpatch e sphinx" || echo "Sem mudanças"
+          git commit -m "docs: 🤖 Miguel atualizou as revisões gramaticais, checkpatch e sphinx" || echo "Sem mudanças"
           git push origin gh-pages
