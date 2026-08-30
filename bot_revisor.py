@@ -3,6 +3,7 @@ import re
 import json
 import mailbox
 import subprocess
+import urllib.request
 from google import genai
 
 api_key = os.environ.get("GEMINI_API_KEY")
@@ -20,18 +21,12 @@ def run_cmd(cmd, cwd="linux"):
         return 1, str(e)
 
 def resolver_conflito_ia(patch_text, erro_git):
-    prompt = f"""
-    Você é um Engenheiro de Kernel Linux. O patch abaixo falhou ao ser aplicado via 'git am' na documentação pt_BR.
-    
-    ERRO DO GIT:
-    {erro_git}
-    
-    PATCH ORIGINAL:
-    {patch_text}
-    
-    Corrija o patch para que ele seja aplicado com sucesso. 
-    Retorne APENAS o código do patch (diff unificado) em texto puro, sem formatação markdown (```).
-    """
+    prompt = f"""Você é um Engenheiro de Kernel Linux. O patch abaixo falhou ao ser aplicado via 'git am' na documentação pt_BR.
+ERRO DO GIT:
+{erro_git}
+PATCH ORIGINAL:
+{patch_text}
+Corrija o patch para que ele seja aplicado com sucesso. Retorne APENAS o código do patch (diff unificado) em texto puro, sem markdown."""
     try:
         response = client.models.generate_content(model='gemini-2.5-pro', contents=prompt)
         text = response.text.replace('```diff\n', '').replace('```', '')
@@ -42,8 +37,8 @@ def resolver_conflito_ia(patch_text, erro_git):
 def analisar_patch(msg):
     subject = msg.get('Subject', '')
     autor = msg.get('From', '')
+    msg_id = msg.get('Message-ID', '')
     
-    # Extrair corpo
     body = ""
     if msg.is_multipart():
         for part in msg.walk():
@@ -57,34 +52,28 @@ def analisar_patch(msg):
     if "Signed-off-by:" not in body:
         erros_estrutura.append("Falta a tag 'Signed-off-by' (DCO obrigatório).")
 
-    # Salva o patch temporário
     patch_path = os.path.abspath("temp_patch.patch")
     with open(patch_path, "w", encoding="utf-8") as f:
-        f.write(str(msg)) # salva o email cru como patch
+        f.write(str(msg))
         
     checkpatch_log = ""
     sphinx_log = ""
     status_aplicacao = "✅ Aplicado com sucesso"
 
     if os.path.exists("linux"):
-        # 1. Rodar Checkpatch
         code, out = run_cmd(f"./scripts/checkpatch.pl --strict {patch_path}")
         checkpatch_log = out
 
-        # 2. Aplicar o Patch (git am)
-        run_cmd("git am --abort") # limpar estado anterior
+        run_cmd("git am --abort")
         code, out = run_cmd(f"git am {patch_path}")
         
         if code != 0:
             run_cmd("git am --abort")
             status_aplicacao = "❌ Falha ao aplicar (Conflito). Acionando IA para resolução..."
-            
-            # Tentar resolver via IA
             novo_patch = resolver_conflito_ia(body, out)
             if novo_patch:
                 with open(patch_path, "w", encoding="utf-8") as f:
                     f.write(novo_patch)
-                # Tenta aplicar com git apply porque o email header pode ter sumido
                 code2, out2 = run_cmd(f"git apply {patch_path}")
                 if code2 == 0:
                     status_aplicacao = "⚠️ Aplicado com sucesso após correção automática da IA!"
@@ -92,36 +81,41 @@ def analisar_patch(msg):
                     status_aplicacao = "❌ Falha total: Nem a IA conseguiu resolver o conflito."
                     run_cmd("git apply --abort")
             
-        # 3. Rodar Make HTMLDOCS (Apenas pt_BR para ser rápido)
         if "Sucesso" in status_aplicacao or "Aplicado" in status_aplicacao:
             code, out = run_cmd("make SPHINXDIRS=translations/pt_BR htmldocs")
-            # Extrair apenas os avisos/erros
             avisos = [linha for linha in out.split('\n') if 'WARNING:' in linha or 'ERROR:' in linha]
             sphinx_log = "\n".join(avisos) if avisos else "Nenhum erro de Sphinx (Make HTMLDOCS 100% OK)."
         
-        # 4. Limpar a árvore para o próximo patch
         run_cmd("git reset --hard HEAD")
         run_cmd("git clean -fdx")
 
-    # Analisar gramática do diff original com Gemini
-    diff_lines = [line[1:] for line in body.split('\n') if line.startswith('+') and not line.startswith('+++')]
-    texto_traduzido = "\n".join(diff_lines).strip()
+    # ECONOMIA DE TOKENS: Filtrar apenas linhas que realmente têm texto útil traduzido
+    diff_lines = []
+    for line in body.split('\n'):
+        if line.startswith('+') and not line.startswith('+++'):
+            linha_limpa = line[1:].strip()
+            # Ignora linhas vazias ou puramente técnicas de estrutura RST para poupar tokens
+            if len(linha_limpa) > 3 and not linha_limpa.startswith('.. '):
+                diff_lines.append(linha_limpa)
+                
+    texto_traduzido = "\n".join(diff_lines)
     
-    revisao_ia = "Sem texto."
+    revisao_ia = "Sem texto útil para revisar."
     if len(texto_traduzido) > 10:
-        prompt = f"""Você é um revisor gramatical para documentação pt_BR do Linux. Aponte APENAS erros gramaticais e ortográficos. TEXTO: {texto_traduzido}"""
+        prompt = f"Revise a gramática/ortografia pt_BR. Ignore formatação técnica. TEXTO:\n{texto_traduzido}"
         try:
             revisao_ia = client.models.generate_content(model='gemini-2.5-pro', contents=prompt).text.strip()
         except:
-            revisao_ia = "Erro Gemini."
+            revisao_ia = "Erro ao conectar com Gemini."
 
     return {
+        "message_id": msg_id,
         "assunto": subject,
         "autor": autor,
         "data": msg.get('Date', ''),
         "erros_estrutura": erros_estrutura,
         "status_git": status_aplicacao,
-        "checkpatch": checkpatch_log[:1000], # Limitar tamanho
+        "checkpatch": checkpatch_log[:1000],
         "sphinx": sphinx_log[:1000],
         "revisao_ia": revisao_ia
     }
@@ -130,6 +124,19 @@ def main():
     if not os.path.exists("patches"):
         return
 
+    # 1. Carregar o BANCO DE DADOS (histórico) da gh-pages para poupar tokens e evitar re-análise
+    db_url = "https://raw.githubusercontent.com/Daniel-Pereira-Linux/kernel-docs-br/gh-pages/data_reviews.json"
+    historico = []
+    try:
+        req = urllib.request.Request(db_url)
+        with urllib.request.urlopen(req) as response:
+            historico = json.loads(response.read().decode('utf-8'))
+    except Exception as e:
+        print("Banco de dados não encontrado ou vazio. Iniciando um novo cache.")
+
+    # Cria um cache rápido baseado na ID única do email (Message-ID muda para v2, v3, etc)
+    cache_analises = { item.get('message_id'): item for item in historico if 'message_id' in item }
+    
     resultados = []
     for filename in os.listdir("patches"):
         if filename.endswith(".mbx"):
@@ -137,8 +144,16 @@ def main():
             for msg in mbox:
                 subj = msg.get('Subject', '')
                 if 'pt_BR' in subj or 'pt-br' in subj.lower():
-                    resultados.append(analisar_patch(msg))
+                    msg_id = msg.get('Message-ID', '')
                     
+                    # 2. SE JÁ ESTIVER NO BANCO DE DADOS, PULA A ANÁLISE! (Economiza 100% dos tokens)
+                    if msg_id in cache_analises:
+                        print(f"⏭️ Pulando (Já analisado): {subj}")
+                        resultados.append(cache_analises[msg_id])
+                    else:
+                        print(f"🔍 Analisando NOVO patch: {subj}")
+                        resultados.append(analisar_patch(msg))
+                        
     with open("reviews.json", "w", encoding="utf-8") as f:
         json.dump(resultados, f, ensure_ascii=False, indent=2)
 
