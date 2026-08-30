@@ -365,58 +365,9 @@ jobs:
           <!DOCTYPE html><html><head><meta http-equiv="refresh" content="0; url=log.html"></head><body></body></html>
           EOF
 
-          cat <<'HTMLEOF' > public/revisoes.html
-<!DOCTYPE html><html><head><meta charset="UTF-8"><title>Revisões IA (Miguel)</title><link rel="stylesheet" type="text/css" href="style.css" />
-<style>
-body { background: #111; color: #eee; font-family: sans-serif; }
-.card { background: #1e1e1e; color: #fff; margin: 15px 0; padding: 15px; border-radius: 8px; border-left: 4px solid #b16286; font-family: monospace; }
-.card h3 { margin-top: 0; color: #ffaa00; font-size: 14px;}
-.error { color: #ff5555; }
-.success { color: #55ff55; }
-.ai-text { background: #2a2a2a; padding: 10px; border-radius: 4px; margin-top: 5px; white-space: pre-wrap; font-size: 12px; border: 1px solid #444; }
-.badge { display: inline-block; padding: 3px 6px; border-radius: 3px; font-weight: bold; font-size: 11px; margin-bottom: 10px;}
-.disclaimer { font-size: 10px; color: #999; margin-top: 15px; border-top: 1px dashed #555; padding-top: 10px; text-align: center; font-family: sans-serif;}
-</style>
-</head><body>
-HTMLEOF
-          cat /tmp/global_header.html >> public/revisoes.html
-          cat <<'HTMLEOF' >> public/revisoes.html
-<div id="content" style="padding: 20px;">
-    <h2>Análises Automáticas da Lista (Gramática + Sphinx + Checkpatch)</h2>
-    <div id="reviews-container">Carregando relatórios avançados da IA...</div>
-</div>
-<script>
-fetch('data_reviews.json')
-    .then(response => { if (!response.ok) throw new Error("Sem dados"); return response.json(); })
-    .then(data => {
-        const container = document.getElementById('reviews-container');
-        container.innerHTML = '';
-        if (data.length === 0) { container.innerHTML = '<p>Nenhum patch pt_BR recente encontrado no lore.</p>'; return; }
-        data.forEach(patch => {
-            let colorGit = patch.status_git.includes('❌') ? 'background: #ff5555; color: #fff;' : (patch.status_git.includes('⚠️') ? 'background: #ffaa00; color: #000;' : 'background: #55ff55; color: #000;');
-            let estrutErros = patch.erros_estrutura.length > 0 ? patch.erros_estrutura.map(e => `<li class="error">❌ ${e}</li>`).join('') : '<li class="success">✅ Estrutura DCO perfeita.</li>';
-                
-            let html = `<div class="card">
-                <h3>${patch.assunto}</h3>
-                <p style="font-size: 11px;"><strong>Autor:</strong> ${patch.autor} | <strong>Data:</strong> ${patch.data}</p>
-                <div class="badge" style="${colorGit}">${patch.status_git}</div>
-                <hr style="border: 1px solid #444;">
-                <h4>Estrutura:</h4>
-                <ul>${estrutErros}</ul>
-                <h4>1. Gramática (Gemini 2.5 Pro):</h4>
-                <div class="ai-text">${patch.revisao_ia.replace(/</g, "&lt;").replace(/>/g, "&gt;")}</div>
-                <h4>2. Checkpatch (.pl):</h4>
-                <div class="ai-text">${(patch.checkpatch || 'Sem saída de erro.').replace(/</g, "&lt;").replace(/>/g, "&gt;")}</div>
-                <h4>3. Make htmldocs (Sphinx):</h4>
-                <div class="ai-text">${(patch.sphinx || 'Nenhum erro de Sphinx.').replace(/</g, "&lt;").replace(/>/g, "&gt;")}</div>
-                <div class="disclaimer">⚠️ <strong>Aviso:</strong> O Miguel é uma ferramenta automatizada baseada em Inteligência Artificial. Ele pode cometer erros ou gerar falsos positivos. Verifique sempre o contexto.</div>
-            </div>`;
-            container.innerHTML += html;
-        });
-    })
-    .catch(error => { document.getElementById('reviews-container').innerHTML = `<p>${error.message}</p>`; });
-</script></body></html>
-HTMLEOF
+      - name: 🤖 Gerar Página de Revisões IA (Miguel)
+        run: |
+          python3 gerar_revisoes.py
 
 
       - name: 🚀 Deploy em Tempo Real para o GitHub Pages
