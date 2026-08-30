@@ -32,7 +32,7 @@ body {{ background: #111; color: #eee; font-family: sans-serif; }}
 <script>
 function esc(s) {{ return (s || '').replace(/</g, '&lt;').replace(/>/g, '&gt;'); }}
 
-fetch('data_reviews.json')
+fetch('data_reviews.json?t=' + new Date().getTime())
 .then(function(r) {{ if (!r.ok) throw new Error('Sem dados'); return r.json(); }})
 .then(function(data) {{
     var c = document.getElementById('reviews-container');
