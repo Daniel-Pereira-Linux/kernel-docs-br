@@ -159,9 +159,14 @@ def main():
 
     # ── MODO ANÁLISE: Analisa UM patch específico ──
     if ANALISAR_MSG_ID:
-        print(f"🔍 Modo ANÁLISE: Buscando patch {ANALISAR_MSG_ID}")
+
+        if ANALISAR_MSG_ID in banco and banco[ANALISAR_MSG_ID].get("analisado"):
+            print(f"⏭️ Patch {ANALISAR_MSG_ID} já foi analisado antes! Pulando análise da IA para economizar tokens.")
+            return
+
 
         # Procura no banco existente ou nos patches baixados
+        print(f"\n🔍 Modo ANÁLISE: Buscando patch {ANALISAR_MSG_ID}")
         if ANALISAR_MSG_ID in banco and "body" in banco[ANALISAR_MSG_ID]:
             patch = banco[ANALISAR_MSG_ID]
         else:

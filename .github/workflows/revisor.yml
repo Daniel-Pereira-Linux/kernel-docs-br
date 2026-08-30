@@ -6,12 +6,15 @@ on:
   workflow_dispatch:
     inputs:
       message_id:
-        description: 'Message-ID do patch para analisar com IA (deixe vazio para apenas listar)'
+        description: 'Message-ID do patch para analisar com IA'
         required: false
         default: ''
+  issues:
+    types: [opened]
 
 permissions:
   contents: write
+  issues: write
 
 jobs:
   revisar:
@@ -21,6 +24,29 @@ jobs:
         uses: actions/checkout@v4
         with:
           ref: docs-next
+
+      - name: Descobrir Message-ID
+        id: msg
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          if [ "${{ github.event_name }}" = "issues" ]; then
+            if [[ "${{ github.event.issue.title }}" == "Miguel Analisar Patch "* ]]; then
+              MSG_ID="${{ github.event.issue.title }}"
+              MSG_ID="${MSG_ID#Miguel Analisar Patch }"
+              echo "id=$MSG_ID" >> $GITHUB_OUTPUT
+              gh issue close "${{ github.event.issue.number }}" -c "🤖 O Miguel começou a análise do patch. O site será atualizado em breve."
+            else
+              # Se não for uma issue do Miguel, encerra o job sem erro
+              echo "id=IGNORE" >> $GITHUB_OUTPUT
+            fi
+          else
+            echo "id=${{ github.event.inputs.message_id }}" >> $GITHUB_OUTPUT
+          fi
+
+      - name: Cancelar se ignorado
+        if: steps.msg.outputs.id == 'IGNORE'
+        run: exit 0
 
       - name: Configurar Python
         uses: actions/setup-python@v5
@@ -58,7 +84,7 @@ jobs:
       - name: Rodar o Miguel
         env:
           GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
-          ANALISAR_MSG_ID: ${{ github.event.inputs.message_id }}
+          ANALISAR_MSG_ID: ${{ steps.msg.outputs.id }}
         run: python bot_revisor.py
 
       - name: Salvar resultados no gh-pages
