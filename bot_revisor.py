@@ -143,7 +143,7 @@ def analisar_com_ia(patch):
                 "com a correção sugerida. Se não houver erros, diga 'Nenhum erro encontrado.'\n\n"
                 f"TEXTO:\n{texto}"
             )
-            resp = client.models.generate_content(model="gemini-2.5-flash", contents=prompt)
+            resp = client.models.generate_content(model="gemini-3.6-flash", contents=prompt)
             resultado["revisao_ia"] = resp.text.strip()
         except Exception as e:
             resultado["revisao_ia"] = f"Erro ao conectar com Gemini: {e}"
