@@ -1,0 +1,50 @@
+name: Bot Revisor pt_BR (Sashiko)
+
+on:
+  schedule:
+    - cron: '0 */6 * * *'
+  workflow_dispatch:
+
+jobs:
+  revisar:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout do repositório
+        uses: actions/checkout@v4
+
+      - name: Configurar Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Instalar Dependências (b4 e Gemini)
+        run: pip install b4 google-genai
+
+      - name: Baixar Patches do Lore (linux-doc)
+        run: |
+          mkdir -p patches
+          # Usamos o b4 para procurar threads que tenham pt_BR no assunto nos últimos 30 dias
+          b4 q "s:pt_BR AND (s:PATCH OR s:patch) AND d:30.days.ago.." -l linux-doc -o patches/ || echo "Nenhum patch novo"
+
+      - name: Rodar a IA
+        env:
+          GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
+        run: python bot_revisor.py
+
+      - name: Mudar para branch gh-pages e salvar resultados
+        run: |
+          # Movemos o arquivo para fora do repo temporariamente
+          mv reviews.json /tmp/reviews.json || echo "[]" > /tmp/reviews.json
+          
+          # Pegamos as credenciais do GitHub Actions
+          git config --global user.name 'Bot Revisor IA'
+          git config --global user.email 'bot@kernel-docs-br.com'
+          
+          git fetch origin gh-pages
+          git checkout gh-pages
+          
+          mv /tmp/reviews.json data_reviews.json
+          
+          git add data_reviews.json
+          git commit -m "docs: 🤖 IA Atualizou as revisões gramaticais" || echo "Sem mudanças"
+          git push origin gh-pages
