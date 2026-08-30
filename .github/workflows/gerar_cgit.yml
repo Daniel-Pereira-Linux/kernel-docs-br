@@ -85,7 +85,7 @@ jobs:
           # 2. Montar cabeçalho unificado com a aba "Como Contribuir"
           cat <<EOF > /tmp/global_header.html
           <table id='header-table'><tr><td><svg height='45' viewBox='0 0 32 32' width='45' xmlns='http://www.w3.org/2000/svg' fill='#fff'><path d='M16 2C12 2 9 5 9 9c0 2.1.8 4 2.2 5.4C10 16 8 19.3 8 23c0 3.3 2.7 6 6 6h4c3.3 0 6-2.7 6-6 0-3.7-2-7-3.2-8.6C22.2 13 23 11.1 23 9c0-4-3-7-7-7zm0 2c2.8 0 5 2.2 5 5s-2.2 5-5 5-5-2.2-5-5 2.2-5 5-5zm-4 12.1c1.2-.7 2.5-1.1 4-1.1s2.8.4 4 1.1C21.2 17.7 22 20.2 22 23c0 2.2-1.8 4-4 4h-4c-2.2 0-4-1.8-4-4 0-2.8.8-5.3 2-6.9z'/></svg></td><td class='main-td'><h1>index : kernel/git/docs/linux.git</h1><span class='desc'>🇧🇷 Documentação do Kernel Linux em pt_BR | Gerenciado por Daniel Pereira</span></td></tr></table>
-          <div class='nav-links'><a href='log.html' id='link-log'>Histórico de Commits</a> | <a href='files.html' id='link-tree'>Árvore de Arquivos</a> | <a href='aguardando.html' id='link-aguardando'>⚠️ Aguardando Tradução</a> | <a href='andamento.html' id='link-andamento'>⏳ Sendo Traduzidos</a> | <a href='desatualizados.html' id='link-desatualizados'>🚨 Desatualizados (Upstream)</a> | <a href='como-contribuir.html' id='link-guia'>🚀 Como Contribuir</a></div><hr/>
+          <div class='nav-links'><a href='aguardando.html' id='link-aguardando'>⚠️ Aguardando Tradução</a> | <a href='andamento.html' id='link-andamento'>⏳ Sendo Traduzidos</a> | <a href='revisoes.html' id='link-revisoes' style='font-weight:bold;text-decoration:underline;'>🤖 Revisões IA (Miguel)</a> | <a href='como-contribuir.html' id='link-guia'>🚀 Como Contribuir</a></div><hr/>
           EOF
 
           REPO_URL="https://github.com/${{ github.repository }}"
@@ -365,11 +365,67 @@ jobs:
           <!DOCTYPE html><html><head><meta http-equiv="refresh" content="0; url=log.html"></head><body></body></html>
           EOF
 
+          cat <<'HTMLEOF' > public/revisoes.html
+<!DOCTYPE html><html><head><meta charset="UTF-8"><title>Revisões IA (Miguel)</title><link rel="stylesheet" type="text/css" href="style.css" />
+<style>
+body { background: #111; color: #eee; font-family: sans-serif; }
+.card { background: #1e1e1e; color: #fff; margin: 15px 0; padding: 15px; border-radius: 8px; border-left: 4px solid #b16286; font-family: monospace; }
+.card h3 { margin-top: 0; color: #ffaa00; font-size: 14px;}
+.error { color: #ff5555; }
+.success { color: #55ff55; }
+.ai-text { background: #2a2a2a; padding: 10px; border-radius: 4px; margin-top: 5px; white-space: pre-wrap; font-size: 12px; border: 1px solid #444; }
+.badge { display: inline-block; padding: 3px 6px; border-radius: 3px; font-weight: bold; font-size: 11px; margin-bottom: 10px;}
+.disclaimer { font-size: 10px; color: #999; margin-top: 15px; border-top: 1px dashed #555; padding-top: 10px; text-align: center; font-family: sans-serif;}
+</style>
+</head><body>
+HTMLEOF
+          cat /tmp/global_header.html >> public/revisoes.html
+          cat <<'HTMLEOF' >> public/revisoes.html
+<div id="content" style="padding: 20px;">
+    <h2>Análises Automáticas da Lista (Gramática + Sphinx + Checkpatch)</h2>
+    <div id="reviews-container">Carregando relatórios avançados da IA...</div>
+</div>
+<script>
+fetch('data_reviews.json')
+    .then(response => { if (!response.ok) throw new Error("Sem dados"); return response.json(); })
+    .then(data => {
+        const container = document.getElementById('reviews-container');
+        container.innerHTML = '';
+        if (data.length === 0) { container.innerHTML = '<p>Nenhum patch pt_BR recente encontrado no lore.</p>'; return; }
+        data.forEach(patch => {
+            let colorGit = patch.status_git.includes('❌') ? 'background: #ff5555; color: #fff;' : (patch.status_git.includes('⚠️') ? 'background: #ffaa00; color: #000;' : 'background: #55ff55; color: #000;');
+            let estrutErros = patch.erros_estrutura.length > 0 ? patch.erros_estrutura.map(e => `<li class="error">❌ ${e}</li>`).join('') : '<li class="success">✅ Estrutura DCO perfeita.</li>';
+                
+            let html = `<div class="card">
+                <h3>${patch.assunto}</h3>
+                <p style="font-size: 11px;"><strong>Autor:</strong> ${patch.autor} | <strong>Data:</strong> ${patch.data}</p>
+                <div class="badge" style="${colorGit}">${patch.status_git}</div>
+                <hr style="border: 1px solid #444;">
+                <h4>Estrutura:</h4>
+                <ul>${estrutErros}</ul>
+                <h4>1. Gramática (Gemini 2.5 Pro):</h4>
+                <div class="ai-text">${patch.revisao_ia.replace(/</g, "&lt;").replace(/>/g, "&gt;")}</div>
+                <h4>2. Checkpatch (.pl):</h4>
+                <div class="ai-text">${(patch.checkpatch || 'Sem saída de erro.').replace(/</g, "&lt;").replace(/>/g, "&gt;")}</div>
+                <h4>3. Make htmldocs (Sphinx):</h4>
+                <div class="ai-text">${(patch.sphinx || 'Nenhum erro de Sphinx.').replace(/</g, "&lt;").replace(/>/g, "&gt;")}</div>
+                <div class="disclaimer">⚠️ <strong>Aviso:</strong> O Miguel é uma ferramenta automatizada baseada em Inteligência Artificial. Ele pode cometer erros ou gerar falsos positivos. Verifique sempre o contexto.</div>
+            </div>`;
+            container.innerHTML += html;
+        });
+    })
+    .catch(error => { document.getElementById('reviews-container').innerHTML = `<p>${error.message}</p>`; });
+</script></body></html>
+HTMLEOF
+
+
       - name: 🚀 Deploy em Tempo Real para o GitHub Pages
         uses: JamesIves/github-pages-deploy-action@v4
         with:
           folder: public
           branch: gh-pages
+          clean-exclude: |
+            data_reviews.json
 
   analisar-patch:
     if: github.event_name == 'issue_comment' && contains(github.event.comment.body, 'analise o meu patch')
