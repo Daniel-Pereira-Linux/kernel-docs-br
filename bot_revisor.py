@@ -12,9 +12,36 @@ if not api_key:
 
 client = genai.Client(api_key=api_key)
 
+def run_cmd(cmd, cwd="linux"):
+    try:
+        result = subprocess.run(cmd, cwd=cwd, capture_output=True, text=True, shell=True)
+        return result.returncode, result.stdout + result.stderr
+    except Exception as e:
+        return 1, str(e)
+
+def resolver_conflito_ia(patch_text, erro_git):
+    prompt = f"""
+    Você é um Engenheiro de Kernel Linux. O patch abaixo falhou ao ser aplicado via 'git am' na documentação pt_BR.
+    
+    ERRO DO GIT:
+    {erro_git}
+    
+    PATCH ORIGINAL:
+    {patch_text}
+    
+    Corrija o patch para que ele seja aplicado com sucesso. 
+    Retorne APENAS o código do patch (diff unificado) em texto puro, sem formatação markdown (```).
+    """
+    try:
+        response = client.models.generate_content(model='gemini-2.5-pro', contents=prompt)
+        text = response.text.replace('```diff\n', '').replace('```', '')
+        return text.strip()
+    except:
+        return None
+
 def analisar_patch(msg):
-    erros = []
     subject = msg.get('Subject', '')
+    autor = msg.get('From', '')
     
     # Extrair corpo
     body = ""
@@ -26,91 +53,92 @@ def analisar_patch(msg):
     else:
         body = msg.get_payload(decode=True).decode('utf-8', errors='replace')
 
-    # 1. Checar Assinatura
+    erros_estrutura = []
     if "Signed-off-by:" not in body:
-        erros.append("Falta a tag 'Signed-off-by' (DCO obrigatório).")
+        erros_estrutura.append("Falta a tag 'Signed-off-by' (DCO obrigatório).")
 
-    # 2. Checar log de mudanças (Changes in vX)
-    if re.search(r'\[.*v[2-9].*\]', subject, re.IGNORECASE):
-        # Procura onde estão os '---'
-        parts = body.split('---', 1)
-        if len(parts) > 1:
-            before_dashes = parts[0]
-            if re.search(r'(?i)changes in v|v[2-9] changes', before_dashes):
-                erros.append("O changelog da versão (ex: Changes in v2) está ACIMA dos '---'. Ele deve ficar abaixo para não poluir a mensagem de commit final.")
-        else:
-            erros.append("Separador '---' ausente no corpo do patch.")
+    # Salva o patch temporário
+    patch_path = os.path.abspath("temp_patch.patch")
+    with open(patch_path, "w", encoding="utf-8") as f:
+        f.write(str(msg)) # salva o email cru como patch
+        
+    checkpatch_log = ""
+    sphinx_log = ""
+    status_aplicacao = "✅ Aplicado com sucesso"
+
+    if os.path.exists("linux"):
+        # 1. Rodar Checkpatch
+        code, out = run_cmd(f"./scripts/checkpatch.pl --strict {patch_path}")
+        checkpatch_log = out
+
+        # 2. Aplicar o Patch (git am)
+        run_cmd("git am --abort") # limpar estado anterior
+        code, out = run_cmd(f"git am {patch_path}")
+        
+        if code != 0:
+            run_cmd("git am --abort")
+            status_aplicacao = "❌ Falha ao aplicar (Conflito). Acionando IA para resolução..."
             
-    # 3. Analisar gramática do diff com Gemini
-    diff_lines = []
-    in_diff = False
-    for line in body.split('\n'):
-        if line.startswith('diff --git'):
-            in_diff = True
-        if in_diff and line.startswith('+') and not line.startswith('+++'):
-            # Limpa o + inicial
-            diff_lines.append(line[1:])
+            # Tentar resolver via IA
+            novo_patch = resolver_conflito_ia(body, out)
+            if novo_patch:
+                with open(patch_path, "w", encoding="utf-8") as f:
+                    f.write(novo_patch)
+                # Tenta aplicar com git apply porque o email header pode ter sumido
+                code2, out2 = run_cmd(f"git apply {patch_path}")
+                if code2 == 0:
+                    status_aplicacao = "⚠️ Aplicado com sucesso após correção automática da IA!"
+                else:
+                    status_aplicacao = "❌ Falha total: Nem a IA conseguiu resolver o conflito."
+                    run_cmd("git apply --abort")
             
+        # 3. Rodar Make HTMLDOCS (Apenas pt_BR para ser rápido)
+        if "Sucesso" in status_aplicacao or "Aplicado" in status_aplicacao:
+            code, out = run_cmd("make SPHINXDIRS=translations/pt_BR htmldocs")
+            # Extrair apenas os avisos/erros
+            avisos = [linha for linha in out.split('\n') if 'WARNING:' in linha or 'ERROR:' in linha]
+            sphinx_log = "\n".join(avisos) if avisos else "Nenhum erro de Sphinx (Make HTMLDOCS 100% OK)."
+        
+        # 4. Limpar a árvore para o próximo patch
+        run_cmd("git reset --hard HEAD")
+        run_cmd("git clean -fdx")
+
+    # Analisar gramática do diff original com Gemini
+    diff_lines = [line[1:] for line in body.split('\n') if line.startswith('+') and not line.startswith('+++')]
     texto_traduzido = "\n".join(diff_lines).strip()
     
-    revisao_ia = "Sem trechos traduzidos encontrados."
+    revisao_ia = "Sem texto."
     if len(texto_traduzido) > 10:
-        prompt = f"""
-        Você é um revisor restrito para documentação pt_BR do Linux.
-        Analise o texto abaixo em busca APENAS de:
-        - Erros gramaticais, ortografia e acentuação.
-        - Erros de digitação (typos) e palavras grudadas.
-        
-        NÃO dê sugestões de estilo, NÃO reescreva o texto, NÃO avalie se a tradução é "boa". Ignore comandos técnicos (RST, Sphinx, C).
-        Se estiver 100% correto, responda exatamente: "Nenhum erro gramatical encontrado."
-        
-        TEXTO:
-        {texto_traduzido}
-        """
+        prompt = f"""Você é um revisor gramatical para documentação pt_BR do Linux. Aponte APENAS erros gramaticais e ortográficos. TEXTO: {texto_traduzido}"""
         try:
-            response = client.models.generate_content(
-                model='gemini-2.5-pro',
-                contents=prompt,
-            )
-            revisao_ia = response.text.strip()
-        except Exception as e:
-            revisao_ia = f"Erro ao consultar Gemini: {str(e)}"
-
-    # 4. (Opcional) Poderíamos extrair o patch e rodar get_maintainer.pl aqui
-    # Mas como não temos a árvore completa do linux extraída facilmente no script sem sujeira,
-    # vamos listar a regra básica:
-    to_cc = str(msg.get('To', '')) + " " + str(msg.get('Cc', ''))
-    if "corbet@lwn.net" not in to_cc and "workflows@vger.kernel.org" not in to_cc:
-        pass # Apenas um exemplo visual, o get_maintainer real pode ser bem ruidoso.
+            revisao_ia = client.models.generate_content(model='gemini-2.5-pro', contents=prompt).text.strip()
+        except:
+            revisao_ia = "Erro Gemini."
 
     return {
         "assunto": subject,
-        "autor": msg.get('From', ''),
+        "autor": autor,
         "data": msg.get('Date', ''),
-        "erros_estrutura": erros,
+        "erros_estrutura": erros_estrutura,
+        "status_git": status_aplicacao,
+        "checkpatch": checkpatch_log[:1000], # Limitar tamanho
+        "sphinx": sphinx_log[:1000],
         "revisao_ia": revisao_ia
     }
 
 def main():
     if not os.path.exists("patches"):
-        print("Pasta de patches não encontrada.")
         return
 
     resultados = []
-    
-    # Ler os mboxes gerados pelo b4
     for filename in os.listdir("patches"):
         if filename.endswith(".mbx"):
             mbox = mailbox.mbox(os.path.join("patches", filename))
             for msg in mbox:
-                # Filtrar apenas os que têm pt_BR no título
                 subj = msg.get('Subject', '')
                 if 'pt_BR' in subj or 'pt-br' in subj.lower():
-                    print(f"Analisando: {subj}")
-                    res = analisar_patch(msg)
-                    resultados.append(res)
+                    resultados.append(analisar_patch(msg))
                     
-    # Salva o json
     with open("reviews.json", "w", encoding="utf-8") as f:
         json.dump(resultados, f, ensure_ascii=False, indent=2)
 

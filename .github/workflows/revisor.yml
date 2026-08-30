@@ -20,10 +20,34 @@ jobs:
       - name: Instalar Dependências (b4 e Gemini)
         run: pip install b4 google-genai
 
+      - name: Cache da Árvore do Kernel
+        id: cache-linux
+        uses: actions/cache@v3
+        with:
+          path: linux
+          key: linux-docs-tree-${{ runner.os }}-v1
+
+      - name: Baixar Árvore do Kernel (se não estiver em cache)
+        if: steps.cache-linux.outputs.cache-hit != 'true'
+        run: |
+          git clone --depth 1 https://git.kernel.org/pub/scm/linux/kernel/git/docs/linux.git linux
+
+      - name: Preparar ambiente do Kernel
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y perl texlive-latex-base texlive-latex-extra graphviz imagemagick
+          pip install -r linux/Documentation/sphinx/requirements.txt || true
+          
+      - name: Atualizar Árvore do Kernel
+        run: |
+          cd linux
+          git fetch origin master --depth 1
+          git reset --hard FETCH_HEAD
+          git clean -fdx
+
       - name: Baixar Patches do Lore (linux-doc)
         run: |
           mkdir -p patches
-          # Usamos o b4 para procurar threads que tenham pt_BR no assunto nos últimos 30 dias
           b4 q "s:pt_BR AND (s:PATCH OR s:patch) AND d:30.days.ago.." -l linux-doc -o patches/ || echo "Nenhum patch novo"
 
       - name: Rodar a IA
@@ -33,18 +57,12 @@ jobs:
 
       - name: Mudar para branch gh-pages e salvar resultados
         run: |
-          # Movemos o arquivo para fora do repo temporariamente
           mv reviews.json /tmp/reviews.json || echo "[]" > /tmp/reviews.json
-          
-          # Pegamos as credenciais do GitHub Actions
           git config --global user.name 'Bot Revisor IA'
           git config --global user.email 'bot@kernel-docs-br.com'
-          
           git fetch origin gh-pages
           git checkout gh-pages
-          
           mv /tmp/reviews.json data_reviews.json
-          
           git add data_reviews.json
-          git commit -m "docs: 🤖 IA Atualizou as revisões gramaticais" || echo "Sem mudanças"
+          git commit -m "docs: 🤖 IA Atualizou as revisões gramaticais, checkpatch e sphinx" || echo "Sem mudanças"
           git push origin gh-pages
