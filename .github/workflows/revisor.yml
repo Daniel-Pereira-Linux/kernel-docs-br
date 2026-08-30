@@ -33,23 +33,19 @@ jobs:
           sudo apt-get install -y public-inbox
           pip install google-genai
 
-      - name: Cache da Árvore do Kernel
-        id: cache-linux
-        uses: actions/cache@v3
+      - name: Restaurar Árvore do Kernel (Cache)
+        uses: actions/cache/restore@v3
         with:
           path: linux
-          key: linux-docs-tree-${{ runner.os }}-v1
+          key: linux-docs-tree-${{ runner.os }}-v2
+          restore-keys: |
+            linux-docs-tree-${{ runner.os }}-
 
-      - name: Baixar Árvore do Kernel (se não estiver em cache)
-        if: steps.cache-linux.outputs.cache-hit != 'true'
-        run: git clone --depth 1 https://git.kernel.org/pub/scm/linux/kernel/git/docs/linux.git linux
-
-      - name: Atualizar Árvore do Kernel
+      - name: Fallback se cache falhar
+        if: hashFiles('linux/.git') == ''
         run: |
-          cd linux
-          git fetch origin master --depth 1
-          git reset --hard FETCH_HEAD
-          git clean -fdx
+          echo "Cache não encontrado. Clonando rápido para fallback..."
+          git clone --depth 1 https://git.kernel.org/pub/scm/linux/kernel/git/docs/linux.git linux
 
       - name: Baixar Patches do Lore (linux-doc via lei)
         run: |
