@@ -47,7 +47,7 @@ jobs:
         run: |
           mkdir -p patches
           # Ferramenta oficial do Kernel para buscar e-mails
-          lei q -f mboxrd -o patches/resultados.mbx -I https://lore.kernel.org/linux-doc/ "s:pt_BR AND (s:PATCH OR s:patch) AND d:30.days.ago.." || echo "Nenhum patch novo ou erro no lei"
+          lei q -f mboxrd -o patches/resultados.mbx -I https://lore.kernel.org/linux-doc/ "s:pt_BR AND (s:PATCH OR s:patch) AND d:3.days.ago.." || echo "Nenhum patch novo ou erro no lei"
 
       - name: Rodar a IA (Miguel)
         env:

@@ -89,12 +89,10 @@ def analisar_patch(msg):
         run_cmd("git reset --hard HEAD")
         run_cmd("git clean -fdx")
 
-    # ECONOMIA DE TOKENS: Filtrar apenas linhas que realmente têm texto útil traduzido
     diff_lines = []
     for line in body.split('\n'):
         if line.startswith('+') and not line.startswith('+++'):
             linha_limpa = line[1:].strip()
-            # Ignora linhas vazias ou puramente técnicas de estrutura RST para poupar tokens
             if len(linha_limpa) > 3 and not linha_limpa.startswith('.. '):
                 diff_lines.append(linha_limpa)
                 
@@ -121,10 +119,6 @@ def analisar_patch(msg):
     }
 
 def main():
-    if not os.path.exists("patches"):
-        return
-
-    # 1. Carregar o BANCO DE DADOS (histórico) da gh-pages para poupar tokens e evitar re-análise
     db_url = "https://raw.githubusercontent.com/Daniel-Pereira-Linux/kernel-docs-br/gh-pages/data_reviews.json"
     historico = []
     try:
@@ -134,28 +128,33 @@ def main():
     except Exception as e:
         print("Banco de dados não encontrado ou vazio. Iniciando um novo cache.")
 
-    # Cria um cache rápido baseado na ID única do email (Message-ID muda para v2, v3, etc)
-    cache_analises = { item.get('message_id'): item for item in historico if 'message_id' in item }
+    # GARANTIA ABSOLUTA DE PRESERVAÇÃO HISTÓRICA
+    # Transformamos a lista num dicionário onde TUDO o que já foi analisado no passado FICA GUARDADO.
+    banco_de_dados = { item.get('message_id'): item for item in historico if 'message_id' in item }
     
-    resultados = []
-    for filename in os.listdir("patches"):
-        if filename.endswith(".mbx"):
-            mbox = mailbox.mbox(os.path.join("patches", filename))
-            for msg in mbox:
-                subj = msg.get('Subject', '')
-                if 'pt_BR' in subj or 'pt-br' in subj.lower():
-                    msg_id = msg.get('Message-ID', '')
-                    
-                    # 2. SE JÁ ESTIVER NO BANCO DE DADOS, PULA A ANÁLISE! (Economiza 100% dos tokens)
-                    if msg_id in cache_analises:
-                        print(f"⏭️ Pulando (Já analisado): {subj}")
-                        resultados.append(cache_analises[msg_id])
-                    else:
-                        print(f"🔍 Analisando NOVO patch: {subj}")
-                        resultados.append(analisar_patch(msg))
+    if os.path.exists("patches"):
+        for filename in os.listdir("patches"):
+            if filename.endswith(".mbx"):
+                mbox = mailbox.mbox(os.path.join("patches", filename))
+                for msg in mbox:
+                    subj = msg.get('Subject', '')
+                    if 'pt_BR' in subj or 'pt-br' in subj.lower():
+                        msg_id = msg.get('Message-ID', '')
                         
+                        if msg_id not in banco_de_dados:
+                            print(f"🔍 Analisando NOVO patch: {subj}")
+                            banco_de_dados[msg_id] = analisar_patch(msg)
+                        else:
+                            print(f"⏭️ Pulando análise IA (mas preservando no histórico do site): {subj}")
+                        
+    # Reverte o dicionário para uma lista para salvar no JSON do site
+    resultados_finais = list(banco_de_dados.values())
+    
+    # Ordena para os mais recentes ficarem no topo (opcional, mas recomendado)
+    resultados_finais.reverse()
+
     with open("reviews.json", "w", encoding="utf-8") as f:
-        json.dump(resultados, f, ensure_ascii=False, indent=2)
+        json.dump(resultados_finais, f, ensure_ascii=False, indent=2)
 
 if __name__ == "__main__":
     main()
