@@ -4,6 +4,12 @@ on:
   schedule:
     - cron: '*/30 * * * *'
   workflow_dispatch:
+    inputs:
+      message_id:
+        description: 'Message-ID do patch para analisar com IA (deixe vazio para apenas listar)'
+        required: false
+        default: ''
+
 permissions:
   contents: write
 
@@ -13,11 +19,19 @@ jobs:
     steps:
       - name: Checkout do repositório
         uses: actions/checkout@v4
+        with:
+          ref: docs-next
 
       - name: Configurar Python
         uses: actions/setup-python@v5
         with:
           python-version: '3.11'
+
+      - name: Instalar dependências
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y public-inbox
+          pip install google-genai
 
       - name: Cache da Árvore do Kernel
         id: cache-linux
@@ -28,16 +42,8 @@ jobs:
 
       - name: Baixar Árvore do Kernel (se não estiver em cache)
         if: steps.cache-linux.outputs.cache-hit != 'true'
-        run: |
-          git clone --depth 1 https://git.kernel.org/pub/scm/linux/kernel/git/docs/linux.git linux
+        run: git clone --depth 1 https://git.kernel.org/pub/scm/linux/kernel/git/docs/linux.git linux
 
-      - name: Preparar dependências (Kernel + Public Inbox + Gemini)
-        run: |
-          sudo apt-get update
-          sudo apt-get install -y perl texlive-latex-base texlive-latex-extra graphviz imagemagick public-inbox
-          pip install -r linux/Documentation/sphinx/requirements.txt || true
-          pip install google-genai
-          
       - name: Atualizar Árvore do Kernel
         run: |
           cd linux
@@ -48,15 +54,18 @@ jobs:
       - name: Baixar Patches do Lore (linux-doc via lei)
         run: |
           mkdir -p patches
-          # Ferramenta oficial do Kernel para buscar e-mails
-          lei q -f mboxrd -o patches/resultados.mbx -I https://lore.kernel.org/linux-doc/ "s:pt_BR AND (s:PATCH OR s:patch) AND d:3.days.ago.." || echo "Nenhum patch novo ou erro no lei"
+          lei q -f mboxrd -o patches/resultados.mbx \
+            -I https://lore.kernel.org/linux-doc/ \
+            "s:pt_BR AND (s:PATCH OR s:patch) AND d:60.days.ago.." \
+            || echo "Nenhum patch novo ou erro no lei"
 
-      - name: Rodar a IA (Miguel)
+      - name: Rodar o Miguel
         env:
           GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
+          ANALISAR_MSG_ID: ${{ github.event.inputs.message_id }}
         run: python bot_revisor.py
 
-      - name: Mudar para branch gh-pages e salvar resultados
+      - name: Salvar resultados no gh-pages
         run: |
           mv reviews.json /tmp/reviews.json || echo "[]" > /tmp/reviews.json
           git config --global user.name 'Miguel Revisor IA'
@@ -65,5 +74,5 @@ jobs:
           git checkout gh-pages
           mv /tmp/reviews.json data_reviews.json
           git add data_reviews.json
-          git commit -m "docs: 🤖 Miguel atualizou as revisões gramaticais, checkpatch e sphinx" || echo "Sem mudanças"
+          git commit -m "docs: 🤖 Miguel atualizou os dados dos patches pt_BR" || echo "Sem mudanças"
           git push origin gh-pages
