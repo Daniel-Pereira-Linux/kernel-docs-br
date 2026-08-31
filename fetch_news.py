@@ -28,7 +28,6 @@ def translate_text(text):
     if not text:
         return ""
     try:
-        # truncate to 3000 chars for translation safety
         if len(text) > 3000:
             text = text[:3000] + "..."
         translator = GoogleTranslator(source='auto', target='pt')
@@ -37,14 +36,36 @@ def translate_text(text):
         print(f"Translation error: {e}")
         return text
 
-# The ultimate kernel/linux news gateway feeds
+# Strict filter for Kernel news
+KERNEL_KEYWORDS = [
+    "kernel", "linus torvalds", "torvalds", "merge window", "mainline",
+    "linux 7.", "linux 6.", "linux 5.", "kbuild", "kconfig", "kvm", "ebpf",
+    "bpf", "vfs", "cgroup", "scheduler", "drm subsystem", "linux patches",
+    "lore.kernel.org"
+]
+
+def is_kernel_related(title, summary, source):
+    # Kernel.org releases are always 100% kernel
+    if source.lower() == "kernel.org":
+        return True
+        
+    text = (title + " " + summary).lower()
+    
+    for kw in KERNEL_KEYWORDS:
+        if kw in text:
+            return True
+    
+    # Catch releases like 7.3-rc1 or just rc1, rc2...
+    if re.search(r'\brc[1-9]\b', text):
+        return True
+        
+    return False
+
 FEEDS = [
     {"name": "Phoronix", "url": "https://www.phoronix.com/rss.php"},
     {"name": "LWN", "url": "https://lwn.net/headlines/newrss"},
     {"name": "Planet Kernel", "url": "https://planet.kernel.org/rss20.xml"},
-    {"name": "Kernel.org", "url": "https://www.kernel.org/feeds/kdist.xml"},
-    {"name": "9to5Linux", "url": "https://9to5linux.com/feed"},
-    {"name": "Linux.com", "url": "https://www.linux.com/feed/"}
+    {"name": "Kernel.org", "url": "https://www.kernel.org/feeds/kdist.xml"}
 ]
 
 news_db_path = "news.json"
@@ -63,8 +84,7 @@ for feed_info in FEEDS:
     print(f"Fetching {feed_info['name']}...")
     try:
         d = feedparser.parse(feed_info['url'])
-        # Process in reverse so oldest in the feed are added first (if appending to front)
-        for entry in reversed(d.entries[:20]):
+        for entry in reversed(d.entries[:30]):
             link = entry.link if hasattr(entry, 'link') else ""
             if not link or link in existing_urls:
                 continue
@@ -77,10 +97,14 @@ for feed_info in FEEDS:
             elif hasattr(entry, 'description'):
                 summary_en = entry.description
             
-            # Clean and truncate summary to ~400 chars for a gateway feel
             summary_en = clean_html(summary_en)
             if len(summary_en) > 400:
                 summary_en = summary_en[:397] + "..."
+                
+            # STRICT FILTER
+            if not is_kernel_related(title_en, summary_en, feed_info['name']):
+                print(f"Ignorado (Não é sobre o kernel): {title_en}")
+                continue
                 
             date = ""
             if hasattr(entry, 'published'):
@@ -103,7 +127,6 @@ for feed_info in FEEDS:
                 "date": date
             }
             
-            # Insert at the top
             news_items.insert(0, new_item)
             existing_urls.add(link)
             new_additions += 1
@@ -111,11 +134,10 @@ for feed_info in FEEDS:
     except Exception as e:
         print(f"Error fetching {feed_info['name']}: {e}")
 
-# Keep history but cap at 1000 items to avoid giant files over years
 if len(news_items) > 1000:
     news_items = news_items[:1000]
 
 with open(news_db_path, "w", encoding="utf-8") as f:
     json.dump(news_items, f, ensure_ascii=False, indent=2)
 
-print(f"Added {new_additions} new articles. Total: {len(news_items)}")
+print(f"Added {new_additions} new kernel articles. Total: {len(news_items)}")
