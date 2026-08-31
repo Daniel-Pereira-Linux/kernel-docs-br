@@ -352,6 +352,369 @@
             </tbody>
         </table>
     </div>
+
+    <div class="container">
+        <div id="docs" class="tab-content active docs">
+            <h1>Pré-requisitos</h1>
+<p>É preciso instalar algumas dependências para conseguir contribuir:</p>
+<p>Debian:</p>
+<pre><code class="language-bash">sudo apt update
+
+sudo apt install \
+  git \
+  git-email \
+  perl \
+  make \
+  python3
+
+sudo apt install \
+  python3-pip \
+  python3-venv
+</code></pre>
+<p>Fedora:</p>
+<pre><code class="language-bash">sudo dnf install \
+  git \
+  git-email \
+  perl \
+  make \
+  python3
+
+sudo dnf install \
+  python3-pip
+</code></pre>
+<p>Verifique:</p>
+<pre><code class="language-bash">git --version
+git send-email --help
+perl --version
+python3 --version
+</code></pre>
+<h2>Primeiro passo: preparar o ambiente</h2>
+<p>Verificar instalação:</p>
+<pre><code class="language-bash">git send-email --help
+</code></pre>
+<p>Configure a sua identidade:</p>
+<pre><code class="language-bash">git config --global user.name &quot;Your Name&quot;
+git config --global user.email &quot;your.email@example.com&quot;
+</code></pre>
+<p>Configurando SMTP:</p>
+<pre><code class="language-bash">git config --global sendemail.smtpserver smtp.gmail.com
+git config --global sendemail.smtpserverport 587
+git config --global sendemail.smtpencryption tls
+git config --global sendemail.smtpuser seuemail@gmail.com
+</code></pre>
+<p>Pode-se adicionar:</p>
+<pre><code class="language-bash">git config --global sendemail.assume8bitEncoding UTF-8
+</code></pre>
+<p>Isso evitará que todas as vezes seja perguntado sobre o encoding em patches com acento, etc.</p>
+<p>Verifique: </p>
+<pre><code class="language-bash">cat ~/.gitconfig
+</code></pre>
+<p>Você deve ter algo assim:</p>
+<pre><code class="language-bash">[user]
+    email = seuemail@gmail.com
+    name = seu nome
+[sendemail]
+    smtpServer = smtp.gmail.com
+    smtpServerPort = 587
+    smtpEncryption = tls
+    smtpUser = seuemail@gmail.com
+</code></pre>
+<p>Essa parte é muito importante, pois é por meio do email que iremos enviar os nossos patches</p>
+<h3>Gerando senha de app (gmail):</h3>
+<p>Para autenticar no Gmail, uma opção simples é utilizar uma senha de app. Para gerá-la, a conta Google deve estar com a verificação em duas etapas ativada. OAuth2 também pode ser utilizado.</p>
+<p>https://support.google.com/mail/answer/185833?hl=pt-br</p>
+<p>Para gerar uma senha de app, a conta Google precisa estar com a verificação em duas etapas ativada. A senha de app será utilizada pelo <code>git send-email</code> na autenticação SMTP quando solicitada.</p>
+<h3>Clonando</h3>
+<p>Com a configuração acima realizada, podemos realizar o clone do kernel para começar a tradução:</p>
+<pre><code class="language-bash">git clone \
+  --branch docs-next \
+  --single-branch \
+  git://git.lwn.net/linux.git \
+  linux-docs 
+</code></pre>
+<p>O <code>--single-branch</code> limita o clone à branch <code>docs-next</code>, evitando buscar as demais branches do repositório.</p>
+<pre><code class="language-bash">cd linux-docs/
+</code></pre>
+<pre><code class="language-bash">git switch -c nomeDaSuaBranch
+</code></pre>
+<p>Após criar sua branch de trabalho, edite apenas os arquivos necessários para a contribuição que será realizada exemplo:</p>
+<pre><code class="language-bash">Documentation/translations/pt_BR/process/index.rst
+Documentation/translations/pt_BR/process/volatile-considered-harmful.rst
+</code></pre>
+<h3>Pós clone</h3>
+<p>Crie um ambiente virtual na raiz do kernel:</p>
+<pre><code class="language-bash">python3 -m venv .venv-sphinx
+source .venv-sphinx/bin/activate
+python -m pip install --upgrade pip
+</code></pre>
+<p>Instalar dependências faltantes:</p>
+<pre><code class="language-bash">pip install -r Documentation/sphinx/requirements.txt
+pip install ply
+</code></pre>
+<h3>Pós tradução</h3>
+<p>Revise as alterações realizadas:</p>
+<pre><code class="language-bash">git diff
+</code></pre>
+<p>Revise se há problemas como espaço em branco:</p>
+<pre><code class="language-bash">git diff --check
+</code></pre>
+<p>O comando <code>git diff --check</code> não deve retornar nenhuma mensagem.</p>
+<p>Adicione somente os arquivos modificados que fazem parte do patch:</p>
+<pre><code class="language-bash">git add \
+  Documentation/translations/pt_BR/process/index.rst \
+  Documentation/translations/pt_BR/process/volatile-considered-harmful.rst
+</code></pre>
+<p>Evite usar <code>git add .</code></p>
+<p>Revisar conteúdo em staging:</p>
+<pre><code class="language-bash">git diff --cached
+git diff --cached --check
+</code></pre>
+<p>Criar commit: </p>
+<pre><code class="language-bash">git commit -s
+</code></pre>
+<p>Revisar:</p>
+<pre><code class="language-bash">git show HEAD 
+git show --check HEAD
+</code></pre>
+<p>O summary deve ser curto e descritivo, com aproximadamente 70–75 caracteres no máximo. O corpo da mensagem deve ser quebrado em aproximadamente 75 colunas.</p>
+<pre><code class="language-bash">docs: translations: pt_BR: translate volatile-considered-harmful.rst
+
+Translate volatile-considered-harmful.rst into Brazilian Portuguese and
+add it to the pt_BR process documentation index.
+
+Assisted-by: LLM
+Signed-off-by: Seu Nome &lt;seu-email@example.com&gt;
+</code></pre>
+<p>Essa primeira linha será o subject do email</p>
+<p>Para validar ou corrigir a mensagem:</p>
+<pre><code class="language-bash">git commit --amend
+</code></pre>
+<p>Verificando:</p>
+<pre><code class="language-bash">git log -1 --format=full
+</code></pre>
+<h4>Testando a documentação:</h4>
+<pre><code class="language-bash">make htmldocs
+</code></pre>
+<p><em>Opcionalmente:</em></p>
+<pre><code class="language-bash">make pdfdocs
+</code></pre>
+<h4>Criando patch</h4>
+<pre><code class="language-bash">rm -rf /tmp/volatile-patch
+mkdir -p /tmp/volatile-patch
+</code></pre>
+<pre><code class="language-bash">git format-patch -1 HEAD -o /tmp/volatile-patch
+</code></pre>
+<p>Isso criaria algo assim:</p>
+<pre><code class="language-bash">/tmp/volatile-patch/0001-docs-translations-pt_BR-translate-volatile-considere.patch
+</code></pre>
+<p>Lendo seu patch (antes de enviar):</p>
+<pre><code class="language-bash">cat /tmp/volatile-patch/0001-*.patch
+
+# ou
+git format-patch -1 HEAD --stdout | less
+</code></pre>
+<p>Rode o script sobre o patch que será enviado:</p>
+<pre><code class="language-bash">./scripts/checkpatch.pl --strict \
+  /tmp/volatile-patch/0001-*.patch
+</code></pre>
+<h3>Se preparando para envio do patch</h3>
+<p>Descobrindo os destinatários:</p>
+<pre><code class="language-bash">./scripts/get_maintainer.pl \
+  /tmp/volatile-patch/0001-*.patch
+</code></pre>
+<p>Exemplo:</p>
+<pre><code>Daniel Pereira (maintainer:PORTUGUESE (BRAZILIAN) TRANSLATION)
+Jonathan Corbet (maintainer:DOCUMENTATION)
+Shuah Khan (reviewer:DOCUMENTATION)
+Randy Dunlap (reviewer:DOCUMENTATION)
+linux-doc@vger.kernel.org (open list)
+linux-kernel@vger.kernel.org (open list)
+</code></pre>
+<p>O script pode retornar mais pessoas do que as que é preciso, para isso priorize o envio para:<br />
+1. mantenedor específico;<br />
+2. mantenedores do subsistema;<br />
+3. reviewers indicados;<br />
+4. mailing lists relevantes.</p>
+<p>Normalmente:<br />
+- mantenedores diretamente responsáveis vão em To;<br />
+- reviewers e demais interessados vão em Cc;<br />
+- as mailing lists relevantes também devem ser incluídas.</p>
+<p>Não envie para pessoas ou listas sem relação com o patch.</p>
+<p>Testando o envio:</p>
+<pre><code class="language-bash">git send-email \
+  --dry-run \
+  --confirm=always \
+  --to=&quot;Daniel Pereira &lt;danielmaraboo@gmail.com&gt;&quot; \
+  --to=&quot;Jonathan Corbet &lt;corbet@lwn.net&gt;&quot; \
+  --cc=&quot;Shuah Khan &lt;skhan@linuxfoundation.org&gt;&quot; \
+  --cc=&quot;Randy Dunlap &lt;rdunlap@infradead.org&gt;&quot; \
+  --cc=&quot;linux-doc@vger.kernel.org&quot; \
+  --cc=&quot;linux-kernel@vger.kernel.org&quot; \
+  --cc=&quot;Seu Nome &lt;seu-email@example.com&gt;&quot; \
+  /tmp/volatile-patch/0001-*.patch
+</code></pre>
+<p>No dry-run nenhum email é enviado, o que esperamos com esse teste é um retorno: <code>Result: OK</code>, também confira:</p>
+<pre><code class="language-bash">From:
+To:
+Cc:
+Subject:
+</code></pre>
+<p>Pode aparecer:</p>
+<pre><code class="language-bash">The following files are 8bit, but do not declare a Content-Transfer-Encoding.
+
+Declare which 8bit encoding to use [default: UTF-8]?
+</code></pre>
+<p>Caso <code>sendemail.assume8bitEncoding</code> não esteja configurado, o Git pode solicitar o encoding ao encontrar caracteres não ASCII. Nesse caso, pressione <code>ENTER</code> para aceitar o padrão UTF-8.</p>
+<h3>Envio real!!</h3>
+<pre><code class="language-bash">git send-email \
+  --confirm=always \
+  --to=&quot;Daniel Pereira &lt;danielmaraboo@gmail.com&gt;&quot; \
+  --to=&quot;Jonathan Corbet &lt;corbet@lwn.net&gt;&quot; \
+  --cc=&quot;Shuah Khan &lt;skhan@linuxfoundation.org&gt;&quot; \
+  --cc=&quot;Randy Dunlap &lt;rdunlap@infradead.org&gt;&quot; \
+  --cc=&quot;linux-doc@vger.kernel.org&quot; \
+  --cc=&quot;linux-kernel@vger.kernel.org&quot; \
+  --cc=&quot;Seu Nome &lt;seu-email@example.com&gt;&quot; \
+  /tmp/volatile-patch/0001-*.patch
+</code></pre>
+<p>Quando aparecer:</p>
+<pre><code class="language-bash">Send this email? ([y]es|[n]o|[e]dit|[q]uit|[a]ll):
+</code></pre>
+<p>Confira: </p>
+<pre><code class="language-bash">To
+Cc
+Subject
+</code></pre>
+<p>Estando correto: <code>y</code></p>
+<p>Um envio bem-sucedido retorna: <code>Result: 250</code></p>
+<h5>Detalhes:</h5>
+<ol>
+<li>Salve o message-ID:</li>
+</ol>
+<pre><code>&lt;20260830205912.478358-1-lucasadramalho@gmail.com&gt;
+</code></pre>
+<p>Isso será importante para você conseguir acompanhar pela lore.kernel.org e referenciar patches antigos em V2, V3, etc, exemplo de como o link ficaria:</p>
+<pre><code class="language-bash">https://lore.kernel.org/all/20260830205912.478358-1-lucasadramalho@gmail.com/
+</code></pre>
+<p>Importante notar que: o corpo deve ser quebrado em aproximadamente 75 colunas.</p>
+<hr />
+<h3>Enviando V!=1</h3>
+<p>Não é preciso criar um novo commit, para revisões simples do mesmo patch:</p>
+<pre><code class="language-bash">git add arquivo
+</code></pre>
+<pre><code class="language-bash">git commit --amend
+</code></pre>
+<p>Caso alguém responda com <code>Reviewed-by</code>, preserve os <code>trailers</code></p>
+<pre><code class="language-bash">Assisted-by: ...
+Reviewed-by: Reviewer &lt;reviewer@example.com&gt;
+Signed-off-by: Seu Nome &lt;seu-email@example.com&gt;
+</code></pre>
+<p><strong>OBS.:</strong> Se uma nova versão alterar substancialmente o patch, trailers como <code>Reviewed-by:</code>, <code>Tested-by:</code> e <code>Acked-by:</code> podem deixar de ser aplicáveis. Remova os trailers cuja revisão, teste ou aprovação tenha sido invalidada e mencione a remoção no changelog da nova versão.</p>
+<h4>Gerando V2</h4>
+<pre><code class="language-bash">rm -rf /tmp/volatile-v2
+mkdir -p /tmp/volatile-v2
+</code></pre>
+<pre><code class="language-bash">git format-patch \
+  -v2 \
+  -1 HEAD \
+  -o /tmp/volatile-v2
+</code></pre>
+<h4>Adicionando changelog</h4>
+<pre><code class="language-bash">vim /tmp/volatile-v2/v2-0001-*.patch
+</code></pre>
+<p>Procure por:</p>
+<pre><code class="language-bash">Signed-off-by: ...
+---
+ diffstat...
+</code></pre>
+<p>Adicione depois dos  <code>---</code>:</p>
+<pre><code class="language-bash">---
+Changes in v2:
+- Address review comments from Reviewer Name.
+- Fix terminology in the translated text.
+- Fix indentation in the process index.
+
+v1: https://lore.kernel.org/r/MESSAGE-ID-DA-V1
+</code></pre>
+<p>O conteúdo após <code>---</code> não faz parte do commit final aplicado. Isso garante que não entre no histórico de commits, poluindo sem necessidade esse.</p>
+<p>Changelog não pertence ao commit.</p>
+<hr />
+<h5>Extras</h5>
+<h4>Verificando atualização da tradução</h4>
+<p>Para verificar se a tradução está sincronizada com sua versão original:</p>
+<pre><code class="language-bash">tools/docs/checktransupdate.py \
+  Documentation/translations/pt_BR/process/volatile-considered-harmful.rst
+</code></pre>
+<hr />
+<h2>Checklist V1</h2>
+<pre><code class="language-bash">[ ] branch criada a partir da árvore correta
+[ ] alterações revisadas
+[ ] git diff --check
+[ ] make htmldocs
+[ ] checktransupdate.py, quando aplicável
+[ ] git add somente dos arquivos corretos
+[ ] git diff --cached
+[ ] git diff --cached --check
+[ ] git commit -s
+[ ] Signed-off-by presente
+[ ] git show --check HEAD
+[ ] git format-patch
+[ ] patch revisado com less/cat
+[ ] checkpatch.pl --strict
+[ ] get_maintainer.pl
+[ ] To e Cc revisados 
+[ ] git send-email --dry-run
+[ ] Subject revisado
+[ ] encoding UTF-8 correto
+[ ] Result: OK no dry-run
+[ ] envio real
+[ ] Result: 250
+[ ] Message-ID salvo
+[ ] link do lore salvo
+</code></pre>
+<h2>Checklist V!=1</h2>
+<pre><code>[ ] review lido
+[ ] alterações feitas
+[ ] trailers recebidos adicionados
+[ ] git commit --amend
+[ ] testes repetidos
+[ ] git format-patch -vN
+[ ] Changes in vN adicionado após ---
+[ ] Link to vN-1 adicionado
+[ ] checkpatch.pl
+[ ] dry-run
+[ ] envio real
+[ ] novo Message-ID salvo
+</code></pre>
+<hr />
+        </div>
+
+        <div id="patches" class="tab-content">
+            <h2 style="margin-bottom:6px;">Patches Recentes — linux-doc (pt_BR)</h2>
+            <p style="font-size:0.85rem;color:#888;margin-bottom:16px;">
+                Dados do <a href="https://lore.kernel.org/linux-doc/?q=pt_BR" target="_blank">lore.kernel.org</a> · Atualizado a cada 30 minutos
+            </p>
+
+            <div class="patch-search">
+                <input type="text" id="search-input" placeholder="Buscar patch por título, autor..." oninput="filterPatches()">
+            </div>
+            <div class="patch-count" id="patch-count"></div>
+
+            <div id="loading" class="loading" style="display:none;">Carregando patches</div>
+            <ul id="patch-list" class="patch-list"></ul>
+
+            <div id="patch-viewer">
+                <div class="viewer-header">
+                    <h3 id="viewer-title"></h3>
+                    <div style="display:flex;gap:8px;flex-shrink:0;">
+                        <a id="viewer-lore-link" class="btn btn-lore" href="#" target="_blank">Ver no Lore ↗</a>
+                        <button class="btn btn-back" onclick="closePatch()">← Voltar</button>
+                    </div>
+                </div>
+                <div class="viewer-meta" id="viewer-meta"></div>
+                <div class="patch-content" id="viewer-content"></div>
+            </div>
+        </div>
     </div>
 
     <footer>
@@ -485,18 +848,18 @@
 
                 if (rcMatch) {
                     const rcNum = parseInt(rcMatch[1]);
-                    banner.className = 'kernel-banner open';
+                    banner.className = 'kernel-banner closed';
                     if (rcNum === 1) {
-                        titleEl.textContent = '🟢 Janela de merge fechada (' + ver + ') — Ótimo momento para traduções!';
-                        descEl.textContent = 'O ' + ver + ' foi lançado em ' + mainline.released.isodate + '. A janela de merge se fechou e o kernel entrou em período de estabilização. Este é o melhor momento para enviar patches de tradução e documentação — os mantenedores estão disponíveis para revisar!';
+                        titleEl.textContent = '🔒 Janela de merge FECHADA — ' + ver + ' lançado em ' + mainline.released.isodate;
+                        descEl.textContent = 'O rc1 foi lançado, a janela de merge acabou de fechar. Agora estamos no período de estabilização. Apenas correções de bugs são aceitas. Aproveite para preparar seus patches para a próxima janela!';
                     } else {
-                        titleEl.textContent = '🟢 Estabilização em andamento (' + ver + ') — Envie seus patches de tradução!';
-                        descEl.textContent = 'Estamos no rc' + rcNum + '. O kernel está em período de estabilização e os mantenedores de documentação estão disponíveis para revisar traduções. Aproveite para enviar seus patches!';
+                        titleEl.textContent = '🔒 Janela de merge FECHADA — Estabilização em andamento (' + ver + ')';
+                        descEl.textContent = 'Estamos no rc' + rcNum + ', apenas correções de bugs são aceitas. A próxima janela de merge abrirá quando a versão final for lançada.';
                     }
                 } else {
-                    banner.className = 'kernel-banner closed';
-                    titleEl.textContent = '⚠️ Janela de merge ABERTA — Kernel ' + ver + ' lançado';
-                    descEl.textContent = 'A versão ' + ver + ' foi lançada e a janela de merge está aberta. Os mantenedores estão ocupados com pull requests. Você ainda pode enviar patches de tradução, mas a revisão pode demorar mais.';
+                    banner.className = 'kernel-banner open';
+                    titleEl.textContent = '🟢 Janela de merge ABERTA — Kernel ' + ver + ' foi lançado!';
+                    descEl.textContent = 'A versão estável ' + ver + ' foi lançada. A janela de merge está aberta por aproximadamente 2 semanas. Agora é o momento ideal para enviar novos patches e funcionalidades!';
                 }
 
                 // Build releases table
