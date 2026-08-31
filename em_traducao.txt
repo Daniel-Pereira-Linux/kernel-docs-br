@@ -1,6 +1,0 @@
-volatile-considered-harmful.rst - Lucas Ramalho
-generated-content.rst - Ygor Otavio
-threat-model.rst - Vinicius Henrique
-embargoed-hardware-issues.rst - Daniel Pereira
-handling-regressions.rst - Daniel pereira
-researcher-guidelines.rst - Daniel pereira
