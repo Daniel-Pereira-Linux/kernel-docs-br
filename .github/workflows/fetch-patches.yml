@@ -1,4 +1,4 @@
-name: Fetch Patches from lore.kernel.org
+name: Fetch Patches and Kernel Status
 
 on:
   schedule:
@@ -15,6 +15,12 @@ jobs:
       - uses: actions/checkout@v4
         with:
           ref: gh-pages
+
+      - name: Fetch kernel releases from kernel.org
+        run: |
+          curl -sf -o kernel-releases.json "https://www.kernel.org/releases.json"
+          echo "Kernel releases fetched"
+          cat kernel-releases.json | python3 -c "import sys,json; d=json.load(sys.stdin); print(d['releases'][0]['version'])"
 
       - name: Fetch Atom feed and convert to JSON
         run: |
@@ -40,16 +46,17 @@ jobs:
           for entry in root.findall("atom:entry", ns):
               title_el = entry.find("atom:title", ns)
               author_el = entry.find("atom:author/atom:name", ns)
+              email_el = entry.find("atom:author/atom:email", ns)
               updated_el = entry.find("atom:updated", ns)
               link_el = entry.find("atom:link", ns)
               content_el = entry.find("atom:content", ns)
 
               title = title_el.text if title_el is not None else ""
               author = author_el.text if author_el is not None else ""
+              email = email_el.text if email_el is not None else ""
               updated = updated_el.text if updated_el is not None else ""
               link = link_el.get("href", "") if link_el is not None else ""
 
-              # Extract raw text from content
               content_text = ""
               if content_el is not None:
                   content_text = ET.tostring(content_el, encoding="unicode", method="text")
@@ -58,6 +65,7 @@ jobs:
               entries.append({
                   "title": title,
                   "author": author,
+                  "email": email,
                   "updated": updated,
                   "link": link,
                   "content": content_text
@@ -73,7 +81,7 @@ jobs:
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
-          git add patches.json
+          git add patches.json kernel-releases.json
           git diff --cached --quiet && echo "No changes" && exit 0
-          git commit -m "chore: update patches.json from lore.kernel.org"
+          git commit -m "chore: update patches and kernel status"
           git push

@@ -195,6 +195,75 @@
             vertical-align: middle;
         }
         @keyframes spin { to { transform: rotate(360deg); } }
+
+        /* Kernel status banner */
+        .kernel-banner {
+            max-width: 960px;
+            margin: 20px auto 0;
+            padding: 16px 24px;
+            border-radius: 8px;
+            border-left: 5px solid;
+            display: none;
+        }
+        .kernel-banner.open {
+            background: #e8f5e9;
+            border-left-color: #4caf50;
+            display: block;
+        }
+        .kernel-banner.closed {
+            background: #fff3e0;
+            border-left-color: #ff9800;
+            display: block;
+        }
+        .kernel-banner .banner-title {
+            font-weight: 700;
+            font-size: 1rem;
+            margin-bottom: 4px;
+        }
+        .kernel-banner.open .banner-title { color: #2e7d32; }
+        .kernel-banner.closed .banner-title { color: #e65100; }
+        .kernel-banner .banner-desc {
+            font-size: 0.88rem;
+            color: #555;
+            margin-bottom: 10px;
+        }
+        .kernel-releases-table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 0.82rem;
+            margin-top: 8px;
+        }
+        .kernel-releases-table th {
+            text-align: left;
+            padding: 6px 10px;
+            background: rgba(0,0,0,0.05);
+            font-weight: 600;
+            color: #444;
+        }
+        .kernel-releases-table td {
+            padding: 5px 10px;
+            border-bottom: 1px solid rgba(0,0,0,0.06);
+        }
+        .kernel-releases-table .moniker {
+            font-weight: 600;
+            color: #666;
+            text-transform: capitalize;
+        }
+        .kernel-releases-table .version { font-weight: 600; color: #0f3460; }
+        .kernel-releases-table a {
+            color: #0f3460;
+            text-decoration: none;
+            font-size: 0.8rem;
+        }
+        .kernel-releases-table a:hover { text-decoration: underline; }
+        .eol-badge {
+            background: #ffcdd2;
+            color: #c62828;
+            padding: 1px 6px;
+            border-radius: 3px;
+            font-size: 0.75rem;
+            font-weight: 600;
+        }
     </style>
 </head>
 <body>
@@ -206,6 +275,22 @@
         <a onclick="showTab('docs')" class="active-tab" id="nav-docs">📖 Documentação</a>
         <a onclick="showTab('patches')" id="nav-patches">📬 PATCHS</a>
     </nav>
+
+    <div class="kernel-banner" id="kernel-banner">
+        <div class="banner-title" id="banner-title"></div>
+        <div class="banner-desc" id="banner-desc"></div>
+        <table class="kernel-releases-table" id="releases-table">
+            <thead>
+                <tr>
+                    <th>Tipo</th>
+                    <th>Versão</th>
+                    <th>Data</th>
+                    <th>Links</th>
+                </tr>
+            </thead>
+            <tbody id="releases-tbody"></tbody>
+        </table>
+    </div>
 
     <div class="container">
         <div id="docs" class="tab-content active docs">
@@ -680,6 +765,72 @@ v1: https://lore.kernel.org/r/MESSAGE-ID-DA-V1
             div.textContent = str;
             return div.innerHTML;
         }
+
+        // Kernel merge window status
+        async function loadKernelStatus() {
+            try {
+                const res = await fetch('kernel-releases.json?' + Date.now());
+                const data = await res.json();
+                const releases = data.releases || [];
+                if (releases.length === 0) return;
+
+                const mainline = releases.find(r => r.moniker === 'mainline');
+                const banner = document.getElementById('kernel-banner');
+                const titleEl = document.getElementById('banner-title');
+                const descEl = document.getElementById('banner-desc');
+                const tbody = document.getElementById('releases-tbody');
+
+                if (!mainline) return;
+
+                const ver = mainline.version;
+                const rcMatch = ver.match(/rc(\d+)/);
+
+                if (rcMatch) {
+                    const rcNum = parseInt(rcMatch[1]);
+                    banner.className = 'kernel-banner closed';
+                    if (rcNum === 1) {
+                        titleEl.textContent = '🔒 Janela de merge FECHADA — ' + ver + ' lançado em ' + mainline.released.isodate;
+                        descEl.textContent = 'O rc1 foi lançado, a janela de merge acabou de fechar. Agora estamos no período de estabilização. Apenas correções de bugs são aceitas. Aproveite para preparar seus patches para a próxima janela!';
+                    } else {
+                        titleEl.textContent = '🔒 Janela de merge FECHADA — Estabilização em andamento (' + ver + ')';
+                        descEl.textContent = 'Estamos no rc' + rcNum + ', apenas correções de bugs são aceitas. A próxima janela de merge abrirá quando a versão final for lançada.';
+                    }
+                } else {
+                    banner.className = 'kernel-banner open';
+                    titleEl.textContent = '🟢 Janela de merge ABERTA — Kernel ' + ver + ' foi lançado!';
+                    descEl.textContent = 'A versão estável ' + ver + ' foi lançada. A janela de merge está aberta por aproximadamente 2 semanas. Agora é o momento ideal para enviar novos patches e funcionalidades!';
+                }
+
+                // Build releases table
+                tbody.innerHTML = '';
+                releases.forEach(r => {
+                    const tr = document.createElement('tr');
+                    let links = '';
+                    if (r.source) links += `<a href="${r.source}" target="_blank">tarball</a> `;
+                    if (r.pgp) links += `<a href="${r.pgp}" target="_blank">pgp</a> `;
+                    if (r.gitweb) links += `<a href="${r.gitweb}" target="_blank">browse</a> `;
+                    if (r.changelog) links += `<a href="${r.changelog}" target="_blank">changelog</a> `;
+                    if (r.diffview) links += `<a href="${r.diffview}" target="_blank">diff</a> `;
+
+                    const eolBadge = r.iseol ? ' <span class="eol-badge">EOL</span>' : '';
+
+                    tr.innerHTML = `
+                        <td class="moniker">${r.moniker}${eolBadge}</td>
+                        <td class="version">${r.version}</td>
+                        <td>${r.released.isodate}</td>
+                        <td>${links}</td>
+                    `;
+                    tbody.appendChild(tr);
+                });
+
+            } catch (e) {
+                console.error('Erro ao carregar status do kernel:', e);
+            }
+        }
+
+        // Load kernel status on page load
+        loadKernelStatus();
     </script>
+
 </body>
 </html>
