@@ -20,8 +20,8 @@ mkdir -p ~/kernelbase-vm
 cd ~/kernelbase-vm
 
 echo "[2/3] Baixando a infraestrutura oficial..."
-curl -sO https://daniel-pereira-linux.github.io/kernel-docs-br/dev-env/Dockerfile
-curl -sO https://daniel-pereira-linux.github.io/kernel-docs-br/dev-env/atualizar-kernel.sh
+curl -sO https://kernelbase.com.br/dev-env/Dockerfile
+curl -sO https://kernelbase.com.br/dev-env/atualizar-kernel.sh
 chmod +x atualizar-kernel.sh
 
 cat <<CONFIG > .gitconfig_dev
