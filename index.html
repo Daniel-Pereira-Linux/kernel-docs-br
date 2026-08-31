@@ -848,18 +848,18 @@ v1: https://lore.kernel.org/r/MESSAGE-ID-DA-V1
 
                 if (rcMatch) {
                     const rcNum = parseInt(rcMatch[1]);
-                    banner.className = 'kernel-banner closed';
+                    banner.className = 'kernel-banner open';
                     if (rcNum === 1) {
-                        titleEl.textContent = '🔒 Janela de merge FECHADA — ' + ver + ' lançado em ' + mainline.released.isodate;
-                        descEl.textContent = 'O rc1 foi lançado, a janela de merge acabou de fechar. Agora estamos no período de estabilização. Apenas correções de bugs são aceitas. Aproveite para preparar seus patches para a próxima janela!';
+                        titleEl.textContent = '🟢 Janela de merge fechada (' + ver + ') — Ótimo momento para traduções!';
+                        descEl.textContent = 'O ' + ver + ' foi lançado em ' + mainline.released.isodate + '. A janela de merge se fechou e o kernel entrou em período de estabilização. Este é o melhor momento para enviar patches de tradução e documentação — os mantenedores estão disponíveis para revisar!';
                     } else {
-                        titleEl.textContent = '🔒 Janela de merge FECHADA — Estabilização em andamento (' + ver + ')';
-                        descEl.textContent = 'Estamos no rc' + rcNum + ', apenas correções de bugs são aceitas. A próxima janela de merge abrirá quando a versão final for lançada.';
+                        titleEl.textContent = '🟢 Estabilização em andamento (' + ver + ') — Envie seus patches de tradução!';
+                        descEl.textContent = 'Estamos no rc' + rcNum + '. O kernel está em período de estabilização e os mantenedores de documentação estão disponíveis para revisar traduções. Aproveite para enviar seus patches!';
                     }
                 } else {
-                    banner.className = 'kernel-banner open';
-                    titleEl.textContent = '🟢 Janela de merge ABERTA — Kernel ' + ver + ' foi lançado!';
-                    descEl.textContent = 'A versão estável ' + ver + ' foi lançada. A janela de merge está aberta por aproximadamente 2 semanas. Agora é o momento ideal para enviar novos patches e funcionalidades!';
+                    banner.className = 'kernel-banner closed';
+                    titleEl.textContent = '⚠️ Janela de merge ABERTA — Kernel ' + ver + ' lançado';
+                    descEl.textContent = 'A versão ' + ver + ' foi lançada e a janela de merge está aberta. Os mantenedores estão ocupados com pull requests. Você ainda pode enviar patches de tradução, mas a revisão pode demorar mais.';
                 }
 
                 // Build releases table
