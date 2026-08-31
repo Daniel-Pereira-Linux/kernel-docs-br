@@ -19,16 +19,20 @@ RUN apt-get update && apt-get install -y \
     libnet-smtp-ssl-perl \
     libio-socket-ssl-perl \
     python3 \
+    gnupg \
+    curl \
+    tar \
     && rm -rf /var/lib/apt/lists/*
 
 RUN echo "Clonando a arvore oficial do Kernel... (Isso demora um pouco, mas voce so faz uma vez!)"
-# Apenas a arvore mainline oficial (vamos fazer shallow parcial para velocidade, mas que permite push)
 RUN git clone https://git.kernel.org/pub/scm/linux/kernel/git/torvalds/linux.git /kernel-src
 
 WORKDIR /kernel-src
 
 COPY atualizar-kernel.sh /usr/local/bin/atualizar-vm
-RUN chmod +x /usr/local/bin/atualizar-vm
+COPY backup.sh /usr/local/bin/backup-vm
+COPY restore.sh /usr/local/bin/restore-vm
+RUN chmod +x /usr/local/bin/atualizar-vm /usr/local/bin/backup-vm /usr/local/bin/restore-vm
 
 # Adiciona um bashrc amigavel
 RUN echo 'export PS1="\[\e[32m\][KernelBase VM]\[\e[m\] \[\e[33m\]\w\[\e[m\] \$ "' >> /root/.bashrc

@@ -34,7 +34,9 @@ cd ~/kernelbase-vm
 echo "[2/4] Baixando a infraestrutura oficial..."
 curl -sO https://kernelbase.com.br/dev-env/Dockerfile
 curl -sO https://kernelbase.com.br/dev-env/atualizar-kernel.sh
-chmod +x atualizar-kernel.sh
+curl -sO https://kernelbase.com.br/dev-env/backup.sh
+curl -sO https://kernelbase.com.br/dev-env/restore.sh
+chmod +x atualizar-kernel.sh backup.sh restore.sh
 
 cat <<CONFIG > .gitconfig_dev
 [user]
@@ -55,8 +57,20 @@ sudo docker build -t kernelbase-dev .
 echo "[4/4] Criando atalho global 'kernelbase'..."
 sudo sh -c 'cat <<BIN > /usr/local/bin/kernelbase
 #!/bin/bash
-echo "🚀 Entrando na Maquina Isolada KernelBase..."
-sudo docker start -ai kernelbase-machine
+if [ "\$1" == "backup" ]; then
+    sudo docker start kernelbase-machine >/dev/null 2>&1
+    sudo docker exec -it kernelbase-machine backup-vm
+elif [ "\$1" == "restore" ]; then
+    if [ -z "\$2" ]; then
+        echo "❌ Informe o Token! Exemplo: kernelbase restore ABCD.gpg"
+        exit 1
+    fi
+    sudo docker start kernelbase-machine >/dev/null 2>&1
+    sudo docker exec -it kernelbase-machine restore-vm "\$2"
+else
+    echo "🚀 Entrando na Maquina Isolada KernelBase..."
+    sudo docker start -ai kernelbase-machine
+fi
 BIN'
 sudo chmod +x /usr/local/bin/kernelbase
 
@@ -67,9 +81,9 @@ echo " A partir de hoje, basta abrir o seu terminal e digitar:"
 echo ""
 echo "    kernelbase"
 echo ""
-echo " Voce caira direto dentro da maquina isolada de"
-echo " desenvolvimento. Para atualizar o kernel lá dentro,"
-echo " basta digitar 'atualizar-vm'."
+echo " ☁️ RECURSOS NA NUVEM:"
+echo " Salvar trabalho:  kernelbase backup"
+echo " Baixar trabalho:  kernelbase restore TOKEN"
 echo "================================================="
 echo ""
 
