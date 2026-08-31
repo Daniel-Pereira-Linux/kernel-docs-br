@@ -10,9 +10,23 @@ echo "ferramentas de e-mail e a arvore completa do Kernel"
 echo "Linux pronta para voce contribuir."
 echo ""
 
+# Ask credentials first
 read -p "Seu Nome Completo (ex: Linus Torvalds): " GIT_NAME
 read -p "Seu E-mail (ex: linus@gmail.com): " GIT_EMAIL
 read -p "Senha de App de E-mail (ex: Gmail App Password): " SMTP_PASS
+echo ""
+
+# Check and install Docker if missing
+if ! command -v docker &> /dev/null; then
+    echo "🐳 Docker nao encontrado no seu sistema."
+    echo "Instalando Docker automaticamente (suporta Ubuntu, Debian, Fedora, Arch, ChromeOS...)"
+    curl -fsSL https://get.docker.com -o get-docker.sh
+    sudo sh get-docker.sh
+    rm get-docker.sh
+    echo "✅ Docker instalado com sucesso!"
+else
+    echo "✅ Docker detectado no sistema."
+fi
 
 echo ""
 echo "[1/3] Preparando diretorio local..."
