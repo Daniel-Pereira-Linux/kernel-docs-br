@@ -32,7 +32,6 @@ def translate_long_text(text):
         return ""
     try:
         translator = GoogleTranslator(source='auto', target='pt')
-        # Split by paragraph instead of huge chunks to be safer with Google API
         paragraphs = text.split('\n')
         translated_paragraphs = []
         chunk = ""
@@ -44,7 +43,7 @@ def translate_long_text(text):
             else:
                 if chunk.strip():
                     translated_paragraphs.append(translator.translate(chunk))
-                    time.sleep(1) # Be nice to Google API
+                    time.sleep(1)
                 chunk = p + "\n"
         if chunk.strip():
             translated_paragraphs.append(translator.translate(chunk))
@@ -52,7 +51,7 @@ def translate_long_text(text):
             
         translated = "\n".join(translated_paragraphs)
         if "Error 500 (Server Error)" in translated:
-            return text # fallback to english if google blocks us
+            return text 
         return translated
     except Exception as e:
         print(f"Translation error: {e}")
@@ -76,11 +75,9 @@ def is_kernel_related(title, summary, source):
         return True
     return False
 
+# Phoronix only as requested!
 FEEDS = [
     {"name": "Phoronix", "url": "https://www.phoronix.com/rss.php"},
-    {"name": "LWN", "url": "https://lwn.net/headlines/newrss"},
-    {"name": "Planet Kernel", "url": "https://planet.kernel.org/rss20.xml"},
-    {"name": "Kernel.org", "url": "https://www.kernel.org/feeds/kdist.xml"}
 ]
 
 news_db_path = "news.json"
@@ -92,8 +89,8 @@ if os.path.exists(news_db_path):
     except:
         pass
 
-# Remove error items from history so we retry them
-news_items = [item for item in news_items if "Error 500" not in (item.get('content_pt', '') or '')]
+# Filter out old items from LWN/Planet/Kernel.org AND anything with Error 500
+news_items = [item for item in news_items if item.get('source', '').lower() == 'phoronix' and "Error 500" not in (item.get('content_pt', '') or '') and "Error 500" not in (item.get('summary_pt', '') or '')]
 
 existing_urls = set([item.get('link') for item in news_items])
 new_additions = 0
@@ -102,8 +99,8 @@ for feed_info in FEEDS:
     print(f"Fetching {feed_info['name']}...")
     try:
         d = feedparser.parse(feed_info['url'])
-        # Limit to 3 items per feed run so we don't hit translate limits
-        for entry in reversed(d.entries[:5]):
+        # Increase limit since we only have one feed now
+        for entry in reversed(d.entries[:15]):
             link = entry.link if hasattr(entry, 'link') else ""
             if not link or link in existing_urls:
                 continue
@@ -135,9 +132,6 @@ for feed_info in FEEDS:
                     full_text_en = summary_clean
             except Exception as e:
                 full_text_en = summary_clean
-                
-            if feed_info['name'] == 'LWN' and ("[$]" in title_en or "consider subscribing" in full_text_en):
-                continue
                 
             title_pt = translate_long_text(title_en)
             summary_pt = translate_long_text(summary_clean)
