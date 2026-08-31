@@ -3,131 +3,213 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Como contribuir com o Kernel</title>
+    <title>Kernel Docs BR - Como contribuir com o Kernel Linux</title>
     <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
         body {
-            font-family: Arial, sans-serif;
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
             line-height: 1.6;
-            margin: 0;
-            padding: 0;
-            background-color: #f4f4f4;
+            background: #f5f5f5;
             color: #333;
         }
         header {
-            background: #333;
+            background: #1a1a2e;
             color: #fff;
-            padding: 1rem 0;
+            padding: 1.5rem 0;
             text-align: center;
         }
-        .container {
-            max-width: 900px;
-            margin: auto;
-            padding: 20px;
-            background: #fff;
-            box-shadow: 0 0 10px rgba(0,0,0,0.1);
-        }
+        header h1 { font-size: 1.6rem; font-weight: 600; }
+        header p { font-size: 0.9rem; color: #aaa; margin-top: 4px; }
         nav {
             display: flex;
             justify-content: center;
-            background: #444;
+            background: #16213e;
+            border-bottom: 2px solid #0f3460;
         }
         nav a {
-            color: white;
-            padding: 15px 20px;
+            color: #ccc;
+            padding: 14px 28px;
             text-decoration: none;
             cursor: pointer;
+            font-weight: 500;
+            font-size: 0.95rem;
+            transition: all 0.2s;
+            border-bottom: 3px solid transparent;
         }
-        nav a:hover {
-            background: #555;
+        nav a:hover { color: #fff; background: rgba(255,255,255,0.05); }
+        nav a.active-tab { color: #e94560; border-bottom-color: #e94560; }
+        .container {
+            max-width: 960px;
+            margin: 30px auto;
+            padding: 30px;
+            background: #fff;
+            border-radius: 8px;
+            box-shadow: 0 1px 4px rgba(0,0,0,0.08);
         }
-        pre {
-            background: #eee;
-            padding: 10px;
+        .tab-content { display: none; }
+        .tab-content.active { display: block; }
+
+        /* Docs tab */
+        .docs h1, .docs h2, .docs h3, .docs h4, .docs h5 {
+            margin-top: 1.8rem; margin-bottom: 0.6rem; color: #1a1a2e;
+        }
+        .docs h1 { font-size: 1.5rem; border-bottom: 2px solid #e94560; padding-bottom: 8px; }
+        .docs h2 { font-size: 1.3rem; }
+        .docs h3 { font-size: 1.1rem; }
+        .docs pre {
+            background: #1e1e1e;
+            color: #d4d4d4;
+            padding: 14px 18px;
+            border-radius: 6px;
             overflow-x: auto;
+            font-size: 0.88rem;
+            margin: 10px 0;
         }
-        .tab-content {
-            display: none;
+        .docs code {
+            background: #eee;
+            padding: 2px 6px;
+            border-radius: 3px;
+            font-size: 0.9em;
         }
-        .active {
-            display: block;
+        .docs pre code { background: none; padding: 0; }
+        .docs a { color: #0f3460; }
+        .docs p { margin: 0.6rem 0; }
+        .docs ul, .docs ol { margin: 0.5rem 0 0.5rem 1.5rem; }
+        .docs hr { border: none; border-top: 1px solid #ddd; margin: 2rem 0; }
+
+        /* Patches tab */
+        .patch-search {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 20px;
         }
-        .patch-list {
-            list-style: none;
-            padding: 0;
+        .patch-search input {
+            flex: 1;
+            padding: 10px 14px;
+            border: 1px solid #ddd;
+            border-radius: 6px;
+            font-size: 0.95rem;
         }
+        .patch-search input:focus { outline: none; border-color: #0f3460; }
+        .patch-count {
+            font-size: 0.85rem;
+            color: #888;
+            margin-bottom: 12px;
+        }
+        .patch-list { list-style: none; }
         .patch-item {
-            padding: 15px;
-            border-bottom: 1px solid #ddd;
+            padding: 14px 16px;
+            border: 1px solid #eee;
+            border-radius: 6px;
+            margin-bottom: 8px;
+            cursor: pointer;
+            transition: all 0.15s;
         }
+        .patch-item:hover { border-color: #0f3460; background: #fafbff; }
         .patch-title {
-            font-weight: bold;
-            color: #0066cc;
-            text-decoration: none;
-        }
-        .patch-title:hover {
-            text-decoration: underline;
+            font-weight: 600;
+            color: #0f3460;
+            font-size: 0.95rem;
         }
         .patch-meta {
-            font-size: 0.9em;
-            color: #666;
+            font-size: 0.82rem;
+            color: #888;
+            margin-top: 4px;
         }
+        .patch-meta span { margin-right: 16px; }
+
+        /* Patch viewer */
         #patch-viewer {
             display: none;
-            margin-top: 20px;
-            border: 1px solid #ddd;
-            background: #fff;
-            padding: 15px;
         }
-        #patch-content {
+        .viewer-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            margin-bottom: 16px;
+            gap: 12px;
+        }
+        .viewer-header h3 {
+            font-size: 1.05rem;
+            color: #1a1a2e;
+            flex: 1;
+        }
+        .btn {
+            padding: 6px 14px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 0.85rem;
+            font-weight: 500;
+        }
+        .btn-back { background: #eee; color: #333; }
+        .btn-back:hover { background: #ddd; }
+        .btn-lore { background: #0f3460; color: #fff; text-decoration: none; }
+        .btn-lore:hover { background: #1a4a80; }
+        .viewer-meta {
+            font-size: 0.85rem;
+            color: #666;
+            margin-bottom: 16px;
+            padding-bottom: 12px;
+            border-bottom: 1px solid #eee;
+        }
+        .patch-content {
             white-space: pre-wrap;
-            font-family: monospace;
-            font-size: 0.9em;
-            background: #f9f9f9;
-            padding: 10px;
-            border: 1px solid #ccc;
+            font-family: "SF Mono", "Fira Code", "Cascadia Code", monospace;
+            font-size: 0.85rem;
+            background: #1e1e1e;
+            color: #d4d4d4;
+            padding: 18px;
+            border-radius: 6px;
             max-height: 600px;
             overflow-y: auto;
+            line-height: 1.5;
         }
-        .close-btn {
-            background: #d9534f;
-            color: white;
-            border: none;
-            padding: 5px 10px;
-            cursor: pointer;
-            float: right;
-        }
+        .patch-content .diff-add { color: #6a9955; }
+        .patch-content .diff-del { color: #f44747; }
+        .patch-content .diff-hunk { color: #569cd6; }
+        .patch-content .diff-file { color: #dcdcaa; font-weight: bold; }
+
         footer {
             text-align: center;
-            margin-top: 40px;
-            padding: 20px;
-            color: #666;
-            font-size: 0.9em;
+            padding: 30px 20px;
+            color: #999;
+            font-size: 0.85rem;
         }
+        footer a { color: #0f3460; text-decoration: none; }
+
+        .loading {
+            text-align: center;
+            padding: 40px;
+            color: #888;
+        }
+        .loading::after {
+            content: '';
+            display: inline-block;
+            width: 20px; height: 20px;
+            border: 2px solid #ddd;
+            border-top-color: #0f3460;
+            border-radius: 50%;
+            animation: spin 0.8s linear infinite;
+            margin-left: 10px;
+            vertical-align: middle;
+        }
+        @keyframes spin { to { transform: rotate(360deg); } }
     </style>
 </head>
 <body>
     <header>
-        <h1>Como contribuir com o Kernel</h1>
+        <h1>🐧 Kernel Docs BR</h1>
+        <p>Documentação em Português para contribuição com o Kernel Linux</p>
     </header>
     <nav>
-        <a onclick="showTab('docs')">Documentação</a>
-        <a onclick="showTab('patches')">PATCHS (Tempo Real)</a>
+        <a onclick="showTab('docs')" class="active-tab" id="nav-docs">📖 Documentação</a>
+        <a onclick="showTab('patches')" id="nav-patches">📬 PATCHS</a>
     </nav>
 
     <div class="container">
-        <div id="docs" class="tab-content active">
-            <hr />
-<p>tags:
-  - linux
-  - linuxKernel
-  - contribution
-  - cli
-  - git
-  - b4
-  - kernel
-  - documentation</p>
-<hr />
-<h1>Pré-requisitos</h1>
+        <div id="docs" class="tab-content active docs">
+            <h1>Pré-requisitos</h1>
 <p>É preciso instalar algumas dependências para conseguir contribuir:</p>
 <p>Debian:</p>
 <pre><code class="language-bash">sudo apt update
@@ -302,14 +384,14 @@ Randy Dunlap (reviewer:DOCUMENTATION)
 linux-doc@vger.kernel.org (open list)
 linux-kernel@vger.kernel.org (open list)
 </code></pre>
-<p>O script pode retornar mais pessoas do que as que é preciso, para isso priorize o envio para:
-1. mantenedor específico;
-2. mantenedores do subsistema;
-3. reviewers indicados;
+<p>O script pode retornar mais pessoas do que as que é preciso, para isso priorize o envio para:<br />
+1. mantenedor específico;<br />
+2. mantenedores do subsistema;<br />
+3. reviewers indicados;<br />
 4. mailing lists relevantes.</p>
-<p>Normalmente:
-- mantenedores diretamente responsáveis vão em To;
-- reviewers e demais interessados vão em Cc;
+<p>Normalmente:<br />
+- mantenedores diretamente responsáveis vão em To;<br />
+- reviewers e demais interessados vão em Cc;<br />
 - as mailing lists relevantes também devem ser incluídas.</p>
 <p>Não envie para pessoas ou listas sem relação com o patch.</p>
 <p>Testando o envio:</p>
@@ -462,94 +544,141 @@ v1: https://lore.kernel.org/r/MESSAGE-ID-DA-V1
         </div>
 
         <div id="patches" class="tab-content">
-            <h2>Patches Recentes (linux-doc) - pt_BR</h2>
-            <p>Buscando atualizações em tempo real do lore.kernel.org...</p>
-            <div id="loading" style="display: none;">Carregando...</div>
+            <h2 style="margin-bottom:6px;">Patches Recentes — linux-doc (pt_BR)</h2>
+            <p style="font-size:0.85rem;color:#888;margin-bottom:16px;">
+                Dados do <a href="https://lore.kernel.org/linux-doc/?q=pt_BR" target="_blank">lore.kernel.org</a> · Atualizado a cada 30 minutos
+            </p>
+
+            <div class="patch-search">
+                <input type="text" id="search-input" placeholder="Buscar patch por título, autor..." oninput="filterPatches()">
+            </div>
+            <div class="patch-count" id="patch-count"></div>
+
+            <div id="loading" class="loading" style="display:none;">Carregando patches</div>
             <ul id="patch-list" class="patch-list"></ul>
-            
+
             <div id="patch-viewer">
-                <button class="close-btn" onclick="closePatch()">X Fechar</button>
-                <h3 id="patch-viewer-title"></h3>
-                <div id="patch-content"></div>
+                <div class="viewer-header">
+                    <h3 id="viewer-title"></h3>
+                    <div style="display:flex;gap:8px;flex-shrink:0;">
+                        <a id="viewer-lore-link" class="btn btn-lore" href="#" target="_blank">Ver no Lore ↗</a>
+                        <button class="btn btn-back" onclick="closePatch()">← Voltar</button>
+                    </div>
+                </div>
+                <div class="viewer-meta" id="viewer-meta"></div>
+                <div class="patch-content" id="viewer-content"></div>
             </div>
         </div>
     </div>
 
     <footer>
-        Mantido por Daniel Pereira
+        Mantido por <strong>Daniel Pereira</strong> · 
+        <a href="https://github.com/Daniel-Pereira-Linux/kernel-docs-br" target="_blank">GitHub</a>
     </footer>
 
     <script>
+        let allPatches = [];
+
         function showTab(tabName) {
             document.querySelectorAll('.tab-content').forEach(el => el.classList.remove('active'));
+            document.querySelectorAll('nav a').forEach(el => el.classList.remove('active-tab'));
             document.getElementById(tabName).classList.add('active');
-            if(tabName === 'patches') {
+            document.getElementById('nav-' + tabName).classList.add('active-tab');
+            if (tabName === 'patches' && allPatches.length === 0) {
                 loadPatches();
             }
         }
 
-        function closePatch() {
-            document.getElementById('patch-viewer').style.display = 'none';
-            document.getElementById('patch-list').style.display = 'block';
-        }
-
         async function loadPatches() {
-            const list = document.getElementById('patch-list');
-            if (list.children.length > 0) return; // Ja carregou
-            
             document.getElementById('loading').style.display = 'block';
             try {
-                // Usando codetabs proxy como fallback para evitar CORS
-                const url = "https://api.codetabs.com/v1/proxy?quest=" + encodeURIComponent("https://lore.kernel.org/linux-doc/?q=pt_BR&x=a");
-                const res = await fetch(url);
-                const text = await res.text();
-                
-                const parser = new DOMParser();
-                const xmlDoc = parser.parseFromString(text, "text/xml");
-                const entries = xmlDoc.getElementsByTagName("entry");
-                
-                document.getElementById('loading').style.display = 'none';
-                list.innerHTML = '';
-                
-                for (let i = 0; i < entries.length; i++) {
-                    const title = entries[i].getElementsByTagName("title")[0].textContent;
-                    const author = entries[i].getElementsByTagName("author")[0].getElementsByTagName("name")[0].textContent;
-                    const updated = entries[i].getElementsByTagName("updated")[0].textContent;
-                    let link = "";
-                    const links = entries[i].getElementsByTagName("link");
-                    for (let j = 0; j < links.length; j++) {
-                        if (links[j].getAttribute("rel") === "alternate") {
-                            link = links[j].getAttribute("href");
-                        }
-                    }
-                    
-                    const li = document.createElement('li');
-                    li.className = 'patch-item';
-                    li.innerHTML = `
-                        <a href="javascript:void(0)" class="patch-title" onclick="openPatch('${link}', '${title.replace(/'/g, "\'")}')">${title}</a>
-                        <div class="patch-meta">Por: ${author} | Em: ${new Date(updated).toLocaleString()}</div>
-                    `;
-                    list.appendChild(li);
-                }
+                const res = await fetch('patches.json?' + Date.now());
+                allPatches = await res.json();
+                renderPatches(allPatches);
             } catch (e) {
-                document.getElementById('loading').innerText = "Erro ao carregar patches: " + e.message;
+                document.getElementById('loading').innerHTML = '❌ Erro ao carregar patches: ' + e.message;
             }
         }
 
-        async function openPatch(link, title) {
+        function renderPatches(patches) {
+            const list = document.getElementById('patch-list');
+            document.getElementById('loading').style.display = 'none';
+            document.getElementById('patch-count').textContent = patches.length + ' patches encontrados';
+            list.innerHTML = '';
+
+            patches.forEach((p, i) => {
+                const li = document.createElement('li');
+                li.className = 'patch-item';
+                li.onclick = () => openPatch(i);
+                const date = new Date(p.updated);
+                const dateStr = date.toLocaleDateString('pt-BR') + ' ' + date.toLocaleTimeString('pt-BR', {hour:'2-digit', minute:'2-digit'});
+                li.innerHTML = `
+                    <div class="patch-title">${escapeHtml(p.title)}</div>
+                    <div class="patch-meta">
+                        <span>👤 ${escapeHtml(p.author)}</span>
+                        <span>📅 ${dateStr}</span>
+                    </div>
+                `;
+                list.appendChild(li);
+            });
+        }
+
+        function filterPatches() {
+            const q = document.getElementById('search-input').value.toLowerCase();
+            const filtered = allPatches.filter(p =>
+                p.title.toLowerCase().includes(q) ||
+                p.author.toLowerCase().includes(q) ||
+                p.content.toLowerCase().includes(q)
+            );
+            renderPatches(filtered);
+        }
+
+        function openPatch(index) {
+            const p = allPatches[index] || allPatches.find((_, i) => i === index);
+            if (!p) return;
+
             document.getElementById('patch-list').style.display = 'none';
+            document.getElementById('patch-count').style.display = 'none';
+            document.querySelector('.patch-search').style.display = 'none';
             document.getElementById('patch-viewer').style.display = 'block';
-            document.getElementById('patch-viewer-title').innerText = title;
-            document.getElementById('patch-content').innerText = "Carregando conteúdo do patch...";
-            
-            try {
-                const url = "https://api.codetabs.com/v1/proxy?quest=" + encodeURIComponent(link + "raw");
-                const res = await fetch(url);
-                const text = await res.text();
-                document.getElementById('patch-content').innerText = text;
-            } catch (e) {
-                document.getElementById('patch-content').innerText = "Erro ao carregar patch: " + e.message;
-            }
+
+            document.getElementById('viewer-title').textContent = p.title;
+            document.getElementById('viewer-lore-link').href = p.link;
+
+            const date = new Date(p.updated);
+            document.getElementById('viewer-meta').innerHTML =
+                `<strong>Autor:</strong> ${escapeHtml(p.author)} &lt;${escapeHtml(p.email || '')}&gt; · ` +
+                `<strong>Data:</strong> ${date.toLocaleDateString('pt-BR')} ${date.toLocaleTimeString('pt-BR')}`;
+
+            document.getElementById('viewer-content').innerHTML = highlightDiff(p.content);
+        }
+
+        function closePatch() {
+            document.getElementById('patch-viewer').style.display = 'none';
+            document.getElementById('patch-list').style.display = '';
+            document.getElementById('patch-count').style.display = '';
+            document.querySelector('.patch-search').style.display = '';
+        }
+
+        function highlightDiff(text) {
+            return text.split('\n').map(line => {
+                if (/^diff --git/.test(line) || /^---\s+a\//.test(line) || /^\+\+\+\s+b\//.test(line)) {
+                    return `<span class="diff-file">${escapeHtml(line)}</span>`;
+                } else if (/^@@/.test(line)) {
+                    return `<span class="diff-hunk">${escapeHtml(line)}</span>`;
+                } else if (/^\+/.test(line) && !/^\+\+\+/.test(line)) {
+                    return `<span class="diff-add">${escapeHtml(line)}</span>`;
+                } else if (/^-/.test(line) && !/^---/.test(line)) {
+                    return `<span class="diff-del">${escapeHtml(line)}</span>`;
+                }
+                return escapeHtml(line);
+            }).join('\n');
+        }
+
+        function escapeHtml(str) {
+            const div = document.createElement('div');
+            div.textContent = str;
+            return div.innerHTML;
         }
     </script>
 </body>
