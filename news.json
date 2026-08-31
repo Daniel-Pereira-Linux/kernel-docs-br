@@ -1,0 +1,20 @@
+[
+  {
+    "source": "Phoronix",
+    "title_en": "Linux 7.3-rc1 Released With Second Highest Commit Count Ever",
+    "title_pt": "Linux 7.3-rc1 lançado com a segunda maior contagem de commits de todos os tempos",
+    "summary_en": "Linus Torvalds has released the first release candidate for Linux 7.3...",
+    "summary_pt": "Linus Torvalds lançou o primeiro release candidate para o Linux 7.3...",
+    "link": "https://www.phoronix.com/",
+    "date": "Sun, 30 Aug 2026 23:59:00 GMT"
+  },
+  {
+    "source": "LWN",
+    "title_en": "The rest of the 7.3 merge window",
+    "title_pt": "O restante da janela de merge 7.3",
+    "summary_en": "By the time Linus Torvalds released 7.3-rc1 and closed the merge window for this release...",
+    "summary_pt": "Quando Linus Torvalds lançou o 7.3-rc1 e fechou a janela de merge para esta versão, 15.267 conjuntos de alterações...",
+    "link": "https://lwn.net/",
+    "date": "Mon, 31 Aug 2026 14:12:00 GMT"
+  }
+]
