@@ -488,7 +488,7 @@ tools/docs/checktransupdate.py \
             <div class="p-6 sm:p-8 overflow-y-auto flex-grow bg-kernel-light">
                 <div class="flex items-center gap-4 text-sm text-slate-400 mb-6 pb-6 border-b border-slate-800">
                     <span id="modal-date" class="flex items-center gap-1"></span>
-                    <a id="modal-link" target="_blank" class="text-kernel-accent hover:underline inline-flex items-center gap-1">Ver postagem original ↗</a>
+                    
                 </div>
                 <div id="modal-content" class="text-slate-300 text-base sm:text-lg leading-relaxed whitespace-pre-wrap font-sans"></div>
             </div>
@@ -577,7 +577,7 @@ tools/docs/checktransupdate.py \
             let dateStr = item.date;
             try { if(dateStr) dateStr = new Date(dateStr).toLocaleDateString('pt-BR'); } catch(e) {}
             document.getElementById('modal-date').textContent = dateStr;
-            document.getElementById('modal-link').href = item.link;
+            
             
             // Priority: full content if available, else summary
             const content = item.content_pt || item.summary_pt || "Conteúdo completo sendo processado ou não disponível.";

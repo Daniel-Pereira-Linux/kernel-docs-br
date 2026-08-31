@@ -5,6 +5,7 @@ import html
 import os
 import sys
 import subprocess
+import time
 
 def install_deps():
     subprocess.check_call([sys.executable, "-m", "pip", "install", "deep-translator", "feedparser", "beautifulsoup4", "trafilatura"])
@@ -31,19 +32,28 @@ def translate_long_text(text):
         return ""
     try:
         translator = GoogleTranslator(source='auto', target='pt')
+        # Split by paragraph instead of huge chunks to be safer with Google API
         paragraphs = text.split('\n')
         translated_paragraphs = []
         chunk = ""
         for p in paragraphs:
-            if len(chunk) + len(p) < 4500:
+            if not p.strip():
+                continue
+            if len(chunk) + len(p) < 2000:
                 chunk += p + "\n"
             else:
                 if chunk.strip():
                     translated_paragraphs.append(translator.translate(chunk))
+                    time.sleep(1) # Be nice to Google API
                 chunk = p + "\n"
         if chunk.strip():
             translated_paragraphs.append(translator.translate(chunk))
-        return "\n".join(translated_paragraphs)
+            time.sleep(1)
+            
+        translated = "\n".join(translated_paragraphs)
+        if "Error 500 (Server Error)" in translated:
+            return text # fallback to english if google blocks us
+        return translated
     except Exception as e:
         print(f"Translation error: {e}")
         return text
@@ -82,6 +92,9 @@ if os.path.exists(news_db_path):
     except:
         pass
 
+# Remove error items from history so we retry them
+news_items = [item for item in news_items if "Error 500" not in (item.get('content_pt', '') or '')]
+
 existing_urls = set([item.get('link') for item in news_items])
 new_additions = 0
 
@@ -89,8 +102,8 @@ for feed_info in FEEDS:
     print(f"Fetching {feed_info['name']}...")
     try:
         d = feedparser.parse(feed_info['url'])
-        # Limit to 5 entries per source to avoid translating too much per run (since it's full text now)
-        for entry in reversed(d.entries[:10]):
+        # Limit to 3 items per feed run so we don't hit translate limits
+        for entry in reversed(d.entries[:5]):
             link = entry.link if hasattr(entry, 'link') else ""
             if not link or link in existing_urls:
                 continue
@@ -115,7 +128,6 @@ for feed_info in FEEDS:
             print(f"Fetching full text for: {title_en}")
             full_text_en = ""
             try:
-                # trafilatura is incredible at extracting article text
                 downloaded = trafilatura.fetch_url(link)
                 if downloaded:
                     full_text_en = trafilatura.extract(downloaded) or summary_clean
@@ -125,15 +137,13 @@ for feed_info in FEEDS:
                 full_text_en = summary_clean
                 
             if feed_info['name'] == 'LWN' and ("[$]" in title_en or "consider subscribing" in full_text_en):
-                print(f"Skipping paid LWN article")
                 continue
                 
             title_pt = translate_long_text(title_en)
             summary_pt = translate_long_text(summary_clean)
             
-            # Truncate full text to prevent massive translates in a single run (e.g. giant Planet Kernel posts)
             if len(full_text_en) > 10000:
-                full_text_en = full_text_en[:10000] + "...\n[Post muito longo, leia na fonte]"
+                full_text_en = full_text_en[:10000] + "...\n[Restante do artigo muito longo]"
             
             full_text_pt = translate_long_text(full_text_en)
             
