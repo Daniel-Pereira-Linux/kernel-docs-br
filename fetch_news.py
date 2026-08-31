@@ -7,36 +7,47 @@ import sys
 import subprocess
 
 def install_deps():
-    subprocess.check_call([sys.executable, "-m", "pip", "install", "deep-translator", "feedparser", "beautifulsoup4"])
+    subprocess.check_call([sys.executable, "-m", "pip", "install", "deep-translator", "feedparser", "beautifulsoup4", "trafilatura"])
 
 try:
     from deep_translator import GoogleTranslator
     import feedparser
     from bs4 import BeautifulSoup
+    import trafilatura
 except ImportError:
     install_deps()
     from deep_translator import GoogleTranslator
     import feedparser
     from bs4 import BeautifulSoup
+    import trafilatura
 
 def clean_html(raw_html):
     if not raw_html: return ""
     soup = BeautifulSoup(raw_html, "html.parser")
     return soup.get_text(separator=' ').strip()
 
-def translate_text(text):
+def translate_long_text(text):
     if not text:
         return ""
     try:
-        if len(text) > 3000:
-            text = text[:3000] + "..."
         translator = GoogleTranslator(source='auto', target='pt')
-        return translator.translate(text)
+        paragraphs = text.split('\n')
+        translated_paragraphs = []
+        chunk = ""
+        for p in paragraphs:
+            if len(chunk) + len(p) < 4500:
+                chunk += p + "\n"
+            else:
+                if chunk.strip():
+                    translated_paragraphs.append(translator.translate(chunk))
+                chunk = p + "\n"
+        if chunk.strip():
+            translated_paragraphs.append(translator.translate(chunk))
+        return "\n".join(translated_paragraphs)
     except Exception as e:
         print(f"Translation error: {e}")
         return text
 
-# Strict filter for Kernel news
 KERNEL_KEYWORDS = [
     "kernel", "linus torvalds", "torvalds", "merge window", "mainline",
     "linux 7.", "linux 6.", "linux 5.", "kbuild", "kconfig", "kvm", "ebpf",
@@ -45,20 +56,14 @@ KERNEL_KEYWORDS = [
 ]
 
 def is_kernel_related(title, summary, source):
-    # Kernel.org releases are always 100% kernel
     if source.lower() == "kernel.org":
         return True
-        
     text = (title + " " + summary).lower()
-    
     for kw in KERNEL_KEYWORDS:
         if kw in text:
             return True
-    
-    # Catch releases like 7.3-rc1 or just rc1, rc2...
     if re.search(r'\brc[1-9]\b', text):
         return True
-        
     return False
 
 FEEDS = [
@@ -74,8 +79,8 @@ if os.path.exists(news_db_path):
     try:
         with open(news_db_path, "r", encoding="utf-8") as f:
             news_items = json.load(f)
-    except Exception as e:
-        print("Could not load existing news.json:", e)
+    except:
+        pass
 
 existing_urls = set([item.get('link') for item in news_items])
 new_additions = 0
@@ -84,7 +89,8 @@ for feed_info in FEEDS:
     print(f"Fetching {feed_info['name']}...")
     try:
         d = feedparser.parse(feed_info['url'])
-        for entry in reversed(d.entries[:30]):
+        # Limit to 5 entries per source to avoid translating too much per run (since it's full text now)
+        for entry in reversed(d.entries[:10]):
             link = entry.link if hasattr(entry, 'link') else ""
             if not link or link in existing_urls:
                 continue
@@ -97,32 +103,48 @@ for feed_info in FEEDS:
             elif hasattr(entry, 'description'):
                 summary_en = entry.description
             
-            summary_en = clean_html(summary_en)
-            if len(summary_en) > 400:
-                summary_en = summary_en[:397] + "..."
+            summary_clean = clean_html(summary_en)
+            if len(summary_clean) > 400:
+                summary_clean = summary_clean[:397] + "..."
                 
-            # STRICT FILTER
-            if not is_kernel_related(title_en, summary_en, feed_info['name']):
-                print(f"Ignorado (Não é sobre o kernel): {title_en}")
+            if not is_kernel_related(title_en, summary_clean, feed_info['name']):
                 continue
                 
-            date = ""
-            if hasattr(entry, 'published'):
-                date = entry.published
-            elif hasattr(entry, 'updated'):
-                date = entry.updated
-                
-            print(f"Translating: {title_en}")
+            date = getattr(entry, 'published', getattr(entry, 'updated', ""))
             
-            title_pt = translate_text(title_en)
-            summary_pt = translate_text(summary_en)
+            print(f"Fetching full text for: {title_en}")
+            full_text_en = ""
+            try:
+                # trafilatura is incredible at extracting article text
+                downloaded = trafilatura.fetch_url(link)
+                if downloaded:
+                    full_text_en = trafilatura.extract(downloaded) or summary_clean
+                else:
+                    full_text_en = summary_clean
+            except Exception as e:
+                full_text_en = summary_clean
+                
+            if feed_info['name'] == 'LWN' and ("[$]" in title_en or "consider subscribing" in full_text_en):
+                print(f"Skipping paid LWN article")
+                continue
+                
+            title_pt = translate_long_text(title_en)
+            summary_pt = translate_long_text(summary_clean)
+            
+            # Truncate full text to prevent massive translates in a single run (e.g. giant Planet Kernel posts)
+            if len(full_text_en) > 10000:
+                full_text_en = full_text_en[:10000] + "...\n[Post muito longo, leia na fonte]"
+            
+            full_text_pt = translate_long_text(full_text_en)
             
             new_item = {
                 "source": feed_info['name'],
                 "title_en": title_en,
                 "title_pt": title_pt,
-                "summary_en": summary_en,
+                "summary_en": summary_clean,
                 "summary_pt": summary_pt,
+                "content_en": full_text_en,
+                "content_pt": full_text_pt,
                 "link": link,
                 "date": date
             }

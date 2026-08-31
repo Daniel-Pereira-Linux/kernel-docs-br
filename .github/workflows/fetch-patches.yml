@@ -79,8 +79,8 @@ jobs:
 
       - name: Fetch and translate news
         run: |
-          pip install feedparser deep-translator beautifulsoup4
-          python3 fetch_news.py
+          python3 -m venv venv && ./venv/bin/pip install feedparser deep-translator beautifulsoup4 trafilatura
+          ./venv/bin/python fetch_news.py
 
       - name: Commit and push
         run: |
