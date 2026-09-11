@@ -1,0 +1,7 @@
+
+  kernelBase :: Laboratorio LPI-101
+  ---------------------------------
+  Este e um Alpine Linux de verdade, rodando no seu navegador.
+  Os desafios estao em /challenges/
+  Digite 'ls /challenges' para comecar.
+

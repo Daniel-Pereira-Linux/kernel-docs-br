@@ -1,0 +1,10 @@
+Desafio 101.1 - Determinar e configurar hardware
+
+Objetivo LPI: 101.1 Determine and configure hardware settings
+
+Tarefa: descubra quantos processadores (cores) esta maquina tem e
+quanta memoria RAM total ela possui, usando arquivos do /proc.
+
+Dica: cat /proc/cpuinfo    |    cat /proc/meminfo
+
+A flag esta em /challenges/101-1-hardware/flag.txt
