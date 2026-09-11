@@ -1,5 +1,509 @@
 [
   {
+    "source": "Kernel.org",
+    "title_en": "next-20260910: linux-next",
+    "title_pt": "next-20260910: linux-next",
+    "summary_en": "Version: next-20260910  (linux-next) \n Released: 2026-09-10",
+    "summary_pt": "Versão: next-20260910 (linux-next) \n Lançado: 10/09/2026",
+    "link": "https://www.kernel.org/",
+    "date": "Thu, 10 Sep 2026 16:27:04 -0000"
+  },
+  {
+    "source": "Planet Kernel",
+    "title_en": "Dave Airlie (blogspot): nouveau on nvidia spark GB10 - it's alive!",
+    "title_pt": "Dave Airlie (blogspot): nouveau no nvidia spark GB10 - está vivo!",
+    "summary_en": "After much back and forth and hoops jumping, I can finally reveal nouveau/nvk running on a NVIDIA Spark box.  This is running on a version of nouveau[1] that has a) ported to the 610 NVIDIA firmware  b) a bunch of display rework from Moham c) a bunch of 0 VRAM and L2 cache handling fixes d) spark boot support  e) spark display support  and NVK[2] with patches to handle gb10 depth/stencil differ...",
+    "summary_pt": "Depois de muitas idas e vindas e pulos, posso finalmente revelar o nouveau/nvk rodando em uma caixa NVIDIA Spark.  Ele está sendo executado em uma versão do nouveau[1] que tem a) portado para o firmware NVIDIA 610 b) um monte de retrabalhos de exibição de Moham c) um monte de correções de manipulação de cache L2 e 0 VRAM d) suporte a spark boot e) suporte a spark display e NVK[2] com patches para lidar com diferenças de profundidade/estêncil gb10...",
+    "link": "https://airlied.blogspot.com/2026/09/nouveau-on-nvidia-spark-gb10-its-alive.html",
+    "date": "Wed, 09 Sep 2026 19:56:34 +0000"
+  },
+  {
+    "source": "Planet Kernel",
+    "title_en": "Matthew Garrett: SystemIO conflicts are not firmware bugs",
+    "title_pt": "Matthew Garrett: Conflitos SystemIO não são bugs de firmware",
+    "summary_en": "I’m looking at something entirely unrelated, but tripped over some search results that made me realise that a lot of people still think getting errors like  ACPI Warning: SystemIO range 0x0000000000001828-0x000000000000182F conflicts with OpRegion 0x0000000000001800-0x000000000000187F  indicate a firmware bug. This is generally untrue. We need to dive a little into what ACPI is to clarify why. ...",
+    "summary_pt": "Estou olhando para algo totalmente não relacionado, mas tropecei em alguns resultados de pesquisa que me fizeram perceber que muitas pessoas ainda pensam em receber erros como ACPI Warning: SystemIO range 0x0000000000001828-0x000000000000182F conflitos com OpRegion 0x000000000001800-0x00000000000187F indica um bug de firmware. Isso geralmente não é verdade. Precisamos nos aprofundar um pouco no que é ACPI para esclarecer o porquê. ...",
+    "link": "https://codon.org.uk/~mjg59/blog/p/systemio-conflicts-are-not-firmware-bugs/",
+    "date": "Wed, 09 Sep 2026 18:15:55 +0000"
+  },
+  {
+    "source": "Planet Kernel",
+    "title_en": "Matthew Garrett: Hooking an old magicJack adapter to modern Asterisk",
+    "title_pt": "Matthew Garrett: Conectando um antigo adaptador magicJack ao Asterisk moderno",
+    "summary_en": "I’m on a VPN setup with several friends that, obviously, includes a VoIP\nnetwork. I also have an old\n magicJack  adapter and a deep and\nabiding need to use hardware in ways I should not. There was obvious synergy\nhere. \n Plugging in the magicJack gives a USB vendor id of 0x06e6, which belonged to\na company called TigerJet who made a range of chips for hooking up phones to\ncomputers, either via ...",
+    "summary_pt": "Estou em uma configuração de VPN com vários amigos que, obviamente, inclui VoIP\nrede. Eu também tenho um antigo\n adaptador magicJack e um profundo e\nnecessidade permanente de usar hardware de maneiras que eu não deveria. Houve uma sinergia óbvia\naqui. \n Conectar o magicJack fornece um ID de fornecedor USB 0x06e6, que pertencia a\numa empresa chamada TigerJet que fabricava uma série de chips para conectar telefones a\ncomputadores, seja via ...",
+    "link": "https://codon.org.uk/~mjg59/blog/p/hooking-an-old-magicjack-adapter-to-modern-asterisk/",
+    "date": "Wed, 26 Aug 2026 04:04:17 +0000"
+  },
+  {
+    "source": "Planet Kernel",
+    "title_en": "Linux Plumbers Conference: Linux Plumbers Conference 2026 is now SOLD OUT!",
+    "title_pt": "Conferência de encanadores Linux: Conferência de encanadores Linux 2026 já está ESGOTADA!",
+    "summary_en": "It has become a trend for us now. Linux Plumbers Conference 2026 that is to be held in Prague on October 5th through to the 7th is now sold out. But do not fret, you may still be able to attend, but to do so, you will need to add yourself to the  wait-list . \n Please note that the wait-list is a priority ordered list but adding yourself early still does help. The highest priority is for people ...",
+    "summary_pt": "Tornou-se uma tendência para nós agora. A Linux Plumbers Conference 2026, que será realizada em Praga de 5 a 7 de outubro, já está esgotada. Mas não se preocupe, você ainda poderá comparecer, mas para isso precisará se adicionar à lista de espera. \n Observe que a lista de espera é uma lista ordenada por prioridade, mas adicionar-se antecipadamente ainda ajuda. A maior prioridade é para as pessoas...",
+    "link": "https://lpc.events/blog/current/index.php/2026/08/15/linux-plumbers-conference-2026-is-now-sold-out/",
+    "date": "Sat, 15 Aug 2026 14:25:39 +0000"
+  },
+  {
+    "source": "Planet Kernel",
+    "title_en": "Linux Plumbers Conference: Microconference Topic CfP is coming to an End",
+    "title_pt": "Conferência de encanadores Linux: Tópico de microconferência CfP está chegando ao fim",
+    "summary_en": "This Friday (August 7th) is the last day to submit a topic to any of the Microconferences. If you have something interesting to discuss at a Microconference, do not hesitate,  submit now ! It’s also a good idea to reread  The Ideal Microconference Topic Session . Notifications for accepted and rejected topics will happen on or before August 21st.",
+    "summary_pt": "This Friday (August 7th) is the last day to submit a topic to any of the Microconferences. If you have something interesting to discuss at a Microconference, do not hesitate,  submit now ! It’s also a good idea to reread  The Ideal Microconference Topic Session . Notifications for accepted and rejected topics will happen on or before August 21st.",
+    "link": "https://lpc.events/blog/current/index.php/2026/08/05/microconference-topic-cfp-is-coming-to-an-end/",
+    "date": "Wed, 05 Aug 2026 19:52:22 +0000"
+  },
+  {
+    "source": "Planet Kernel",
+    "title_en": "Linux Plumbers Conference: Linux Plumbers Conference Registration is now Open",
+    "title_pt": "Linux Plumbers Conference: Linux Plumbers Conference Registration is now Open",
+    "summary_en": "We’re pleased to announce Linux Plumbers Conference registration is now open. Please see our  attend  page for details.",
+    "summary_pt": "We’re pleased to announce Linux Plumbers Conference registration is now open. Please see our  attend  page for details.",
+    "link": "https://lpc.events/blog/current/index.php/2026/07/24/linux-plumbers-conference-registration-is-now-open/",
+    "date": "Fri, 24 Jul 2026 16:05:03 +0000"
+  },
+  {
+    "source": "Planet Kernel",
+    "title_en": "Matthew Garrett: Securing agentic identity",
+    "title_pt": "Matthew Garrett: Securing agentic identity",
+    "summary_en": "As is the case for many people working in the security industry, the last\nfew months of my life have been focused on dealing with people wanting to\nuse LLMs everywhere. From an enterprise security perspective that’s not an\ninherent problem - what’s more of a problem is that people want those agents\nto have access to resources like their calendar and email and so on, and now\nwe have somewhat non...",
+    "summary_pt": "As is the case for many people working in the security industry, the last\nfew months of my life have been focused on dealing with people wanting to\nuse LLMs everywhere. From an enterprise security perspective that’s not an\ninherent problem - what’s more of a problem is that people want those agents\nto have access to resources like their calendar and email and so on, and now\nwe have somewhat non...",
+    "link": "https://codon.org.uk/~mjg59/blog/p/securing-agentic-identity/",
+    "date": "Fri, 03 Jul 2026 00:38:23 +0000"
+  },
+  {
+    "source": "Planet Kernel",
+    "title_en": "Matthew Garrett: Preventing token theft",
+    "title_pt": "Matthew Garrett: Preventing token theft",
+    "summary_en": "When you log into a service you’re given an authentication token. Each\nfurther request to the site includes that token, allowing the server to\nfigure out who you are and ensuring that you have access to your\ndata. Depending on site policy, this token may either be stored in memory\n(and so vanish if you restart your browser) or disk. The token is the proof\nof your identity. As far as the site is...",
+    "summary_pt": "When you log into a service you’re given an authentication token. Each\nfurther request to the site includes that token, allowing the server to\nfigure out who you are and ensuring that you have access to your\ndata. Depending on site policy, this token may either be stored in memory\n(and so vanish if you restart your browser) or disk. The token is the proof\nof your identity. As far as the site is...",
+    "link": "https://codon.org.uk/~mjg59/blog/p/preventing-token-theft/",
+    "date": "Thu, 02 Jul 2026 02:23:45 +0000"
+  },
+  {
+    "source": "Planet Kernel",
+    "title_en": "Dave Airlie (blogspot): Appearing on the Software Engineering Radio Podcast",
+    "title_pt": "Dave Airlie (blogspot): Appearing on the Software Engineering Radio Podcast",
+    "summary_en": "Software Engineering Radio is a podcast for people in IT/development with over 700 episodes across many topics over 20 years. They haven't touched on the Linux kernel much. I was invited on as part of my role at Red Hat as a Distinguished Engineer, but the podcast is really an insight into kernel maintenance, in graphics and beyond, touching on the scope and scale of the project. It was my firs...",
+    "summary_pt": "Software Engineering Radio is a podcast for people in IT/development with over 700 episodes across many topics over 20 years. They haven't touched on the Linux kernel much. I was invited on as part of my role at Red Hat as a Distinguished Engineer, but the podcast is really an insight into kernel maintenance, in graphics and beyond, touching on the scope and scale of the project. It was my firs...",
+    "link": "https://airlied.blogspot.com/2026/06/appearing-on-software-engineering-radio.html",
+    "date": "Thu, 04 Jun 2026 00:05:46 +0000"
+  },
+  {
+    "source": "Planet Kernel",
+    "title_en": "Linux Plumbers Conference: All Microconferences have now been accepted!",
+    "title_pt": "Linux Plumbers Conference: All Microconferences have now been accepted!",
+    "summary_en": "Hello Linux Plumbers community! \n All Microconferences have now been accepted. Please go ahead and  take a look at them  and if you find something you would like to discuss, please submit a contribution. To do so, go to the  Call for Proposals page , select the  Submit new abstract  button, add your discussion topic and submit. Make sure to select the proper Microconference in the  Track  field...",
+    "summary_pt": "Olá comunidade de encanadores Linux! \n Todas as microconferências já foram aceitas. Por favor, vá em frente e dê uma olhada neles e se você encontrar algo que gostaria de discutir, envie uma contribuição. Para isso, acesse a página Chamada de Propostas, selecione o botão Enviar novo resumo, adicione seu tema de discussão e envie. Certifique-se de selecionar a Microconferência adequada no campo Rastrear...",
+    "link": "https://lpc.events/blog/current/index.php/2026/06/01/all-microconferences-have-now-been-accepted/",
+    "date": "Mon, 01 Jun 2026 20:25:06 +0000"
+  },
+  {
+    "source": "Planet Kernel",
+    "title_en": "Linux Plumbers Conference: Changes to Registration Availability for 2026",
+    "title_pt": "Linux Plumbers Conference: Changes to Registration Availability for 2026",
+    "summary_en": "As most of you are painfully aware, Linux Plumbers Conference registrations can run out very fast (yes, we got lots of complaints last year).  This year, we’re taking a couple of steps to alleviate the issue.  Firstly, we’re expanding the venue size in Prague to match the number of attendees we got in Vienna (800) which will hopefully mean we have more than enough places to keep registration op...",
+    "summary_pt": "As most of you are painfully aware, Linux Plumbers Conference registrations can run out very fast (yes, we got lots of complaints last year).  This year, we’re taking a couple of steps to alleviate the issue.  Firstly, we’re expanding the venue size in Prague to match the number of attendees we got in Vienna (800) which will hopefully mean we have more than enough places to keep registration op...",
+    "link": "https://lpc.events/blog/current/index.php/2026/04/06/changes-to-registration-availability-for-2026/",
+    "date": "Mon, 06 Apr 2026 16:13:03 +0000"
+  },
+  {
+    "source": "Planet Kernel",
+    "title_en": "Dave Airlie (blogspot): drm subsystem contributor numbers",
+    "title_pt": "Dave Airlie (blogspot): drm subsystem contributor numbers",
+    "summary_en": "I'm doing a podcast recording this week, so I wanted to run some numbers so I could have some facts rather than feels. It turns out my feels were off by a factor of 3 or so. If asked, I've always said the contributor count to the drm subsystem is probably in the 100 or so developers per release cycle. Did the simplest: git log --format='%aN' v6.14..v6.15 drivers/gpu/drm/ include/uapi/drm/ inclu...",
+    "summary_pt": "I'm doing a podcast recording this week, so I wanted to run some numbers so I could have some facts rather than feels. It turns out my feels were off by a factor of 3 or so. If asked, I've always said the contributor count to the drm subsystem is probably in the 100 or so developers per release cycle. Did the simplest: git log --format='%aN' v6.14..v6.15 drivers/gpu/drm/ include/uapi/drm/ inclu...",
+    "link": "https://airlied.blogspot.com/2026/04/drm-subsystem-contributor-numbers.html",
+    "date": "Wed, 01 Apr 2026 20:59:25 +0000"
+  },
+  {
+    "source": "Planet Kernel",
+    "title_en": "Matthew Garrett: Self hosting as much of my online presence as practical",
+    "title_pt": "Matthew Garrett: Self hosting as much of my online presence as practical",
+    "summary_en": "Because I am bad at giving up on things, I’ve been running my own email\nserver for over 20 years. Some of that time it’s been a PC at the end of a\nDSL line, some of that time it’s been a Mac Mini in a data centre, and some\nof that time it’s been a hosted VM. Last year I decided to bring it in\nhouse, and since then I’ve been gradually consolidating as much of the rest\nof my online presence as po...",
+    "summary_pt": "Because I am bad at giving up on things, I’ve been running my own email\nserver for over 20 years. Some of that time it’s been a PC at the end of a\nDSL line, some of that time it’s been a Mac Mini in a data centre, and some\nof that time it’s been a hosted VM. Last year I decided to bring it in\nhouse, and since then I’ve been gradually consolidating as much of the rest\nof my online presence as po...",
+    "link": "https://codon.org.uk/~mjg59/blog/p/self-hosting-as-much-of-my-online-presence-as-practical/",
+    "date": "Wed, 01 Apr 2026 02:35:43 +0000"
+  },
+  {
+    "source": "Planet Kernel",
+    "title_en": "Linux Plumbers Conference: Submission time for Linux Plumbers 2026",
+    "title_pt": "Linux Plumbers Conference: Submission time for Linux Plumbers 2026",
+    "summary_en": "Submissions for the Refereed Track, Kernel Summit, BoF and Microconferences are now  open . Linux Plumbers will be held this year in Prague, Czechia from October 5-7th. \n The  Refereed presentations  are 45 minutes in length (Talk+Q&A) and should focus on a specific aspect of the “plumbing” in a Linux ecosystem. Examples of Linux plumbing include core kernel subsystems, init systems, core libra...",
+    "summary_pt": "Submissions for the Refereed Track, Kernel Summit, BoF and Microconferences are now  open . Linux Plumbers will be held this year in Prague, Czechia from October 5-7th. \n The  Refereed presentations  are 45 minutes in length (Talk+Q&A) and should focus on a specific aspect of the “plumbing” in a Linux ecosystem. Examples of Linux plumbing include core kernel subsystems, init systems, core libra...",
+    "link": "https://lpc.events/blog/current/index.php/2026/03/23/submission-time-for-linux-plumbers-2026/",
+    "date": "Mon, 23 Mar 2026 20:51:32 +0000"
+  },
+  {
+    "source": "Planet Kernel",
+    "title_en": "Matthew Garrett: SSH certificates and git signing",
+    "title_pt": "Matthew Garrett: certificados SSH e assinatura git",
+    "summary_en": "When you’re looking at source code it can be helpful to have some evidence\nindicating who wrote it. Author tags give a surface level indication,  but\nit turns out you can just\nlie \nand if someone isn’t paying attention when merging stuff there’s certainly a\nrisk that a commit could be merged with an author field that doesn’t\nrepresent reality. Account compromise can make this even worse - a PR ...",
+    "summary_pt": "Quando você analisa o código-fonte, pode ser útil ter algumas evidências\nindicando quem o escreveu. As tags de autor fornecem uma indicação do nível da superfície, mas\nacontece que você pode simplesmente\nmentir \ne se alguém não estiver prestando atenção ao mesclar as coisas, certamente há um\nrisco de que um commit possa ser mesclado com um campo de autor que não\nrepresentar a realidade. O comprometimento da conta pode tornar isso ainda pior – um PR...",
+    "link": "https://codon.org.uk/~mjg59/blog/p/ssh-certificates-and-git-signing/",
+    "date": "Sat, 21 Mar 2026 19:38:07 +0000"
+  },
+  {
+    "source": "Planet Kernel",
+    "title_en": "Matthew Garrett: To update blobs or not to update blobs",
+    "title_pt": "Matthew Garrett: Para atualizar blobs ou não atualizar blobs",
+    "summary_en": "A lot of hardware runs non-free software. Sometimes that non-free software is in ROM. Sometimes it’s in flash. Sometimes it’s not stored on the device at all, it’s pushed into it at runtime by another piece of hardware or by the operating system. We typically refer to this software as “firmware” to differentiate it from the software run on the CPU after the OS has started 1 , but a lot of it (a...",
+    "summary_pt": "A lot of hardware runs non-free software. Sometimes that non-free software is in ROM. Sometimes it’s in flash. Sometimes it’s not stored on the device at all, it’s pushed into it at runtime by another piece of hardware or by the operating system. We typically refer to this software as “firmware” to differentiate it from the software run on the CPU after the OS has started 1 , but a lot of it (a...",
+    "link": "https://codon.org.uk/~mjg59/blog/p/to-update-blobs-or-not-to-update-blobs/",
+    "date": "Tue, 03 Mar 2026 03:09:48 +0000"
+  },
+  {
+    "source": "Planet Kernel",
+    "title_en": "Pete Zaitcev: Meanwhile in space",
+    "title_pt": "Pete Zaitcev: Meanwhile in space",
+    "summary_en": "Jonny Dyer : \n \n ODCs ( Orbital Data Centers — zaitcev ) will happen. The incentives are aligned from too many directions for them not to. But if you’re still debating whether datacenters in space “make sense,” you’ve missed the point. \n The real story is a technology revolution hiding in plain sight. Access to space has transformed over the last decade. Space and terrestrial infrastructure are...",
+    "summary_pt": "Jonny Dyer : \n \n ODCs ( Orbital Data Centers — zaitcev ) will happen. The incentives are aligned from too many directions for them not to. But if you’re still debating whether datacenters in space “make sense,” you’ve missed the point. \n The real story is a technology revolution hiding in plain sight. Access to space has transformed over the last decade. Space and terrestrial infrastructure are...",
+    "link": "https://zaitcev.livejournal.com/270241.html",
+    "date": "Thu, 19 Feb 2026 02:55:43 +0000"
+  },
+  {
+    "source": "Planet Kernel",
+    "title_en": "Pete Zaitcev: The end of MinIO",
+    "title_pt": "Pete Zaitcev: The end of MinIO",
+    "summary_en": "Someone wrote  about the collapse of MinIO (as an open-source project): \n The CNCF badge isn’t a safety net. MinIO was a CNCF-associated project. That association didn’t prevent any of this. The CNCF doesn’t control the licensing or business decisions of associated projects. If your risk model assumes that CNCF membership means long-term stability, MinIO is your counterexample. \n Swift is not m...",
+    "summary_pt": "Someone wrote  about the collapse of MinIO (as an open-source project): \n The CNCF badge isn’t a safety net. MinIO was a CNCF-associated project. That association didn’t prevent any of this. The CNCF doesn’t control the licensing or business decisions of associated projects. If your risk model assumes that CNCF membership means long-term stability, MinIO is your counterexample. \n Swift is not m...",
+    "link": "https://zaitcev.livejournal.com/269969.html",
+    "date": "Thu, 19 Feb 2026 02:46:36 +0000"
+  },
+  {
+    "source": "Planet Kernel",
+    "title_en": "Greg Kroah-Hartman: Linux CVE assignment process",
+    "title_pt": "Greg Kroah-Hartman: Linux CVE assignment process",
+    "summary_en": "As  described previously ,\nthe Linux kernel security team does not identify or mark or announce any sort\nof security fixes that are made to the Linux kernel tree.  So how, if the Linux\nkernel were to become a CVE Numbering Authority (CNA) and responsible for\nissuing CVEs, would the identification of security fixes happen in a way that\ncan be done by a volunteer staff?  This post goes into the p...",
+    "summary_pt": "As  described previously ,\nthe Linux kernel security team does not identify or mark or announce any sort\nof security fixes that are made to the Linux kernel tree.  So how, if the Linux\nkernel were to become a CVE Numbering Authority (CNA) and responsible for\nissuing CVEs, would the identification of security fixes happen in a way that\ncan be done by a volunteer staff?  This post goes into the p...",
+    "link": "http://www.kroah.com/log/blog/2026/02/16/linux-cve-assignment-process/",
+    "date": "Mon, 16 Feb 2026 00:00:00 +0000"
+  },
+  {
+    "source": "Planet Kernel",
+    "title_en": "Dave Airlie (blogspot): drm subsystem AI patch review",
+    "title_pt": "Dave Airlie (blogspot): drm subsystem AI patch review",
+    "summary_en": "This topic came up at kernel maintainers summit and some other groups have been playing around with it, particularly the BPF folks, and Chris Mason's work on kernel review prompts[1] for regressions. Red Hat have asked engineers to investigate some workflow enhancements with AI tooling, so I decided to let the vibecoding off the leash. My main goal: - Provide AI led patch review for drm patches...",
+    "summary_pt": "This topic came up at kernel maintainers summit and some other groups have been playing around with it, particularly the BPF folks, and Chris Mason's work on kernel review prompts[1] for regressions. Red Hat have asked engineers to investigate some workflow enhancements with AI tooling, so I decided to let the vibecoding off the leash. My main goal: - Provide AI led patch review for drm patches...",
+    "link": "https://airlied.blogspot.com/2026/02/drm-subsystem-ai-patch-review.html",
+    "date": "Fri, 13 Feb 2026 06:56:33 +0000"
+  },
+  {
+    "source": "LWN",
+    "title_en": "Forgejo 16.0.4 and 15.0.8 address critical security vulnerability",
+    "title_pt": "Forgejo 16.0.4 and 15.0.8 address critical security vulnerability",
+    "summary_en": "The  Forgejo  software-forge project has  announced  the\nrelease of versions  16.0.4 \nand  15.0.8 ,\nwhich fixes two security vulnerabilities. One is a critical flaw that would\nallow remote-code execution (RCE): \n \nWhen generating a new repository from a template repository, Forgejo clones the\ntemplate repository, removes the  .git  folder, performs variable template\nexpansion on files listed in...",
+    "summary_pt": "The  Forgejo  software-forge project has  announced  the\nrelease of versions  16.0.4 \nand  15.0.8 ,\nwhich fixes two security vulnerabilities. One is a critical flaw that would\nallow remote-code execution (RCE): \n \nWhen generating a new repository from a template repository, Forgejo clones the\ntemplate repository, removes the  .git  folder, performs variable template\nexpansion on files listed in...",
+    "link": "https://lwn.net/Articles/1093671/",
+    "date": "Thu, 10 Sep 2026 20:05:50 +0000"
+  },
+  {
+    "source": "LWN",
+    "title_en": "[$] PostgreSQL 19's \"scary patch contest\"",
+    "title_pt": "[$] PostgreSQL 19's \"scary patch contest\"",
+    "summary_en": "PostgreSQL 19  was \nexpected to be released in September, in keeping with the database\nproject's longstanding tradition of a major release every year. However,\nsome late-breaking concerns about several of the features slated for inclusion\nhas some developers worried about the quality of the release. On August 25, PostgreSQL\ncontributor Robert Haas  sent\nan email  with the subject \" scary patch ...",
+    "summary_pt": "PostgreSQL 19  was \nexpected to be released in September, in keeping with the database\nproject's longstanding tradition of a major release every year. However,\nsome late-breaking concerns about several of the features slated for inclusion\nhas some developers worried about the quality of the release. On August 25, PostgreSQL\ncontributor Robert Haas  sent\nan email  with the subject \" scary patch ...",
+    "link": "https://lwn.net/Articles/1092003/",
+    "date": "Thu, 10 Sep 2026 17:29:06 +0000"
+  },
+  {
+    "source": "LWN",
+    "title_en": "Julia 1.13 released",
+    "title_pt": "Julia 1.13 released",
+    "summary_en": "Version\n1.13  of the  Julia programming language \nhas been released. Highlights include faster precompilation of packages,\nimprovements to Julia's REPL, and  Juliaup ,\na graphical interface for the Julia version manager. A full list of changes can\nbe found in the  release\nnotes . LWN  covered Julia\n1.12  in November 2025.",
+    "summary_pt": "Versão\n1.13 da linguagem de programação Julia \nfoi lançado. Os destaques incluem pré-compilação mais rápida de pacotes,\nmelhorias no REPL de Julia e Juliaup ,\numa interface gráfica para o gerenciador de versões Julia. Uma lista completa de alterações pode\nser encontrado no lançamento\nnotas. LWN cobriu Julia\n1,12 em novembro de 2025.",
+    "link": "https://lwn.net/Articles/1093567/",
+    "date": "Thu, 10 Sep 2026 13:23:50 +0000"
+  },
+  {
+    "source": "LWN",
+    "title_en": "Security updates for Thursday",
+    "title_pt": "Security updates for Thursday",
+    "summary_en": "Security updates have been issued by  AlmaLinux  (389-ds-base, ansible-core, buildah, expat, glib2, gpsd, gpsd-minimal, gzip, kernel, kernel-rt, opentelemetry-collector, osbuild-composer, perl-DBI, python-lxml, python3.12-lxml, qt5-qtbase, thunderbird, valkey, vim, and xz),  Debian  (pyasn1),  Fedora  (darktable, freeipa, freerdp2, gdk-pixbuf2, GitPython, libsoup3, openssl, perl-Net-DNS, rust-p...",
+    "summary_pt": "Security updates have been issued by  AlmaLinux  (389-ds-base, ansible-core, buildah, expat, glib2, gpsd, gpsd-minimal, gzip, kernel, kernel-rt, opentelemetry-collector, osbuild-composer, perl-DBI, python-lxml, python3.12-lxml, qt5-qtbase, thunderbird, valkey, vim, and xz),  Debian  (pyasn1),  Fedora  (darktable, freeipa, freerdp2, gdk-pixbuf2, GitPython, libsoup3, openssl, perl-Net-DNS, rust-p...",
+    "link": "https://lwn.net/Articles/1093566/",
+    "date": "Thu, 10 Sep 2026 13:14:35 +0000"
+  },
+  {
+    "source": "LWN",
+    "title_en": "[$] LWN.net Weekly Edition for September 10, 2026",
+    "title_pt": "[$] LWN.net Weekly Edition for September 10, 2026",
+    "summary_en": "Inside this week's LWN.net Weekly Edition:\n         \n \n   Front : Rust's never type; Debian and CERN; memory tiering; testing multithreaded Python; fixing TCMalloc; Typst.\n               Briefs : Rustls; Asahi Linux; Buildroot 2026.08; Grml 2026.09; Audacity 4.0; Jellyfin 12.0; LibreOffice Base; Quotes; ...\n               Announcements : Newsletters, conferences, security updates, patches, and ...",
+    "summary_pt": "Inside this week's LWN.net Weekly Edition:\n         \n \n   Front : Rust's never type; Debian and CERN; memory tiering; testing multithreaded Python; fixing TCMalloc; Typst.\n               Briefs : Rustls; Asahi Linux; Buildroot 2026.08; Grml 2026.09; Audacity 4.0; Jellyfin 12.0; LibreOffice Base; Quotes; ...\n               Announcements : Newsletters, conferences, security updates, patches, and ...",
+    "link": "https://lwn.net/Articles/1092273/",
+    "date": "Thu, 10 Sep 2026 01:43:03 +0000"
+  },
+  {
+    "source": "LWN",
+    "title_en": "A decade of Rustls",
+    "title_pt": "A decade of Rustls",
+    "summary_en": "Joe Birr-Pixton has written  a blog post \nreflecting on a decade of the Rustls TLS-library project and looking ahead to\nthe upcoming 0.24 release and an eventual 1.0 release. \n \n Rustls began with  a\nfirst commit  on May 2, 2016. Progress was quick: a month later, on June 5,\nit could interoperate with most sites on the web. The first release, 0.1.0,\nfollowed on August 27, 2016 – less than four ...",
+    "summary_pt": "Joe Birr-Pixton has written  a blog post \nreflecting on a decade of the Rustls TLS-library project and looking ahead to\nthe upcoming 0.24 release and an eventual 1.0 release. \n \n Rustls began with  a\nfirst commit  on May 2, 2016. Progress was quick: a month later, on June 5,\nit could interoperate with most sites on the web. The first release, 0.1.0,\nfollowed on August 27, 2016 – less than four ...",
+    "link": "https://lwn.net/Articles/1093391/",
+    "date": "Wed, 09 Sep 2026 18:11:54 +0000"
+  },
+  {
+    "source": "LWN",
+    "title_en": "LibreOffice Base survey results",
+    "title_pt": "LibreOffice Base survey results",
+    "summary_en": "Heiko Tietze has  published\na blog post  summarizing the results of a  recent\nsurvey  about the use of LibreOffice's database application, Base. 455 people\nparticipated in the survey, including more than 330 who use Base on Linux, with\nuse cases ranging from maintaining records of personal media such as CDs or DVDs\nto use enterprise-resource planning (ERP) and finance. Of course, users had many...",
+    "summary_pt": "Heiko Tietze has  published\na blog post  summarizing the results of a  recent\nsurvey  about the use of LibreOffice's database application, Base. 455 people\nparticipated in the survey, including more than 330 who use Base on Linux, with\nuse cases ranging from maintaining records of personal media such as CDs or DVDs\nto use enterprise-resource planning (ERP) and finance. Of course, users had many...",
+    "link": "https://lwn.net/Articles/1093388/",
+    "date": "Wed, 09 Sep 2026 17:07:42 +0000"
+  },
+  {
+    "source": "LWN",
+    "title_en": "[$] Typst makes big strides",
+    "title_pt": "[$] Typst makes big strides",
+    "summary_en": "Typst  is a system for typesetting documents\ninto various formats: PDF, SVG, PNG, and, in progress, HTML. It is adept at\nhandling technical material, and is often considered to be an eventual  LaTeX  replacement. We last   looked\nin on Typst  a year ago, when it had reached version 0.13.  A new version,\n0.15, was  released  in\nJune with lots of   new features , including support for variable fo...",
+    "summary_pt": "Typst  is a system for typesetting documents\ninto various formats: PDF, SVG, PNG, and, in progress, HTML. It is adept at\nhandling technical material, and is often considered to be an eventual  LaTeX  replacement. We last   looked\nin on Typst  a year ago, when it had reached version 0.13.  A new version,\n0.15, was  released  in\nJune with lots of   new features , including support for variable fo...",
+    "link": "https://lwn.net/Articles/1092993/",
+    "date": "Wed, 09 Sep 2026 15:37:55 +0000"
+  },
+  {
+    "source": "LWN",
+    "title_en": "Security updates for Wednesday",
+    "title_pt": "Security updates for Wednesday",
+    "summary_en": "Security updates have been issued by  AlmaLinux  (expat, glib2, microcode_ctl, mrtg, pam, redis, thunderbird, and valkey),  Debian  (fort-validator, gst-plugins-base1.0, kernel, and slurm-wlm),  Fedora  (complyctl, libevent, openvpn, and tar),  Mageia  (dovecot and spice-vdagent),  Red Hat  (ignition, opentelemetry-collector, and osbuild-composer),  SUSE  (amazon-ssm-agent, aws-nitro-enclaves-c...",
+    "summary_pt": "Security updates have been issued by  AlmaLinux  (expat, glib2, microcode_ctl, mrtg, pam, redis, thunderbird, and valkey),  Debian  (fort-validator, gst-plugins-base1.0, kernel, and slurm-wlm),  Fedora  (complyctl, libevent, openvpn, and tar),  Mageia  (dovecot and spice-vdagent),  Red Hat  (ignition, opentelemetry-collector, and osbuild-composer),  SUSE  (amazon-ssm-agent, aws-nitro-enclaves-c...",
+    "link": "https://lwn.net/Articles/1093342/",
+    "date": "Wed, 09 Sep 2026 13:04:46 +0000"
+  },
+  {
+    "source": "LWN",
+    "title_en": "[$] Stabilizing Rust's never type",
+    "title_pt": "[$] Stabilizing Rust's never type",
+    "summary_en": "A function's return type is supposed to indicate the kind of data that it\nproduces. \nRust's \"never\" type, which is\n \ndenoted by an exclamation mark  (\" ! \"), is the type the language uses to mark\na function that never returns and other places where a value can never occur. For\na long time, the never type was used internally by the compiler, but was\nconsidered an unstable feature. On\n \nAugust 24...",
+    "summary_pt": "A function's return type is supposed to indicate the kind of data that it\nproduces. \nRust's \"never\" type, which is\n \ndenoted by an exclamation mark  (\" ! \"), is the type the language uses to mark\na function that never returns and other places where a value can never occur. For\na long time, the never type was used internally by the compiler, but was\nconsidered an unstable feature. On\n \nAugust 24...",
+    "link": "https://lwn.net/Articles/1091015/",
+    "date": "Tue, 08 Sep 2026 13:34:38 +0000"
+  },
+  {
+    "source": "LWN",
+    "title_en": "Jellyfin 12.0 released",
+    "title_pt": "Jellyfin 12.0 lançado",
+    "summary_en": "Version 12  of\nthe  Jellyfin  media-management system has\nbeen released. Notable changes include  database\nperformance improvements ,  an\nupgrade to FFmpeg 8.1 for media transcoding , as well as  better\nhandling of book and comic media . See the release notes for the  web\nclient  and  server  for a\nfull list of changes.",
+    "summary_pt": "Versão 12 de\no sistema de gerenciamento de mídia Jellyfin tem\nfoi liberado. Mudanças notáveis incluem banco de dados\nmelhorias de desempenho, uma\natualize para FFmpeg 8.1 para transcodificação de mídia e melhor\nmanuseio de mídia de livros e quadrinhos. Veja as notas de versão para a web\ncliente e servidor para um\nlista completa de alterações.",
+    "link": "https://lwn.net/Articles/1093145/",
+    "date": "Tue, 08 Sep 2026 13:20:02 +0000"
+  },
+  {
+    "source": "LWN",
+    "title_en": "Security updates for Tuesday",
+    "title_pt": "Atualizações de segurança para terça-feira",
+    "summary_en": "Security updates have been issued by  AlmaLinux  (expat, git-lfs, grafana-pcp, kernel-rt, python3.14-cryptography, redis:6, skopeo, and xmlrpc-c),  Debian  (jbig2dec and strongswan),  Fedora  (baresip, chirp, chromium, corosync, emacs, GitPython, libre, libsoup3, nsd, perl-Net-OAuth, and perl-XML-Bare),  Mageia  (apache-mod_auth_openidc, exiv2, freerdp, python-pyasn1, and tor),  Red Hat  (build...",
+    "summary_pt": "Atualizações de segurança foram emitidas por AlmaLinux (expat, git-lfs, grafana-pcp, kernel-rt, python3.14-cryptography, redis:6, skopeo e xmlrpc-c), Debian (jbig2dec e strongswan), Fedora (baresip, chirp, chromium, corosync, emacs, GitPython, libre, libsoup3, nsd, perl-Net-OAuth e perl-XML-Bare), Mageia (apache-mod_auth_openidc, exiv2, freerdp, python-pyasn1 e tor), Red Hat (construção...",
+    "link": "https://lwn.net/Articles/1093144/",
+    "date": "Tue, 08 Sep 2026 13:11:34 +0000"
+  },
+  {
+    "source": "LWN",
+    "title_en": "[$] CERN's migration path from CentOS Linux to Debian",
+    "title_pt": "[$] Caminho de migração do CERN do CentOS Linux para o Debian",
+    "summary_en": "The European Laboratory for Particle Physics, usually just called  CERN , is not only the  birthplace of\nthe World Wide Web , it is home to the  Large Hadron\nCollider  (LHC), the world's largest and highest-energy  particle\naccelerator . As such, its computing environment is both truly unique and of\ngreat interest to people outside of CERN who hope to find lessons applicable to\ntheir own comput...",
+    "summary_pt": "O Laboratório Europeu de Física de Partículas, geralmente chamado apenas de CERN, não é apenas o berço do\nna World Wide Web, é o lar do Grande Hádron\nCollider (LHC), a maior e mais energética partícula do mundo\nacelerador. Como tal, seu ambiente de computação é verdadeiramente único e de\ngrande interesse para pessoas fora do CERN que esperam encontrar lições aplicáveis\nseu próprio computador...",
+    "link": "https://lwn.net/Articles/1092512/",
+    "date": "Mon, 07 Sep 2026 16:57:12 +0000"
+  },
+  {
+    "source": "LWN",
+    "title_en": "Three stable kernels for Monday",
+    "title_pt": "Três kernels estáveis ​​para segunda-feira",
+    "summary_en": "Greg Kroah-Hartman has announced the release of the  7.2.4 ,  6.18.50 ,\nand  6.12.109  stable kernels. Each contains\nimportant fixes throughout the tree. Users are advised to upgrade.",
+    "summary_pt": "Greg Kroah-Hartman anunciou o lançamento do 7.2.4 , 6.18.50 ,\ne 6.12.109 kernels estáveis. Cada um contém\ncorreções importantes em toda a árvore. Os usuários são aconselhados a atualizar.",
+    "link": "https://lwn.net/Articles/1092984/",
+    "date": "Mon, 07 Sep 2026 16:50:43 +0000"
+  },
+  {
+    "source": "LWN",
+    "title_en": "[$] Fixing the TCMalloc regression with RSEQ operations",
+    "title_pt": "[$] Corrigindo a regressão TCMalloc com operações RSEQ",
+    "summary_en": "The  restartable sequences  feature is one of\nthe stranger corners of the kernel's user-space interface; it provides a\nway for user space to carry out simple lockless operations and be informed\nif it is preempted over the course of an operation (and must, thus,\nrestart).  Work merged in the 6.19 release to  improve the performance of restartable\nsequences  broke the  TCMalloc allocator ,\nwhich ...",
+    "summary_pt": "O recurso de sequências reiniciáveis é um dos\nos cantos mais estranhos da interface do espaço do usuário do kernel; fornece um\nmaneira para o espaço do usuário realizar operações simples sem bloqueio e ser informado\nse for preemptado ao longo de uma operação (e deve, portanto,\nreiniciar).  Trabalho mesclado na versão 6.19 para melhorar o desempenho do reiniciável\nsequências quebraram o alocador TCMalloc,\nque ...",
+    "link": "https://lwn.net/Articles/1092555/",
+    "date": "Mon, 07 Sep 2026 14:33:43 +0000"
+  },
+  {
+    "source": "Phoronix",
+    "title_en": "Linux Mint Debuts Xepub As New EPUB Reader, Clockenstein Calendar App",
+    "title_pt": "Linux Mint estreia Xepub como novo leitor de EPUB, aplicativo de calendário Clockenstein",
+    "summary_en": "The Linux Mint project today published their August 2026 development report, including some new applications added to their XApp collection...",
+    "summary_pt": "O projeto Linux Mint publicou hoje seu relatório de desenvolvimento de agosto de 2026, incluindo alguns novos aplicativos adicionados à sua coleção XApp...",
+    "link": "https://www.phoronix.com/news/Linux-Mint-Xepub-Clockenstein",
+    "date": "Fri, 11 Sep 2026 08:20:48 -0400"
+  },
+  {
+    "source": "Phoronix",
+    "title_en": "Patches Ready For AMDGPU HDMI 2.1 Enabled By Default With Linux 7.4 With FreeSync, VRR & ALLM",
+    "title_pt": "Patches prontos para AMDGPU HDMI 2.1 habilitados por padrão com Linux 7.4 com FreeSync, VRR e ALLM",
+    "summary_en": "Linux 7.4 is now set to reach the elusive milestone of HDMI 2.1 support for the AMDGPU kernel graphics driver. After the HDMI Forum previously rejected HDMI 2.1 for the AMDGPU open-source driver implementation going back years, earlier this year something changed -- widely speculated to be with Valve's involvement -- that HDMI 2.1 patches began appearing for the AMDGPU driver. With the upcoming...",
+    "summary_pt": "Linux 7.4 is now set to reach the elusive milestone of HDMI 2.1 support for the AMDGPU kernel graphics driver. After the HDMI Forum previously rejected HDMI 2.1 for the AMDGPU open-source driver implementation going back years, earlier this year something changed -- widely speculated to be with Valve's involvement -- that HDMI 2.1 patches began appearing for the AMDGPU driver. With the upcoming...",
+    "link": "https://www.phoronix.com/news/Linux-7.4-AMDGPU-HDMI-2.1-Go",
+    "date": "Fri, 11 Sep 2026 06:39:00 -0400"
+  },
+  {
+    "source": "Phoronix",
+    "title_en": "Git 2.56-rc0 Released With Updated Contribution Guidelines, Improvements For Swift",
+    "title_pt": "Git 2.56-rc0 Released With Updated Contribution Guidelines, Improvements For Swift",
+    "summary_en": "While still ultimately working toward Git 3.0 with SHA-256 hashes by default and the \"main\" branch name by default, among other breaking changes (and potentially coming around the end of 2026), Git 2.56-rc0 is now available for testing...",
+    "summary_pt": "While still ultimately working toward Git 3.0 with SHA-256 hashes by default and the \"main\" branch name by default, among other breaking changes (and potentially coming around the end of 2026), Git 2.56-rc0 is now available for testing...",
+    "link": "https://www.phoronix.com/news/Git-2.56-rc0",
+    "date": "Fri, 11 Sep 2026 06:20:00 -0400"
+  },
+  {
+    "source": "Phoronix",
+    "title_en": "Intel Thermald 2.5.13 Restores Accidentally Deleted Wildcat Lake Support",
+    "title_pt": "Intel Thermald 2.5.13 Restores Accidentally Deleted Wildcat Lake Support",
+    "summary_en": "Intel's Thermald released on Thursday as the newest update to this daemon for thermal monitoring on Intel hardware that was also recently extended for beginning to support Qualcomm/ARM hardware too. The main change with Thermald 2.5.13 is adding back Intel Wildcat Lake platform support after it was accidentally removed in the prior release...",
+    "summary_pt": "Intel's Thermald released on Thursday as the newest update to this daemon for thermal monitoring on Intel hardware that was also recently extended for beginning to support Qualcomm/ARM hardware too. The main change with Thermald 2.5.13 is adding back Intel Wildcat Lake platform support after it was accidentally removed in the prior release...",
+    "link": "https://www.phoronix.com/news/Intel-Thermald-2.5.13",
+    "date": "Fri, 11 Sep 2026 06:01:22 -0400"
+  },
+  {
+    "source": "Phoronix",
+    "title_en": "GCC 13.5 Released With 265+ Bug Fixes",
+    "title_pt": "GCC 13.5 Released With 265+ Bug Fixes",
+    "summary_en": "For those continuing to rely on the GCC 13 compiler in production that debuted more than three years ago, GCC 13.5 released today with more than 265 bug fixes. GCC 13.5 also caps off the GCC 13 series as the last planned point release...",
+    "summary_pt": "For those continuing to rely on the GCC 13 compiler in production that debuted more than three years ago, GCC 13.5 released today with more than 265 bug fixes. GCC 13.5 also caps off the GCC 13 series as the last planned point release...",
+    "link": "https://www.phoronix.com/news/GCC-13.5-Released",
+    "date": "Fri, 11 Sep 2026 05:47:06 -0400"
+  },
+  {
+    "source": "Phoronix",
+    "title_en": "BeOS-Inspired Haiku Now Supports Changing Audio Outputs Live, Other Improvements",
+    "title_pt": "BeOS-Inspired Haiku Now Supports Changing Audio Outputs Live, Other Improvements",
+    "summary_en": "In addition to August bringing the long-awaited Haiku R1 Beta 6 release, there was also a lot of development progress on this BeOS-inspired operating system too during the course of the past month...",
+    "summary_pt": "Além de agosto trazer o tão esperado lançamento do Haiku R1 Beta 6, também houve muito progresso no desenvolvimento deste sistema operacional inspirado no BeOS durante o mês passado...",
+    "link": "https://www.phoronix.com/news/Haiku-OS-August-2026",
+    "date": "Thu, 10 Sep 2026 20:55:29 -0400"
+  },
+  {
+    "source": "Phoronix",
+    "title_en": "GIMP 3.2.6 Released With Some Early Preparations Toward Eventual GTK4 Port",
+    "title_pt": "GIMP 3.2.6 lançado com alguns preparativos iniciais para uma eventual porta GTK4",
+    "summary_en": "The long-awaited GIMP 3.0 release for transitioning from GTK2 to GTK3 only saw its stable release last year. But with GTK4 already being out for years, GIMP developers have begun making some very early preparations toward an inevitable GTK4 port...",
+    "summary_pt": "O tão esperado lançamento do GIMP 3.0 para a transição do GTK2 para o GTK3 só teve seu lançamento estável no ano passado. Mas com o GTK4 já lançado há anos, os desenvolvedores do GIMP começaram a fazer alguns preparativos iniciais para uma porta inevitável do GTK4...",
+    "link": "https://www.phoronix.com/news/GIMP-3.2.6-Released",
+    "date": "Thu, 10 Sep 2026 18:12:22 -0400"
+  },
+  {
+    "source": "Phoronix",
+    "title_en": "Mesa 26.3 RADV + RadeonSI Ready With DRM Format Modifiers For Older AMD GPUs",
+    "title_pt": "Mesa 26.3 RADV + RadeonSI pronto com modificadores de formato DRM para GPUs AMD mais antigas",
+    "summary_en": "Coming with Linux 7.3 is DRM format modifiers for GFX6 through GFX8 era GPUs covering the original Raddeon HD 7000 (GCN 1.0) graphics cards up through the Polaris and Fiji series. This work by Valve's Timur Kristóf is necessary for these older GPUs to support Vulkan-based Wayland compositors, better interoperability between OpenGL and Vulkan or other APis, compositors running on the Zink OpenGL...",
+    "summary_pt": "Vindo com o Linux 7.3 estão modificadores de formato DRM para GPUs da era GFX6 a GFX8, cobrindo as placas gráficas originais Raddeon HD 7000 (GCN 1.0) até as séries Polaris e Fiji. Este trabalho de Timur Kristóf da Valve é necessário para que essas GPUs mais antigas suportem compositores Wayland baseados em Vulkan, melhor interoperabilidade entre OpenGL e Vulkan ou outros APis, compositores rodando no Zink OpenGL...",
+    "link": "https://www.phoronix.com/news/Mesa-26.3-GFX6-GFX8-Modifiers",
+    "date": "Thu, 10 Sep 2026 17:19:11 -0400"
+  },
+  {
+    "source": "Phoronix",
+    "title_en": "Ubuntu 24.04.5 LTS Released With Linux 7.0 HWE Stack",
+    "title_pt": "Ubuntu 24.04.5 LTS lançado com Linux 7.0 HWE Stack",
+    "summary_en": "For those continuing to make use of the Ubuntu 24.04 Long Term Support \"LTS\" series, Ubuntu 24.04.5 LTS is out today as the newest point release...",
+    "summary_pt": "For those continuing to make use of the Ubuntu 24.04 Long Term Support \"LTS\" series, Ubuntu 24.04.5 LTS is out today as the newest point release...",
+    "link": "https://www.phoronix.com/news/Ubuntu-24.04.5-LTS",
+    "date": "Thu, 10 Sep 2026 13:49:03 -0400"
+  },
+  {
+    "source": "Phoronix",
+    "title_en": "Intel Xeon 600 Workstation Performance vs. AMD Threadripper 9000 In Nearly 400 Benchmarks",
+    "title_pt": "Intel Xeon 600 Workstation Performance vs. AMD Threadripper 9000 In Nearly 400 Benchmarks",
+    "summary_en": "Last month I had the chance to test the Xeon 678X workstation processor as my first hands-on opportunity with the Xeon 600 \"Granite Rapids WS\" series. The Intel Xeon 678X was within the HP Z4 G6i workstation and used it for a number of different benchmarks. In that HP workstation review were also some comparison points to the likes of AMD Ryzen Threadripper while in this article are some much m...",
+    "summary_pt": "Last month I had the chance to test the Xeon 678X workstation processor as my first hands-on opportunity with the Xeon 600 \"Granite Rapids WS\" series. The Intel Xeon 678X was within the HP Z4 G6i workstation and used it for a number of different benchmarks. In that HP workstation review were also some comparison points to the likes of AMD Ryzen Threadripper while in this article are some much m...",
+    "link": "https://www.phoronix.com/review/intel-xeon-600-amd-threadripper-9000",
+    "date": "Thu, 10 Sep 2026 12:43:00 -0400"
+  },
+  {
+    "source": "Phoronix",
+    "title_en": "KDE Plasma 6.8 Beta Released With Many Great Improvements, Kup Backup Scheduler",
+    "title_pt": "KDE Plasma 6.8 Beta Released With Many Great Improvements, Kup Backup Scheduler",
+    "summary_en": "Ahead of the stable release of Plasma 6.8 due out on 14 October that also marks the 30th anniversary of the KDE project, out today is the much anticipated beta release...",
+    "summary_pt": "Antes do lançamento estável do Plasma 6.8, previsto para 14 de outubro, que também marca o 30º aniversário do projeto KDE, hoje é lançado o tão aguardado lançamento beta...",
+    "link": "https://www.phoronix.com/news/KDE-Plasma-6.8-Beta",
+    "date": "Thu, 10 Sep 2026 12:39:24 -0400"
+  },
+  {
+    "source": "Phoronix",
+    "title_en": "Intel BFF Driver Slated For Linux 7.4 Introduction",
+    "title_pt": "Driver Intel BFF previsto para introdução ao Linux 7.4",
+    "summary_en": "Last month I covered Intel posting a new driver named \"BFF\" for the Linux kernel. This BFF driver is for a new hardware feature debuting with next-gen Diamond Rapids processors for better dealing with aging CPU silicon where some bits may become stuck over time...",
+    "summary_pt": "No mês passado, cobri a postagem da Intel sobre um novo driver chamado “BFF” para o kernel Linux. Este driver BFF é para um novo recurso de hardware que estreia com processadores Diamond Rapids de última geração para lidar melhor com o envelhecimento do silício da CPU, onde alguns bits podem ficar presos com o tempo...",
+    "link": "https://www.phoronix.com/news/Intel-BFF-Driver-For-Linux-7.4",
+    "date": "Thu, 10 Sep 2026 08:54:35 -0400"
+  },
+  {
+    "source": "Phoronix",
+    "title_en": "NVIDIA NVK Driver Lands Improvement To Help With Valve's Gamescope",
+    "title_pt": "Melhoria do driver NVIDIA NVK para ajudar no Gamescope da Valve",
+    "summary_en": "Merged today for next quarter's Mesa 26.3 release is an improvement for the open-source NVIDIA \"NVK\" Vulkan driver paired with the Nouveau kernel driver. This latest NVK improvement benefits usage of Valve's Gamescope micro-compositor and should help with performance during game recording and remote play...",
+    "summary_pt": "Fundido hoje para o lançamento do Mesa 26.3 do próximo trimestre é uma melhoria para o driver NVIDIA \"NVK\" Vulkan de código aberto emparelhado com o driver de kernel Nouveau. Esta última melhoria do NVK beneficia o uso do microcompositor Gamescope da Valve e deve ajudar no desempenho durante a gravação de jogos e jogo remoto...",
+    "link": "https://www.phoronix.com/news/NVIDIA-NVK-BAR-Host-Cached",
+    "date": "Thu, 10 Sep 2026 07:17:47 -0400"
+  },
+  {
+    "source": "Phoronix",
+    "title_en": "X.Org Server 26.1 Moves Closer To Release As Half-Decade Update",
+    "title_pt": "X.Org Server 26.1 se aproxima do lançamento como atualização de meia década",
+    "summary_en": "We're getting closer to the X.Org Server 26.1 stable release as the first new tagged feature release since X.Org Server 21.1 debuted back in October 2021. There have been some new features, many code reverts, and many bug fixes merged over the past five years that will culminate with the X.Org Server 26.1 stable release...",
+    "summary_pt": "Estamos nos aproximando da versão estável do X.Org Server 26.1 como o primeiro novo lançamento de recurso marcado desde que o X.Org Server 21.1 estreou em outubro de 2021. Houve alguns novos recursos, muitas reversões de código e muitas correções de bugs mescladas nos últimos cinco anos que culminarão com a versão estável do X.Org Server 26.1...",
+    "link": "https://www.phoronix.com/news/X.Org-Server-26.1-Released",
+    "date": "Thu, 10 Sep 2026 06:29:00 -0400"
+  },
+  {
+    "source": "Phoronix",
+    "title_en": "GNOME 51 Adds Support For Custom Pointer Acceleration Profiles",
+    "title_pt": "GNOME 51 adiciona suporte para perfis personalizados de aceleração de ponteiro",
+    "summary_en": "As a last minute change ahead of next week's GNOME 51 desktop release, changes to Mutter and gsettings-desktop-schemas have now landed for supporting custom pointer acceleration profiles...",
+    "summary_pt": "Como uma mudança de última hora antes do lançamento do desktop GNOME 51 da próxima semana, mudanças nos esquemas Mutter e gsettings-desktop chegaram para suportar perfis de aceleração de ponteiro personalizados...",
+    "link": "https://www.phoronix.com/news/GNOME-51-Custom-Accel-Profiles",
+    "date": "Thu, 10 Sep 2026 06:16:56 -0400"
+  },
+  {
+    "source": "Phoronix",
+    "title_en": "COSMIC Epoch 1.8 Provides Latest Fixes & Minor Improvements For This Rust Desktop",
+    "title_pt": "COSMIC Epoch 1.8 fornece as últimas correções e pequenas melhorias para este Rust Desktop",
+    "summary_en": "Released overnight was the newest version of the Rust-based COSMIC desktop environment developed by System76 as part of the effort on their  Pop!_OS Linux distribution...",
+    "summary_pt": "Lançada durante a noite foi a mais nova versão do ambiente de desktop COSMIC baseado em Rust desenvolvido pela System76 como parte do esforço em sua distribuição Pop!_OS Linux...",
+    "link": "https://www.phoronix.com/news/COSMIC-Epoch-1.8",
+    "date": "Thu, 10 Sep 2026 06:04:04 -0400"
+  },
+  {
+    "source": "Phoronix",
+    "title_en": "GNU Automake 1.19 Released With More Than One Year Worth Of Fixes",
+    "title_pt": "GNU Automake 1.19 lançado com mais de um ano de correções",
+    "summary_en": "For those continuing to use GNU Automake over the likes of Meson or CMake for your build system, Automake 1.19 is out today as the first new release in 15 months. Among the many fixes in this release is for a bug dating back 14 years...",
+    "summary_pt": "Para aqueles que continuam a usar GNU Automake em vez de Meson ou CMake para seu sistema de compilação, o Automake 1.19 foi lançado hoje como o primeiro novo lançamento em 15 meses. Entre as muitas correções nesta versão está um bug que remonta a 14 anos...",
+    "link": "https://www.phoronix.com/news/GNU-Automake-1.19",
+    "date": "Thu, 10 Sep 2026 05:50:14 -0400"
+  },
+  {
+    "source": "Phoronix",
+    "title_en": "Steam Client Beta Improves Big Picture Mode, Several Linux Enhancements",
+    "title_pt": "Steam Client Beta melhora o modo Big Picture, várias melhorias no Linux",
+    "summary_en": "Tonight Valve released a big Steam client beta update with a number of new features and fixes...",
+    "summary_pt": "Esta noite a Valve lançou uma grande atualização beta do cliente Steam com uma série de novos recursos e correções...",
+    "link": "https://www.phoronix.com/news/Steam-Beta-9-September-2026",
+    "date": "Wed, 09 Sep 2026 20:27:02 -0400"
+  },
+  {
+    "source": "Phoronix",
+    "title_en": "ReactOS Dev Gets FEX Running For x86_64 Games On This \"Open-Source Windows\" OS Under ARM",
+    "title_pt": "ReactOS Dev coloca FEX em execução para jogos x86_64 neste sistema operacional \"Windows de código aberto\" em ARM",
+    "summary_en": "A ReactOS developer for this open-source operating system project striving for binary compatibility with Windows drivers and applications has achieved an intriguing software stack. With the experimental ReactOS ARM64 build for running on 64-bit ARM hardware like Raspberry Pi SBCs, he's paired that \"open-source Windows\" OS with the open-source FEX emulator for in turn being able to run Windows x...",
+    "summary_pt": "Um desenvolvedor ReactOS para este projeto de sistema operacional de código aberto que busca compatibilidade binária com drivers e aplicativos do Windows alcançou uma pilha de software intrigante. Com a versão experimental ReactOS ARM64 para execução em hardware ARM de 64 bits, como Raspberry Pi SBCs, ele combinou aquele sistema operacional \"Windows de código aberto\" com o emulador FEX de código aberto para, por sua vez, poder executar o Windows x...",
+    "link": "https://www.phoronix.com/news/ReactOS-FEX-ARM64-Stacking",
+    "date": "Wed, 09 Sep 2026 16:15:11 -0400"
+  },
+  {
+    "source": "Phoronix",
+    "title_en": "Running AMD openSIL + Coreboot On The First Available Ryzen AM5 Motherboard",
+    "title_pt": "Executando AMD openSIL + Coreboot na primeira placa-mãe Ryzen AM5 disponível",
+    "summary_en": "Earlier this year the 3mdeb firmware consulting firm ported AMD openSIL CPU open-source silicon initialization library and Coreboot to an EPYC motherboard, the Gigabyte MZ33-AR1. Their next feat now achieved is bringing AMD openSIL and Coreboot to a desktop AMD Ryzen motherboard with their downstream Dasharo firmware solution. I have been running this alternative firmware on the MSI PRO B850P W...",
+    "summary_pt": "No início deste ano, a empresa de consultoria de firmware 3mdeb portou a biblioteca de inicialização de silício de código aberto da CPU AMD openSIL e Coreboot para uma placa-mãe EPYC, a Gigabyte MZ33-AR1. Seu próximo feito agora alcançado é trazer AMD openSIL e Coreboot para uma placa-mãe AMD Ryzen de desktop com sua solução de firmware Dasharo downstream. Tenho executado este firmware alternativo no MSI PRO B850P W...",
+    "link": "https://www.phoronix.com/review/msi-b850p-coreboot-opensil",
+    "date": "Wed, 09 Sep 2026 12:10:00 -0400"
+  },
+  {
     "source": "Phoronix",
     "title_en": "AMD Zen 6 Preparations, Ryzen AI Halo LED Driver & Many Laptop Changes For Linux 7.3",
     "title_pt": "Preparações AMD Zen 6, driver Ryzen AI Halo LED e muitas alterações em laptops para Linux 7.3",

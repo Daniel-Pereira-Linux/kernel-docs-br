@@ -1,335 +1,262 @@
 <!DOCTYPE html>
-<html lang="pt-BR" class="dark">
+<html lang="pt-BR">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>KernelBase</title>
-    <script src="https://cdn.tailwindcss.com"></script>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Fira+Code:wght@400;500&display=swap" rel="stylesheet">
-    <script>
-        tailwind.config = {
-            darkMode: 'class',
-            theme: {
-                extend: {
-                    fontFamily: {
-                        sans: ['Inter', 'sans-serif'],
-                        mono: ['Fira Code', 'monospace'],
-                    },
-                    colors: {
-                        kernel: { yellow: '#facc15', dark: '#0f172a', light: '#1e293b', accent: '#38bdf8' }
-                    }
-                }
-            }
-        }
-    </script>
-    <style>
-        body { background-color: #0f172a; color: #e2e8f0; -webkit-font-smoothing: antialiased; }
-        .tab-content { display: none; opacity: 0; transition: opacity 0.3s ease; }
-        .tab-content.active { display: block; opacity: 1; }
-        .nav-link.active-tab { border-bottom: 2px solid #facc15; color: #facc15; }
-        .prose a { color: #38bdf8; text-decoration: none; }
-        .prose a:hover { text-decoration: underline; }
-        .prose h1, .prose h2, .prose h3 { color: #f8fafc; font-weight: 600; margin-top: 1.5em; margin-bottom: 0.5em; }
-        .prose h1 { font-size: 1.875rem; border-bottom: 1px solid #334155; padding-bottom: 0.5rem; }
-        .prose h2 { font-size: 1.5rem; }
-        .prose p { margin-bottom: 1rem; line-height: 1.7; }
-        .prose code { background: #1e293b; padding: 0.2rem 0.4rem; border-radius: 0.25rem; font-family: 'Fira Code', monospace; font-size: 0.875em; color: #f8fafc; }
-        .prose pre { background: #1e293b; padding: 1rem; border-radius: 0.5rem; overflow-x: auto; margin-bottom: 1rem; border: 1px solid #334155; }
-        .prose pre code { background: transparent; padding: 0; }
-        .prose ul, .prose ol { margin-left: 1.5rem; margin-bottom: 1rem; list-style-type: disc; }
-        .prose li { margin-bottom: 0.25rem; }
-        .diff-add { color: #4ade80; }
-        .diff-del { color: #f87171; }
-        .diff-hunk { color: #60a5fa; }
-        .diff-file { font-weight: 700; color: #facc15; }
-        #news-modal { backdrop-filter: blur(4px); }
-        ::-webkit-scrollbar { width: 8px; height: 8px; }
-        ::-webkit-scrollbar-track { background: #0f172a; }
-        ::-webkit-scrollbar-thumb { background: #334155; border-radius: 4px; }
-        ::-webkit-scrollbar-thumb:hover { background: #475569; }
-    </style>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>KernelBase — Documentação do Kernel Linux em Português</title>
+<meta name="description" content="Guia em português para contribuir com a documentação do Kernel Linux: como traduzir, revisar e enviar patches via git send-email. Patches e notícias do kernel em tempo real.">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Crect width='100' height='100' rx='20' fill='%23090c12'/%3E%3Ctext x='50' y='66' font-family='monospace' font-size='58' font-weight='700' fill='%23f5c445' text-anchor='middle'%3E%3E_%3C/text%3E%3C/svg%3E">
+<link rel="stylesheet" href="css/style.css">
 </head>
-<body class="min-h-screen flex flex-col">
-    <header class="bg-kernel-light border-b border-slate-700 sticky top-0 z-10 shadow-lg">
-        <div class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
-            <div class="flex flex-col sm:flex-row sm:items-center justify-between py-3">
-                <div class="flex items-center gap-3 mb-3 sm:mb-0">
-                    <div class="w-8 h-8 bg-kernel-yellow rounded flex items-center justify-center font-bold text-kernel-dark text-xl">K</div>
-                    <h1 class="text-2xl font-bold text-white tracking-tight">KernelBase</h1>
-                </div>
-                <nav class="flex space-x-2 sm:space-x-4 overflow-x-auto pb-1 sm:pb-0">
-                    <a onclick="showTab('news')" id="nav-news" class="nav-link active-tab cursor-pointer px-3 py-2 text-sm font-medium text-slate-300 hover:text-white transition-colors whitespace-nowrap">Notícias</a>
-                    <a onclick="showTab('patches')" id="nav-patches" class="nav-link cursor-pointer px-3 py-2 text-sm font-medium text-slate-300 hover:text-white transition-colors whitespace-nowrap">Patches BR</a>
-                    <a onclick="showTab('docs')" id="nav-docs" class="nav-link cursor-pointer px-3 py-2 text-sm font-medium text-slate-300 hover:text-white transition-colors whitespace-nowrap">Docs BR</a>
-                </nav>
-            </div>
-        </div>
-    </header>
+<body>
 
-    <main class="flex-grow w-full max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        <div id="kernel-banner" class="hidden mb-8 rounded-lg p-5 shadow-md border">
-            <h3 id="banner-title" class="font-bold text-lg mb-1"></h3>
-            <p id="banner-desc" class="text-sm opacity-90"></p>
-        </div>
+<canvas id="bg-grid" aria-hidden="true"></canvas>
 
-        <div id="news" class="tab-content active">
-            <div class="mb-8">
-                <h2 class="text-3xl font-bold text-white mb-2">Central de Notícias</h2>
-                <p class="text-slate-400">O seu gateway brasileiro definitivo para notícias 100% sobre o Kernel Linux. Alimentado pela comunidade global.</p>
-            </div>
-            <div id="news-grid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                <div class="col-span-full text-center py-12 text-slate-400 animate-pulse">Carregando notícias...</div>
-            </div>
-        </div>
+<div id="boot-screen"><div id="boot-lines"><span class="cursor"></span></div></div>
 
-        <div id="patches" class="tab-content">
-            <div class="mb-8">
-                <h2 class="text-3xl font-bold text-white mb-2">Patches Recentes (pt_BR)</h2>
-                <p class="text-slate-400">Acompanhe em tempo real os patches e contribuições recentes enviadas pela comunidade brasileira para a lista de documentação do Kernel.</p>
-            </div>
-            <div id="patch-list-container">
-                <div class="flex flex-col sm:flex-row justify-between items-center mb-6 gap-4">
-                    <input type="text" id="search-input" onkeyup="filterPatches()" placeholder="Buscar patches..." class="w-full sm:w-96 bg-slate-800 border border-slate-700 rounded-lg px-4 py-2 text-slate-200 focus:outline-none focus:border-kernel-accent">
-                    <span id="patch-count" class="text-sm text-slate-400 bg-slate-800 px-3 py-1 rounded-full border border-slate-700">Carregando...</span>
-                </div>
-                <ul id="patch-list" class="space-y-3"></ul>
-            </div>
-            <div id="patch-viewer" class="hidden">
-                <button onclick="closePatch()" class="mb-4 text-slate-400 hover:text-white flex items-center gap-2 transition-colors">Voltar</button>
-                <div class="bg-kernel-light border border-slate-700 rounded-lg overflow-hidden shadow-xl">
-                    <div class="p-6 border-b border-slate-700 bg-slate-800/50">
-                        <h3 id="viewer-title" class="text-xl font-bold text-white mb-2"></h3>
-                        <div class="flex flex-wrap items-center justify-between gap-4">
-                            <div id="viewer-meta" class="text-sm text-slate-400"></div>
-                            <a id="viewer-lore-link" target="_blank" class="inline-flex items-center gap-1 text-sm bg-slate-700 hover:bg-slate-600 text-white px-3 py-1.5 rounded transition-colors">Ver no lore.kernel.org ↗</a>
-                        </div>
-                    </div>
-                    <div class="p-6 overflow-x-auto"><pre class="text-sm font-mono leading-relaxed"><code id="viewer-content"></code></pre></div>
-                </div>
-            </div>
-        </div>
+<header class="topbar">
+	<div class="topbar-inner">
+		<div class="brand">
+			<span>kernel<span class="dot">Base</span></span>
+		</div>
+		<nav class="tabs">
+			<a data-tab="docs" id="nav-docs" class="active-tab">Documentação</a>
+			<a data-tab="patches" id="nav-patches">Patches</a>
+			<a data-tab="news" id="nav-news">Notícias</a>
+		</nav>
+		<div class="topbar-actions">
+			<button class="icon-btn" id="sound-toggle-btn" title="Ativar sons da interface">🔈</button>
+			<div class="theme-menu">
+				<button class="icon-btn" id="theme-toggle-btn" title="Trocar tema">🎨</button>
+				<div class="theme-dropdown" id="theme-dropdown"></div>
+			</div>
+			<a class="icon-btn" href="https://github.com/Daniel-Pereira-Linux/kernel-docs-br" target="_blank" rel="noopener" title="Ver no GitHub">
+				<svg width="16" height="16" viewBox="0 0 16 16" fill="currentColor"><path d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.01 8.01 0 0 0 16 8c0-4.42-3.58-8-8-8z"/></svg>
+			</a>
+		</div>
+	</div>
+</header>
 
-        <div id="docs" class="tab-content">
-            <div class="mb-8">
-                <h2 class="text-3xl font-bold text-white mb-2">Documentação Oficial (BR)</h2>
-                <p class="text-slate-400">Aqui você aprende o passo a passo para contribuir com a tradução e manutenção da documentação oficial do Kernel Linux.</p>
-            </div>
-            <div class="bg-kernel-light border border-slate-700 rounded-lg p-6 sm:p-8 shadow-xl">
-                <div class="prose max-w-none text-slate-300" id="docs-markdown-content">
+<section class="hero">
+	<h1>Documentação do Kernel Linux, em português<span class="type-cursor">_</span></h1>
+	<p class="lede">Guia prático para traduzir, revisar e enviar patches de documentação para o Kernel Linux via <code>git send-email</code> — mais patches e notícias da comunidade em tempo real.</p>
+	<div class="cta-row">
+		<a href="#docs" class="btn primary" data-tab="docs" onclick="showTab('docs')">Começar a contribuir</a>
+		<a href="https://github.com/Daniel-Pereira-Linux/kernel-docs-br" target="_blank" rel="noopener" class="btn">Ver no GitHub</a>
+	</div>
+</section>
 
-<div class='bg-slate-800/80 border border-kernel-accent/50 p-6 rounded-xl mt-8 mb-8'>
-    <h3 class='text-2xl font-bold text-kernel-accent mb-3 flex items-center gap-2'>
-        <svg class='w-6 h-6' fill='none' stroke='currentColor' viewBox='0 0 24 24'><path stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='M5 12h14M5 12a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v4a2 2 0 01-2 2M5 12a2 2 0 00-2 2v4a2 2 0 002 2h14a2 2 0 002-2v-4a2 2 0 00-2-2m-2-4h.01M17 16h.01'></path></svg>
-        Máquina Virtual Oficial (Isolada)
-    </h3>
-    <p class='text-slate-300 mb-4 leading-relaxed'>
-        Não perca tempo configurando compiladores, baixando Gigabytes do Kernel ou configurando o <code class='text-kernel-yellow bg-slate-900 px-1 rounded'>git send-email</code>. 
-        Nós criamos uma máquina virtual 100% pronta e isolada. Ela já vem com a árvore oficial do Linus Torvalds embutida e pede suas credenciais automaticamente.
-    </p>
-    <div class='bg-slate-950 p-4 rounded-lg flex items-center justify-between border border-slate-700'>
-        <code class='text-emerald-400 font-mono text-sm sm:text-base break-all'>curl -sL https://kernelbase.com.br/setup-dev.sh | bash</code>
-    </div>
-    <p class='text-sm text-slate-400 mt-4'>
-        <strong>Como acessar depois?</strong> Basta abrir seu terminal e digitar <code class='text-kernel-yellow font-bold'>kernelbase</code> para entrar na sua máquina isolada a qualquer momento!<br><br><strong>Dica:</strong> Lá dentro, digite <code class='text-kernel-yellow font-bold'>atualizar-vm</code> para puxar as novidades.<br><br><strong>☁️ Save na Nuvem:</strong> Use <code class='text-kernel-yellow font-bold'>kernelbase backup</code> para salvar seu trabalho com criptografia AES-256 e <code class='text-kernel-yellow font-bold'>kernelbase restore TOKEN</code> em outro PC para recuperar.
-    </p>
+<div class="banner">
+	<div class="banner-card open" id="kernel-banner">
+		<div class="banner-title" id="banner-title"><span class="pulse"></span>Carregando status do kernel...</div>
+		<div class="banner-desc" id="banner-desc">Buscando a versão mainline mais recente em kernel.org.</div>
+		<div class="releases-toggle" id="releases-toggle">▸ ver todas as versões (mainline, stable, longterm)</div>
+		<table class="releases-table" id="releases-table">
+			<thead><tr><th>Tipo</th><th>Versão</th><th>Data</th><th>Links</th></tr></thead>
+			<tbody id="releases-tbody"></tbody>
+		</table>
+	</div>
 </div>
 
-                    <hr />
-<p>tags:
-  - linux
-  - linuxKernel
-  - contribution
-  - cli
-  - git
-  - b4
-  - kernel
-  - documentation</p>
-<hr />
+<div class="container">
+
+	<div id="news" class="tab-content">
+		<div class="section-title">Notícias</div>
+		<div class="section-lede">Traduzidas automaticamente a partir de Phoronix, LWN, Planet Kernel, kernel.org e 9to5Linux. Atualizado periodicamente.</div>
+		<div id="news-grid" class="news-grid"><div class="loading">Carregando notícias<span class="spinner"></span></div></div>
+	</div>
+
+	<div id="docs" class="tab-content active">
+		<div class="section-title">Documentação</div>
+		<div class="section-lede">Passo a passo completo para contribuir com traduções de documentação para o Kernel Linux.</div>
+		<div class="prose">
 <h1>Pré-requisitos</h1>
 <p>É preciso instalar algumas dependências para conseguir contribuir:</p>
-<p>Debian:
-```bash
-sudo apt update</p>
-<p>sudo apt install \
+<p>Debian:</p>
+<pre><code class="language-bash">sudo apt update
+
+sudo apt install \
   git \
   git-email \
   perl \
   make \
-  python3</p>
-<p>sudo apt install \
+  python3
+
+sudo apt install \
   python3-pip \
   python3-venv
-```</p>
-<p>Fedora:
-```bash
-sudo dnf install \
+</code></pre>
+<p>Fedora:</p>
+<pre><code class="language-bash">sudo dnf install \
   git \
   git-email \
   perl \
   make \
-  python3</p>
-<p>sudo dnf install \
+  python3
+
+sudo dnf install \
   python3-pip
-```</p>
-<p>Verifique:
-<code>bash
-git --version
+</code></pre>
+<p>Verifique:</p>
+<pre><code class="language-bash">git --version
 git send-email --help
 perl --version
-python3 --version</code></p>
+python3 --version
+</code></pre>
 <h2>Primeiro passo: preparar o ambiente</h2>
-<p>Verificar instalação:
-<code>bash
-git send-email --help</code></p>
-<p>Configure a sua identidade:
-<code>bash
-git config --global user.name "Your Name"
-git config --global user.email "your.email@example.com"</code></p>
-<p>Configurando SMTP:
-<code>bash
-git config --global sendemail.smtpserver smtp.gmail.com
+<p>Verificar instalação:</p>
+<pre><code class="language-bash">git send-email --help
+</code></pre>
+<p>Configure a sua identidade:</p>
+<pre><code class="language-bash">git config --global user.name "Your Name"
+git config --global user.email "your.email@example.com"
+</code></pre>
+<p>Configurando SMTP:</p>
+<pre><code class="language-bash">git config --global sendemail.smtpserver smtp.gmail.com
 git config --global sendemail.smtpserverport 587
 git config --global sendemail.smtpencryption tls
-git config --global sendemail.smtpuser seuemail@gmail.com</code></p>
-<p>Pode-se adicionar:
-<code>bash
-git config --global sendemail.assume8bitEncoding UTF-8</code>
-Isso evitará que todas as vezes seja perguntado sobre o encoding em patches com acento, etc.</p>
-<p>Verifique: 
-<code>bash
-cat ~/.gitconfig</code></p>
-<p>Você deve ter algo assim:
-<code>bash 
-[user]
+git config --global sendemail.smtpuser seuemail@gmail.com
+</code></pre>
+<p>Pode-se adicionar:</p>
+<pre><code class="language-bash">git config --global sendemail.assume8bitEncoding UTF-8
+</code></pre>
+<p>Isso evitará que todas as vezes seja perguntado sobre o encoding em patches com acento, etc.</p>
+<p>Verifique:</p>
+<pre><code class="language-bash">cat ~/.gitconfig
+</code></pre>
+<p>Você deve ter algo assim:</p>
+<pre><code class="language-bash">[user]
     email = seuemail@gmail.com
     name = seu nome
 [sendemail]
     smtpServer = smtp.gmail.com
     smtpServerPort = 587
     smtpEncryption = tls
-    smtpUser = seuemail@gmail.com</code></p>
-<p>Essa parte é muito importante, pois é por meio do email que iremos enviar os nossos patches</p>
-<h3>Gerando senha de app (gmail):</h3>
+    smtpUser = seuemail@gmail.com
+</code></pre>
+<p>Essa parte é muito importante, pois é por meio do email que iremos enviar os nossos patches.</p>
+<h3>Gerando senha de app (Gmail)</h3>
 <p>Para autenticar no Gmail, uma opção simples é utilizar uma senha de app. Para gerá-la, a conta Google deve estar com a verificação em duas etapas ativada. OAuth2 também pode ser utilizado.</p>
-<p>https://support.google.com/mail/answer/185833?hl=pt-br</p>
-<p>Para gerar uma senha de app, a conta Google precisa estar com a verificação em duas etapas ativada. A senha de app será utilizada pelo <code>git send-email</code> na autenticação SMTP quando solicitada.</p>
+<p><a href="https://support.google.com/mail/answer/185833?hl=pt-br" target="_blank" rel="noopener">support.google.com/mail/answer/185833</a></p>
+<p>A senha de app será utilizada pelo <code>git send-email</code> na autenticação SMTP quando solicitada.</p>
 <h3>Clonando</h3>
-<p>Com a configuração acima realizada, podemos realizar o clone do kernel para começar a tradução:
-<code>bash
-git clone \
+<p>Com a configuração acima realizada, podemos realizar o clone do kernel para começar a tradução:</p>
+<pre><code class="language-bash">git clone \
   --branch docs-next \
   --single-branch \
   git://git.lwn.net/linux.git \
-  linux-docs</code>
-O <code>--single-branch</code> limita o clone à branch <code>docs-next</code>, evitando buscar as demais branches do repositório.</p>
-<p><code>bash
-cd linux-docs/</code></p>
-<p><code>bash
-git switch -c nomeDaSuaBranch</code></p>
-<p>Após criar sua branch de trabalho, edite apenas os arquivos necessários para a contribuição que será realizada exemplo:
-<code>bash
-Documentation/translations/pt_BR/process/index.rst
-Documentation/translations/pt_BR/process/volatile-considered-harmful.rst</code></p>
+  linux-docs
+</code></pre>
+<p>O <code>--single-branch</code> limita o clone à branch <code>docs-next</code>, evitando buscar as demais branches do repositório.</p>
+<pre><code class="language-bash">cd linux-docs/
+</code></pre>
+<pre><code class="language-bash">git switch -c nomeDaSuaBranch
+</code></pre>
+<p>Após criar sua branch de trabalho, edite apenas os arquivos necessários para a contribuição, por exemplo:</p>
+<pre><code class="language-bash">Documentation/translations/pt_BR/process/index.rst
+Documentation/translations/pt_BR/process/volatile-considered-harmful.rst
+</code></pre>
 <h3>Pós clone</h3>
-<p>Crie um ambiente virtual na raiz do kernel:
-<code>bash
-python3 -m venv .venv-sphinx
+<p>Crie um ambiente virtual Python na raiz do kernel (usado apenas para gerar a documentação em HTML com Sphinx):</p>
+<pre><code class="language-bash">python3 -m venv .venv-sphinx
 source .venv-sphinx/bin/activate
-python -m pip install --upgrade pip</code></p>
-<p>Instalar dependências faltantes:
-<code>bash 
-pip install -r Documentation/sphinx/requirements.txt
-pip install ply</code></p>
+python -m pip install --upgrade pip
+</code></pre>
+<p>Instalar dependências faltantes:</p>
+<pre><code class="language-bash">pip install -r Documentation/sphinx/requirements.txt
+pip install ply
+</code></pre>
 <h3>Pós tradução</h3>
-<p>Revise as alterações realizadas:
-<code>bash
-git diff</code></p>
-<p>Revise se há problemas como espaço em branco:
-<code>bash
-git diff --check</code>
-O comando <code>git diff --check</code> não deve retornar nenhuma mensagem.</p>
-<p>Adicione somente os arquivos modificados que fazem parte do patch:
-<code>bash
-git add \
+<p>Revise as alterações realizadas:</p>
+<pre><code class="language-bash">git diff
+</code></pre>
+<p>Revise se há problemas como espaço em branco:</p>
+<pre><code class="language-bash">git diff --check
+</code></pre>
+<p>O comando <code>git diff --check</code> não deve retornar nenhuma mensagem.</p>
+<p>Adicione somente os arquivos modificados que fazem parte do patch:</p>
+<pre><code class="language-bash">git add \
   Documentation/translations/pt_BR/process/index.rst \
-  Documentation/translations/pt_BR/process/volatile-considered-harmful.rst</code>
-Evite usar <code>git add .</code></p>
-<p>Revisar conteúdo em staging:
-<code>bash
-git diff --cached
-git diff --cached --check</code></p>
-<p>Criar commit: 
-<code>bash
-git commit -s</code></p>
-<p>Revisar:
-<code>bash
-git show HEAD 
-git show --check HEAD</code></p>
+  Documentation/translations/pt_BR/process/volatile-considered-harmful.rst
+</code></pre>
+<p>Evite usar <code>git add .</code></p>
+<p>Revisar conteúdo em staging:</p>
+<pre><code class="language-bash">git diff --cached
+git diff --cached --check
+</code></pre>
+<p>Criar commit:</p>
+<pre><code class="language-bash">git commit -s
+</code></pre>
+<p>Revisar:</p>
+<pre><code class="language-bash">git show HEAD
+git show --check HEAD
+</code></pre>
 <p>O summary deve ser curto e descritivo, com aproximadamente 70–75 caracteres no máximo. O corpo da mensagem deve ser quebrado em aproximadamente 75 colunas.</p>
-<p>```bash
-docs: translations: pt_BR: translate volatile-considered-harmful.rst</p>
-<p>Translate volatile-considered-harmful.rst into Brazilian Portuguese and
-add it to the pt_BR process documentation index.</p>
-<p>Assisted-by: LLM
-Signed-off-by: Seu Nome <a href="&#109;&#97;&#105;&#108;&#116;&#111;&#58;&#115;&#101;&#117;&#45;&#101;&#109;&#97;&#105;&#108;&#64;&#101;&#120;&#97;&#109;&#112;&#108;&#101;&#46;&#99;&#111;&#109;">&#115;&#101;&#117;&#45;&#101;&#109;&#97;&#105;&#108;&#64;&#101;&#120;&#97;&#109;&#112;&#108;&#101;&#46;&#99;&#111;&#109;</a>
-```
-Essa primeira linha será o subject do email</p>
-<p>Para validar ou corrigir a mensagem:
-<code>bash 
-git commit --amend</code></p>
-<p>Verificando:
-<code>bash
-git log -1 --format=full</code></p>
-<h4>Testando a documentação:</h4>
-<p><code>bash 
-make htmldocs</code></p>
-<p><em>Opcionalmente:</em>
-<code>bash
-make pdfdocs</code></p>
+<pre><code class="language-bash">docs: translations: pt_BR: translate volatile-considered-harmful.rst
+
+Translate volatile-considered-harmful.rst into Brazilian Portuguese and
+add it to the pt_BR process documentation index.
+
+Assisted-by: LLM
+Signed-off-by: Seu Nome &lt;seu-email@example.com&gt;
+</code></pre>
+<p>Essa primeira linha será o subject do email.</p>
+<p>Para validar ou corrigir a mensagem:</p>
+<pre><code class="language-bash">git commit --amend
+</code></pre>
+<p>Verificando:</p>
+<pre><code class="language-bash">git log -1 --format=full
+</code></pre>
+<h4>Testando a documentação</h4>
+<pre><code class="language-bash">make htmldocs
+</code></pre>
+<p><em>Opcionalmente:</em></p>
+<pre><code class="language-bash">make pdfdocs
+</code></pre>
 <h4>Criando patch</h4>
-<p><code>bash
-rm -rf /tmp/volatile-patch
-mkdir -p /tmp/volatile-patch</code></p>
-<p><code>bash
-git format-patch -1 HEAD -o /tmp/volatile-patch</code></p>
-<p>Isso criaria algo assim:
-<code>bash
-/tmp/volatile-patch/0001-docs-translations-pt_BR-translate-volatile-considere.patch</code></p>
-<p>Lendo seu patch (antes de enviar):
-```bash
-cat /tmp/volatile-patch/0001-*.patch</p>
-<h1>ou</h1>
-<p>git format-patch -1 HEAD --stdout | less
-```</p>
-<p>Rode o script sobre o patch que será enviado:
-<code>bash
-./scripts/checkpatch.pl --strict \
-  /tmp/volatile-patch/0001-*.patch</code></p>
+<pre><code class="language-bash">rm -rf /tmp/volatile-patch
+mkdir -p /tmp/volatile-patch
+</code></pre>
+<pre><code class="language-bash">git format-patch -1 HEAD -o /tmp/volatile-patch
+</code></pre>
+<p>Isso criaria algo assim:</p>
+<pre><code class="language-bash">/tmp/volatile-patch/0001-docs-translations-pt_BR-translate-volatile-considere.patch
+</code></pre>
+<p>Lendo seu patch (antes de enviar):</p>
+<pre><code class="language-bash">cat /tmp/volatile-patch/0001-*.patch
+
+# ou
+git format-patch -1 HEAD --stdout | less
+</code></pre>
+<p>Rode o script sobre o patch que será enviado:</p>
+<pre><code class="language-bash">./scripts/checkpatch.pl --strict \
+  /tmp/volatile-patch/0001-*.patch
+</code></pre>
 <h3>Se preparando para envio do patch</h3>
-<p>Descobrindo os destinatários:
-<code>bash
-./scripts/get_maintainer.pl \
-  /tmp/volatile-patch/0001-*.patch</code></p>
-<p>Exemplo:
-<code>Daniel Pereira (maintainer:PORTUGUESE (BRAZILIAN) TRANSLATION)
+<p>Descobrindo os destinatários:</p>
+<pre><code class="language-bash">./scripts/get_maintainer.pl \
+  /tmp/volatile-patch/0001-*.patch
+</code></pre>
+<p>Exemplo:</p>
+<pre><code>Daniel Pereira (maintainer:PORTUGUESE (BRAZILIAN) TRANSLATION)
 Jonathan Corbet (maintainer:DOCUMENTATION)
 Shuah Khan (reviewer:DOCUMENTATION)
 Randy Dunlap (reviewer:DOCUMENTATION)
 linux-doc@vger.kernel.org (open list)
-linux-kernel@vger.kernel.org (open list)</code></p>
-<p>O script pode retornar mais pessoas do que as que é preciso, para isso priorize o envio para:
-1. mantenedor específico;
-2. mantenedores do subsistema;
-3. reviewers indicados;
+linux-kernel@vger.kernel.org (open list)
+</code></pre>
+<p>O script pode retornar mais pessoas do que as que é preciso; para isso, priorize o envio para:<br>
+1. mantenedor específico;<br>
+2. mantenedores do subsistema;<br>
+3. reviewers indicados;<br>
 4. mailing lists relevantes.</p>
-<p>Normalmente:
-- mantenedores diretamente responsáveis vão em To;
-- reviewers e demais interessados vão em Cc;
-- as mailing lists relevantes também devem ser incluídas.</p>
+<p>Normalmente:<br>
+— mantenedores diretamente responsáveis vão em <strong>To</strong>;<br>
+— reviewers e demais interessados vão em <strong>Cc</strong>;<br>
+— as mailing lists relevantes também devem ser incluídas.</p>
 <p>Não envie para pessoas ou listas sem relação com o patch.</p>
-<p>Testando o envio:
-<code>bash
-git send-email \
+<p>Testando o envio:</p>
+<pre><code class="language-bash">git send-email \
   --dry-run \
   --confirm=always \
   --to="Daniel Pereira &lt;danielmaraboo@gmail.com&gt;" \
@@ -339,22 +266,22 @@ git send-email \
   --cc="linux-doc@vger.kernel.org" \
   --cc="linux-kernel@vger.kernel.org" \
   --cc="Seu Nome &lt;seu-email@example.com&gt;" \
-  /tmp/volatile-patch/0001-*.patch</code>
-No dry-run nenhum email é enviado, o que esperamos com esse teste é um retorno: <code>Result: OK</code>, também confira:
-<code>bash
-From:
+  /tmp/volatile-patch/0001-*.patch
+</code></pre>
+<p>No dry-run nenhum email é enviado; o que esperamos com esse teste é um retorno <code>Result: OK</code>. Também confira:</p>
+<pre><code class="language-bash">From:
 To:
 Cc:
-Subject:</code></p>
-<p>Pode aparecer:
-```bash
-The following files are 8bit, but do not declare a Content-Transfer-Encoding.</p>
-<p>Declare which 8bit encoding to use [default: UTF-8]?
-<code>``
-Caso</code>sendemail.assume8bitEncoding<code>não esteja configurado, o Git pode solicitar o encoding ao encontrar caracteres não ASCII. Nesse caso, pressione</code>ENTER` para aceitar o padrão UTF-8.</p>
+Subject:
+</code></pre>
+<p>Pode aparecer:</p>
+<pre><code class="language-bash">The following files are 8bit, but do not declare a Content-Transfer-Encoding.
+
+Declare which 8bit encoding to use [default: UTF-8]?
+</code></pre>
+<p>Caso <code>sendemail.assume8bitEncoding</code> não esteja configurado, o Git pode solicitar o encoding ao encontrar caracteres não ASCII. Nesse caso, pressione <code>ENTER</code> para aceitar o padrão UTF-8.</p>
 <h3>Envio real!!</h3>
-<p><code>bash
-git send-email \
+<pre><code class="language-bash">git send-email \
   --confirm=always \
   --to="Daniel Pereira &lt;danielmaraboo@gmail.com&gt;" \
   --to="Jonathan Corbet &lt;corbet@lwn.net&gt;" \
@@ -363,79 +290,79 @@ git send-email \
   --cc="linux-doc@vger.kernel.org" \
   --cc="linux-kernel@vger.kernel.org" \
   --cc="Seu Nome &lt;seu-email@example.com&gt;" \
-  /tmp/volatile-patch/0001-*.patch</code></p>
-<p>Quando aparecer:
-<code>bash
-Send this email? ([y]es|[n]o|[e]dit|[q]uit|[a]ll):</code></p>
-<p>Confira: 
-<code>bash
-To
+  /tmp/volatile-patch/0001-*.patch
+</code></pre>
+<p>Quando aparecer:</p>
+<pre><code class="language-bash">Send this email? ([y]es|[n]o|[e]dit|[q]uit|[a]ll):
+</code></pre>
+<p>Confira:</p>
+<pre><code class="language-bash">To
 Cc
-Subject</code>
-Estando correto: <code>y</code></p>
+Subject
+</code></pre>
+<p>Estando correto: <code>y</code></p>
 <p>Um envio bem-sucedido retorna: <code>Result: 250</code></p>
-<h5>Detalhes:</h5>
+<h5>Detalhes</h5>
 <ol>
-<li>Salve o message-ID:
-<code>&lt;20260830205912.478358-1-lucasadramalho@gmail.com&gt;</code></li>
+<li>Salve o message-ID:</li>
 </ol>
-<p>Isso será importante para você conseguir acompanhar pela lore.kernel.org e referenciar patches antigos em V2, V3, etc, exemplo de como o link ficaria:</p>
-<p><code>bash
-https://lore.kernel.org/all/20260830205912.478358-1-lucasadramalho@gmail.com/</code></p>
-<p>Importante notar que: o corpo deve ser quebrado em aproximadamente 75 colunas.</p>
-<hr />
-<h3>Enviando V!=1</h3>
-<p>Não é preciso criar um novo commit, para revisões simples do mesmo patch:</p>
-<p><code>bash
-git add arquivo</code></p>
-<p><code>bash
-git commit --amend</code></p>
-<p>Caso alguém responda com <code>Reviewed-by</code>, preserve os <code>trailers</code></p>
-<p><code>bash
-Assisted-by: ...
+<pre><code>&lt;20260830205912.478358-1-lucasadramalho@gmail.com&gt;
+</code></pre>
+<p>Isso será importante para você conseguir acompanhar pela lore.kernel.org e referenciar patches antigos em V2, V3 etc. Exemplo de como o link ficaria:</p>
+<pre><code class="language-bash">https://lore.kernel.org/all/20260830205912.478358-1-lucasadramalho@gmail.com/
+</code></pre>
+<p>Importante notar que o corpo deve ser quebrado em aproximadamente 75 colunas.</p>
+<hr>
+<h3>Enviando V != 1</h3>
+<p>Não é preciso criar um novo commit para revisões simples do mesmo patch:</p>
+<pre><code class="language-bash">git add arquivo
+</code></pre>
+<pre><code class="language-bash">git commit --amend
+</code></pre>
+<p>Caso alguém responda com <code>Reviewed-by</code>, preserve os <code>trailers</code>:</p>
+<pre><code class="language-bash">Assisted-by: ...
 Reviewed-by: Reviewer &lt;reviewer@example.com&gt;
-Signed-off-by: Seu Nome &lt;seu-email@example.com&gt;</code>
-<strong>OBS.:</strong> Se uma nova versão alterar substancialmente o patch, trailers como <code>Reviewed-by:</code>, <code>Tested-by:</code> e <code>Acked-by:</code> podem deixar de ser aplicáveis. Remova os trailers cuja revisão, teste ou aprovação tenha sido invalidada e mencione a remoção no changelog da nova versão.</p>
+Signed-off-by: Seu Nome &lt;seu-email@example.com&gt;
+</code></pre>
+<p><strong>OBS.:</strong> Se uma nova versão alterar substancialmente o patch, trailers como <code>Reviewed-by:</code>, <code>Tested-by:</code> e <code>Acked-by:</code> podem deixar de ser aplicáveis. Remova os trailers cuja revisão, teste ou aprovação tenha sido invalidada e mencione a remoção no changelog da nova versão.</p>
 <h4>Gerando V2</h4>
-<p><code>bash
-rm -rf /tmp/volatile-v2
-mkdir -p /tmp/volatile-v2</code></p>
-<p><code>bash
-git format-patch \
+<pre><code class="language-bash">rm -rf /tmp/volatile-v2
+mkdir -p /tmp/volatile-v2
+</code></pre>
+<pre><code class="language-bash">git format-patch \
   -v2 \
   -1 HEAD \
-  -o /tmp/volatile-v2</code></p>
+  -o /tmp/volatile-v2
+</code></pre>
 <h4>Adicionando changelog</h4>
-<p><code>bash
-vim /tmp/volatile-v2/v2-0001-*.patch</code></p>
-<p>Procure por:
-```bash
-Signed-off-by: ...</p>
-<hr />
-<p>diffstat...
-```</p>
-<p>Adicione depois dos  <code>---</code>:
-```bash</p>
-<hr />
-<p>Changes in v2:
+<pre><code class="language-bash">vim /tmp/volatile-v2/v2-0001-*.patch
+</code></pre>
+<p>Procure por:</p>
+<pre><code class="language-bash">Signed-off-by: ...
+---
+ diffstat...
+</code></pre>
+<p>Adicione depois dos <code>---</code>:</p>
+<pre><code class="language-bash">---
+Changes in v2:
 - Address review comments from Reviewer Name.
 - Fix terminology in the translated text.
-- Fix indentation in the process index.</p>
-<p>v1: https://lore.kernel.org/r/MESSAGE-ID-DA-V1
-```</p>
-<p>O conteúdo após <code>---</code> não faz parte do commit final aplicado. Isso garante que não entre no histórico de commits, poluindo sem necessidade esse.</p>
+- Fix indentation in the process index.
+
+v1: https://lore.kernel.org/r/MESSAGE-ID-DA-V1
+</code></pre>
+<p>O conteúdo após <code>---</code> não faz parte do commit final aplicado. Isso garante que não entre no histórico de commits, poluindo-o sem necessidade.</p>
 <p>Changelog não pertence ao commit.</p>
-<hr />
+<hr>
 <h5>Extras</h5>
 <h4>Verificando atualização da tradução</h4>
 <p>Para verificar se a tradução está sincronizada com sua versão original:</p>
-<p><code>bash
-tools/docs/checktransupdate.py \
-  Documentation/translations/pt_BR/process/volatile-considered-harmful.rst</code></p>
-<hr />
+<pre><code class="language-bash">tools/docs/checktransupdate.py \
+  Documentation/translations/pt_BR/process/volatile-considered-harmful.rst
+</code></pre>
+<hr>
 <h2>Checklist V1</h2>
-<p><code>bash
-[ ] branch criada a partir da árvore correta
+<pre><code class="language-bash">[ ] branch criada a partir da árvore correta
 [ ] alterações revisadas
 [ ] git diff --check
 [ ] make htmldocs
@@ -450,7 +377,7 @@ tools/docs/checktransupdate.py \
 [ ] patch revisado com less/cat
 [ ] checkpatch.pl --strict
 [ ] get_maintainer.pl
-[ ] To e Cc revisados 
+[ ] To e Cc revisados
 [ ] git send-email --dry-run
 [ ] Subject revisado
 [ ] encoding UTF-8 correto
@@ -458,9 +385,10 @@ tools/docs/checktransupdate.py \
 [ ] envio real
 [ ] Result: 250
 [ ] Message-ID salvo
-[ ] link do lore salvo</code></p>
-<h2>Checklist V!=1</h2>
-<p><code>[ ] review lido
+[ ] link do lore salvo
+</code></pre>
+<h2>Checklist V != 1</h2>
+<pre><code>[ ] review lido
 [ ] alterações feitas
 [ ] trailers recebidos adicionados
 [ ] git commit --amend
@@ -471,259 +399,66 @@ tools/docs/checktransupdate.py \
 [ ] checkpatch.pl
 [ ] dry-run
 [ ] envio real
-[ ] novo Message-ID salvo</code></p>
-<hr />
-                </div>
-                <div class="mt-12">
-                    <h3 class="text-xl font-bold text-white mb-4 border-b border-slate-700 pb-2">Lançamentos do Kernel</h3>
-                    <div class="overflow-x-auto rounded-lg border border-slate-700">
-                        <table class="w-full text-sm text-left text-slate-300">
-                            <thead class="text-xs uppercase bg-slate-800 text-slate-400">
-                                <tr><th class="px-6 py-3">Tipo</th><th class="px-6 py-3">Versão</th><th class="px-6 py-3">Lançamento</th><th class="px-6 py-3">Links</th></tr>
-                            </thead>
-                            <tbody id="releases-tbody" class="divide-y divide-slate-700 bg-kernel-light"></tbody>
-                        </table>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </main>
+[ ] novo Message-ID salvo
+</code></pre>
+<hr>
+		</div>
+	</div>
 
-    <footer class="bg-kernel-light border-t border-slate-800 mt-auto">
-        <div class="max-w-6xl mx-auto px-4 py-6 text-center text-sm text-slate-500">Mantido pela comunidade brasileira do Kernel Linux.</div>
-    </footer>
+	<div id="patches" class="tab-content">
+		<div class="section-title">Patches</div>
+		<div class="section-lede">Patches recentes da lista <a href="https://lore.kernel.org/linux-doc/?q=pt_BR" target="_blank" rel="noopener">linux-doc (pt_BR)</a> no lore.kernel.org. Atualizado periodicamente.</div>
+		<div id="patch-list-wrap">
+			<div class="patch-toolbar">
+				<input type="text" id="search-input" class="search-box" placeholder="Buscar por título, autor ou conteúdo..." oninput="filterPatches()">
+			</div>
+			<div class="patch-count" id="patch-count"></div>
+			<div class="loading" id="patches-loading" style="display:none;">Carregando patches<span class="spinner"></span></div>
+			<ul class="patch-list" id="patch-list"></ul>
+		</div>
+		<div id="patch-viewer">
+			<div class="viewer-head">
+				<h3 id="viewer-title"></h3>
+				<div style="display:flex; gap:8px;">
+					<a id="viewer-lore-link" class="btn" href="#" target="_blank" rel="noopener">Ver no Lore ↗</a>
+					<button class="btn" onclick="closePatch()">Fechar</button>
+				</div>
+			</div>
+			<div class="viewer-meta" id="viewer-meta"></div>
+			<div class="patch-content" id="viewer-content"></div>
+		</div>
+	</div>
 
-    <div id="news-modal" class="fixed inset-0 z-50 hidden flex items-center justify-center p-4 sm:p-6">
-        <div class="absolute inset-0 bg-black/70 transition-opacity" onclick="closeNewsModal()"></div>
-        <div class="relative bg-kernel-light border border-slate-600 rounded-xl shadow-2xl w-full max-w-4xl max-h-[90vh] flex flex-col overflow-hidden">
-            <div class="flex items-center justify-between p-5 border-b border-slate-700 bg-slate-800/80">
-                <div class="flex flex-col">
-                    <span id="modal-source" class="text-xs font-bold uppercase tracking-wider mb-1"></span>
-                    <h2 id="modal-title" class="text-xl sm:text-2xl font-bold text-white leading-tight"></h2>
-                </div>
-                <button onclick="closeNewsModal()" class="text-slate-400 hover:text-white transition-colors p-2 rounded-full hover:bg-slate-700">X</button>
-            </div>
-            <div class="p-6 sm:p-8 overflow-y-auto flex-grow bg-kernel-light">
-                <div class="flex items-center gap-4 text-sm text-slate-400 mb-6 pb-6 border-b border-slate-800">
-                    <span id="modal-date" class="flex items-center gap-1"></span>
-                    
-                </div>
-                <div id="modal-content" class="text-slate-300 text-base sm:text-lg leading-relaxed whitespace-pre-wrap font-sans"></div>
-            </div>
-        </div>
-    </div>
+</div>
 
-    <script>
-        function showTab(tabId) {
-            document.querySelectorAll('.tab-content').forEach(el => el.classList.remove('active'));
-            document.querySelectorAll('.nav-link').forEach(el => {
-                el.classList.remove('active-tab', 'border-bottom', 'text-kernel-yellow');
-                el.classList.add('text-slate-300');
-            });
-            document.getElementById(tabId).classList.add('active');
-            const nav = document.getElementById('nav-' + tabId);
-            nav.classList.add('active-tab');
-            nav.classList.remove('text-slate-300');
-            if (tabId === 'news' && !newsLoaded) loadNews();
-            if (tabId === 'patches' && allPatches.length === 0) loadPatches();
-        }
+<footer class="site-footer">
+	<div class="footer-inner">
+		<div class="footer-brand">
+			<strong>kernelBase</strong>
+			<p>Centralizando a documentação em português do Kernel Linux — traduções, patches e notícias da comunidade em um só lugar.</p>
+		</div>
+		<div class="footer-links">
+			<div class="footer-col">
+				<h4>Explorar</h4>
+				<a href="#" data-tab="docs" onclick="showTab('docs')">Documentação</a>
+				<a href="#" data-tab="patches" onclick="showTab('patches')">Patches</a>
+				<a href="#" data-tab="news" onclick="showTab('news')">Notícias</a>
+			</div>
+			<div class="footer-col">
+				<h4>Comunidade</h4>
+				<a href="https://lore.kernel.org/linux-doc/" target="_blank" rel="noopener">Lista linux-doc</a>
+				<a href="https://kernelnewbies.org/" target="_blank" rel="noopener">Kernel Newbies</a>
+			</div>
+			<div class="footer-col">
+				<h4>Projeto</h4>
+				<a href="https://github.com/Daniel-Pereira-Linux/kernel-docs-br" target="_blank" rel="noopener">Código-fonte</a>
+				<a href="https://github.com/Daniel-Pereira-Linux/kernel-docs-br/issues" target="_blank" rel="noopener">Reportar problema</a>
+			</div>
+		</div>
+	</div>
+	<div class="footer-bottom">Mantido por Daniel Pereira · dados de kernel.org e lore.kernel.org</div>
+</footer>
 
-        function escapeHtml(str) {
-            if (!str) return '';
-            const div = document.createElement('div');
-            div.textContent = str;
-            return div.innerHTML;
-        }
-
-        let newsLoaded = false;
-        let allNews = [];
-        async function loadNews() {
-            try {
-                const res = await fetch('news.json?' + Date.now());
-                allNews = await res.json();
-                const grid = document.getElementById('news-grid');
-                grid.innerHTML = '';
-                if (allNews.length === 0) {
-                    grid.innerHTML = '<div class="col-span-full text-center text-slate-400">Nenhuma notícia encontrada.</div>';
-                    return;
-                }
-                allNews.forEach((item, i) => {
-                    const card = document.createElement('div');
-                    card.className = 'bg-slate-800 border border-slate-700 rounded-xl p-5 flex flex-col justify-between hover:border-slate-500 hover:shadow-lg hover:shadow-slate-900/50 transition-all cursor-pointer group';
-                    card.onclick = () => openNewsModal(i);
-                    let sourceColor = 'text-blue-400';
-                    const srcLower = item.source.toLowerCase();
-                    if (srcLower.includes('phoronix')) sourceColor = 'text-red-400';
-                    if (srcLower.includes('lwn')) sourceColor = 'text-emerald-400';
-                    if (srcLower.includes('kernel.org')) sourceColor = 'text-yellow-400';
-                    
-                    let dateStr = item.date;
-                    try { if (dateStr) dateStr = new Date(dateStr).toLocaleDateString('pt-BR'); } catch(e) {}
-                    
-                    const snippet = item.summary_pt || (item.content_pt ? item.content_pt.substring(0, 150) + '...' : 'Clique para ler mais.');
-                    card.innerHTML = `
-                        <div>
-                            <div class="flex justify-between items-start mb-3">
-                                <span class="text-xs font-bold uppercase tracking-wider ${sourceColor}">${escapeHtml(item.source)}</span>
-                                <span class="text-xs text-slate-500">${escapeHtml(dateStr)}</span>
-                            </div>
-                            <h3 class="text-lg font-bold text-white mb-2 leading-tight group-hover:text-kernel-accent transition-colors">${escapeHtml(item.title_pt)}</h3>
-                            <p class="text-sm text-slate-400 line-clamp-3">${escapeHtml(snippet)}</p>
-                        </div>
-                    `;
-                    grid.appendChild(card);
-                });
-                newsLoaded = true;
-            } catch (e) {
-                console.error("Erro ao carregar:", e);
-                document.getElementById('news-grid').innerHTML = '<div class="col-span-full text-center text-red-400">Erro.</div>';
-            }
-        }
-
-        function openNewsModal(index) {
-            const item = allNews[index];
-            if (!item) return;
-            let sourceColor = 'text-blue-400';
-            const srcLower = item.source.toLowerCase();
-            if (srcLower.includes('phoronix')) sourceColor = 'text-red-400';
-            if (srcLower.includes('lwn')) sourceColor = 'text-emerald-400';
-            if (srcLower.includes('kernel.org')) sourceColor = 'text-yellow-400';
-            
-            document.getElementById('modal-source').className = `text-xs font-bold uppercase tracking-wider mb-1 ${sourceColor}`;
-            document.getElementById('modal-source').textContent = item.source;
-            document.getElementById('modal-title').textContent = item.title_pt;
-            let dateStr = item.date;
-            try { if(dateStr) dateStr = new Date(dateStr).toLocaleDateString('pt-BR'); } catch(e) {}
-            document.getElementById('modal-date').textContent = dateStr;
-            
-            
-            // Priority: full content if available, else summary
-            const content = item.content_pt || item.summary_pt || "Conteúdo completo sendo processado ou não disponível.";
-            document.getElementById('modal-content').textContent = content;
-            document.getElementById('news-modal').classList.remove('hidden');
-            document.body.style.overflow = 'hidden';
-        }
-
-        function closeNewsModal() {
-            document.getElementById('news-modal').classList.add('hidden');
-            document.body.style.overflow = '';
-        }
-
-        let allPatches = [];
-        async function loadPatches() {
-            try {
-                const res = await fetch('patches.json?' + Date.now());
-                allPatches = await res.json();
-                renderPatches(allPatches);
-            } catch (e) {}
-        }
-
-        function renderPatches(patches) {
-            const list = document.getElementById('patch-list');
-            document.getElementById('patch-count').textContent = patches.length + ' patches';
-            list.innerHTML = '';
-            patches.forEach((p, i) => {
-                const li = document.createElement('li');
-                li.className = 'bg-slate-800 border border-slate-700 rounded-lg p-4 hover:border-slate-500 hover:bg-slate-700/50 cursor-pointer transition-colors';
-                li.onclick = () => openPatch(i);
-                const date = new Date(p.updated);
-                const dateStr = date.toLocaleDateString('pt-BR') + ' ' + date.toLocaleTimeString('pt-BR', {hour:'2-digit', minute:'2-digit'});
-                li.innerHTML = `
-                    <div class="text-base font-semibold text-kernel-accent mb-2">${escapeHtml(p.title)}</div>
-                    <div class="flex flex-wrap gap-4 text-xs text-slate-400">
-                        <span>Autor: ${escapeHtml(p.author)}</span>
-                        <span>Data: ${dateStr}</span>
-                    </div>
-                `;
-                list.appendChild(li);
-            });
-        }
-
-        function filterPatches() {
-            const q = document.getElementById('search-input').value.toLowerCase();
-            renderPatches(allPatches.filter(p => p.title.toLowerCase().includes(q) || p.author.toLowerCase().includes(q)));
-        }
-
-        function openPatch(index) {
-            const p = allPatches[index] || allPatches.find((_, i) => i === index);
-            if (!p) return;
-            document.getElementById('patch-list-container').style.display = 'none';
-            document.getElementById('patch-viewer').style.display = 'block';
-            document.getElementById('viewer-title').textContent = p.title;
-            document.getElementById('viewer-lore-link').href = p.link;
-            const date = new Date(p.updated);
-            document.getElementById('viewer-meta').innerHTML = `<strong>Autor:</strong> ${escapeHtml(p.author)} | <strong>Data:</strong> ${date.toLocaleDateString('pt-BR')} ${date.toLocaleTimeString('pt-BR')}`;
-            document.getElementById('viewer-content').innerHTML = highlightDiff(p.content);
-        }
-
-        function closePatch() {
-            document.getElementById('patch-viewer').style.display = 'none';
-            document.getElementById('patch-list-container').style.display = 'block';
-        }
-
-        function highlightDiff(text) {
-            return text.split('\n').map(line => {
-                if (/^diff --git/.test(line) || /^---\s+a\//.test(line) || /^\+\+\+\s+b\//.test(line)) return `<span class="diff-file">${escapeHtml(line)}</span>`;
-                if (/^@@/.test(line)) return `<span class="diff-hunk">${escapeHtml(line)}</span>`;
-                if (/^\+/.test(line) && !/^\+\+\+/.test(line)) return `<span class="diff-add">${escapeHtml(line)}</span>`;
-                if (/^-/.test(line) && !/^---/.test(line)) return `<span class="diff-del">${escapeHtml(line)}</span>`;
-                return escapeHtml(line);
-            }).join('\n');
-        }
-
-        async function loadKernelStatus() {
-            try {
-                const res = await fetch('kernel-releases.json?' + Date.now());
-                const data = await res.json();
-                const releases = data.releases || [];
-                if (releases.length === 0) return;
-                const mainline = releases.find(r => r.moniker === 'mainline');
-                const banner = document.getElementById('kernel-banner');
-                const titleEl = document.getElementById('banner-title');
-                const descEl = document.getElementById('banner-desc');
-                const tbody = document.getElementById('releases-tbody');
-
-                if (!mainline) return;
-                const ver = mainline.version;
-                const rcMatch = ver.match(/rc(\d+)/);
-                banner.classList.remove('hidden');
-
-                if (rcMatch) {
-                    const rcNum = parseInt(rcMatch[1]);
-                    banner.classList.add('bg-emerald-900/30', 'border-emerald-500/50', 'text-emerald-100');
-                    titleEl.innerHTML = `<span class="text-emerald-400">✅ Janela de merge FECHADA</span> — Ótimo momento para traduções!`;
-                    descEl.textContent = rcNum === 1 ? `O ${ver} foi lançado. A janela se fechou e o kernel entrou em estabilização. Melhor momento para enviar patches de documentação!` : `Estamos no rc${rcNum}. O kernel está em período de estabilização e os mantenedores estão disponíveis para revisar.`;
-                } else {
-                    banner.classList.add('bg-yellow-900/30', 'border-yellow-500/50', 'text-yellow-100');
-                    titleEl.innerHTML = `<span class="text-yellow-400">⚠️ Janela de merge ABERTA</span> — Kernel ${ver} lançado`;
-                    descEl.textContent = `Os mantenedores estão muito ocupados. Você ainda pode enviar patches, mas a revisão vai demorar.`;
-                }
-
-                tbody.innerHTML = '';
-                releases.forEach(r => {
-                    const tr = document.createElement('tr');
-                    tr.className = 'hover:bg-slate-800 transition-colors border-b border-slate-700';
-                    let links = '';
-                    const linkCls = 'text-kernel-accent hover:underline mr-3';
-                    if (r.source) links += `<a href="${r.source}" class="${linkCls}" target="_blank">tarball</a>`;
-                    if (r.pgp) links += `<a href="${r.pgp}" class="${linkCls}" target="_blank">pgp</a>`;
-                    if (r.gitweb) links += `<a href="${r.gitweb}" class="${linkCls}" target="_blank">browse</a>`;
-                    const eolBadge = r.iseol ? '<span class="ml-2 bg-red-900/50 text-red-200 text-xs px-2 py-0.5 rounded border border-red-700">EOL</span>' : '';
-                    tr.innerHTML = `
-                        <td class="px-6 py-4 whitespace-nowrap font-medium">${r.moniker}${eolBadge}</td>
-                        <td class="px-6 py-4 whitespace-nowrap text-white font-mono">${r.version}</td>
-                        <td class="px-6 py-4 whitespace-nowrap">${r.released.isodate}</td>
-                        <td class="px-6 py-4 whitespace-nowrap">${links}</td>
-                    `;
-                    tbody.appendChild(tr);
-                });
-            } catch (e) {}
-        }
-        loadKernelStatus();
-        showTab('news');
-    </script>
+<script src="js/app.js" defer></script>
 </body>
 </html>
-<!-- incredible_feat 1788188396 -->
-<!-- force_internal_feat 1788189817 -->
-<!-- dev_machine_feat 1788190275 -->
