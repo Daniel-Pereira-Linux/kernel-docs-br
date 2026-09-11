@@ -81,6 +81,7 @@
 
 	function initSound() {
 		const btn = document.getElementById('sound-toggle-btn');
+		if (!btn) return;
 		try { soundOn = localStorage.getItem('kb-sound') === '1'; } catch (e) {}
 		btn.classList.toggle('active', soundOn);
 		btn.textContent = soundOn ? '🔊' : '🔈';
@@ -267,9 +268,9 @@
 			const data = await res.json();
 			const releases = data.releases || [];
 			const mainline = releases.find(r => r.moniker === 'mainline');
-			if (!mainline) return;
-
 			const card = document.getElementById('kernel-banner');
+			if (!mainline || !card) return;
+
 			const titleEl = document.getElementById('banner-title');
 			const descEl = document.getElementById('banner-desc');
 			const tbody = document.getElementById('releases-tbody');
@@ -472,6 +473,7 @@
 	function initReleasesToggle() {
 		const toggle = document.getElementById('releases-toggle');
 		const table = document.getElementById('releases-table');
+		if (!toggle || !table) return;
 		toggle.onclick = () => {
 			table.classList.toggle('open');
 			toggle.textContent = table.classList.contains('open') ? '▾ ocultar todas as versões' : '▸ ver todas as versões (mainline, stable, longterm)';
