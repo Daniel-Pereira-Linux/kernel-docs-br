@@ -279,8 +279,13 @@
 	}
 
 	/* ---------------- início: contato ---------------- */
-	// Altere aqui o e-mail que recebe os contatos do site.
+	// Altere aqui os canais que recebem os contatos do site.
+	const CONTACT_WHATSAPP = '5583933003583'; // DDI + DDD + número, só dígitos
 	const CONTACT_EMAIL = 'danielmaraboo@gmail.com';
+
+	function whatsappUrl(text) {
+		return 'https://wa.me/' + CONTACT_WHATSAPP + (text ? '?text=' + encodeURIComponent(text) : '');
+	}
 
 	function setInterest(value) {
 		const sel = document.getElementById('contact-interest');
@@ -293,14 +298,20 @@
 		const year = document.getElementById('year');
 		if (year) year.textContent = new Date().getFullYear();
 
+		// todo link [data-wa] abre o WhatsApp com a mensagem do atributo
+		document.querySelectorAll('[data-wa]').forEach(a => {
+			a.href = whatsappUrl(a.dataset.wa);
+			a.target = '_blank';
+			a.rel = 'noopener';
+		});
+
 		const form = document.getElementById('contact-form');
 		if (!form) return;
 		form.addEventListener('submit', (e) => {
 			e.preventDefault();
 			const d = new FormData(form);
-			const subject = `[Site] ${d.get('interesse')} — ${d.get('nome')}`;
-			const body = `Nome: ${d.get('nome')}\nE-mail: ${d.get('email')}\nInteresse: ${d.get('interesse')}\n\n${d.get('mensagem')}`;
-			location.href = 'mailto:' + CONTACT_EMAIL + '?subject=' + encodeURIComponent(subject) + '&body=' + encodeURIComponent(body);
+			const text = `Olá! Vim pelo site da KernelBase.\n\n*Nome:* ${d.get('nome')}\n*Interesse:* ${d.get('interesse')}\n\n${d.get('mensagem')}`;
+			window.open(whatsappUrl(text), '_blank', 'noopener');
 			playChime();
 		});
 	}

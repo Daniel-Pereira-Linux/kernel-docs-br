@@ -30,7 +30,7 @@
 			<a href="#patches" data-tab="patches" id="nav-patches">Patches</a>
 		</nav>
 		<div class="topbar-actions">
-			<a href="#contato" class="btn primary topbar-cta" data-tab="home" data-scroll="contato">Fale com a gente</a>
+			<a href="#contato" class="btn primary topbar-cta" data-wa="Olá! Vim pelo site da KernelBase.">Fale no WhatsApp</a>
 			<button class="icon-btn" id="sound-toggle-btn" title="Ativar sons da interface">🔈</button>
 			<div class="theme-menu">
 				<button class="icon-btn" id="theme-toggle-btn" title="Trocar tema">🎨</button>
@@ -57,7 +57,7 @@
 				<h1 class="hero-title">Seu atendimento,<br><span class="grad">no automático.</span></h1>
 				<p class="hero-lede">A <strong>KernelBase Tecnologia</strong> cria assistentes com IA que atendem seus clientes no <strong>WhatsApp</strong>, no <strong>Instagram</strong> e no <strong>seu site</strong>, 24 horas por dia. Eles tiram dúvidas, agendam, registram pedidos e passam a conversa para a sua equipe quando precisa.</p>
 				<div class="cta-row">
-					<a href="#contato" class="btn primary btn-lg" data-scroll="contato" data-interest="Automação de atendimento">Quero automatizar meu atendimento →</a>
+					<a href="#contato" class="btn primary btn-lg" data-wa="Olá! Quero automatizar o atendimento da minha empresa.">Quero automatizar meu atendimento →</a>
 					<a href="#como-funciona" class="btn btn-lg" data-scroll="como-funciona">Como funciona</a>
 				</div>
 				<ul class="hero-points">
@@ -158,7 +158,7 @@
 					<li>Infraestrutura Linux operada por quem entende do assunto</li>
 				</ul>
 				<div class="cta-row">
-					<a href="#contato" class="btn primary" data-scroll="contato" data-interest="Automação de atendimento">Conversar sobre o meu caso →</a>
+					<a href="#contato" class="btn primary" data-wa="Olá! Quero automatizar o atendimento da minha empresa.">Conversar no WhatsApp →</a>
 				</div>
 			</div>
 			<div class="track">
@@ -247,6 +247,7 @@
 					<h2 class="h2">Vamos colocar seu atendimento no automático?</h2>
 					<p class="section-sub">Conte como funciona o seu atendimento hoje. A gente responde com uma proposta de automação para o seu caso.</p>
 					<ul class="contact-list">
+						<li><span class="mono accent">whatsapp</span> <a href="#contato" data-wa="Olá! Vim pelo site da KernelBase.">(83) 93300-3583</a></li>
 						<li><span class="mono accent">email</span> <a id="contact-email-link" href="#"></a></li>
 						<li><span class="mono accent">site</span> kernelbase.com.br</li>
 						<li><span class="mono accent">atendimento</span> remoto, em todo o Brasil</li>
@@ -254,7 +255,6 @@
 				</div>
 				<form class="contact-form" id="contact-form">
 					<label>Nome<input name="nome" required autocomplete="name"></label>
-					<label>E-mail<input name="email" type="email" required autocomplete="email"></label>
 					<label>Interesse
 						<select name="interesse" id="contact-interest">
 							<option>Automação de atendimento</option>
@@ -267,8 +267,8 @@
 						</select>
 					</label>
 					<label>Mensagem<textarea name="mensagem" rows="4" required placeholder="Ex.: recebemos 200 mensagens por dia no WhatsApp, a maioria pedindo horário..."></textarea></label>
-					<button type="submit" class="btn primary btn-lg">Enviar mensagem →</button>
-					<p class="form-note">Ao enviar, seu aplicativo de e-mail abre com a mensagem pronta.</p>
+					<button type="submit" class="btn primary btn-lg">Enviar pelo WhatsApp →</button>
+					<p class="form-note">Ao enviar, o WhatsApp abre com a sua mensagem pronta.</p>
 				</form>
 			</div>
 		</section>
@@ -681,6 +681,10 @@ v1: https://lore.kernel.org/r/MESSAGE-ID-DA-V1
 	</div>
 	<div class="footer-bottom">© <span id="year">2026</span> KernelBase Tecnologia LTDA · dados ao vivo de kernel.org e lore.kernel.org</div>
 </footer>
+
+<a class="wa-float" href="#contato" data-wa="Olá! Vim pelo site da KernelBase." aria-label="Falar no WhatsApp" title="Falar no WhatsApp">
+	<svg viewBox="0 0 32 32" width="28" height="28" fill="currentColor" aria-hidden="true"><path d="M16 3C8.8 3 3 8.7 3 15.8c0 2.5.7 4.9 2 7L3 29l6.4-2c2 1.1 4.3 1.7 6.6 1.7 7.2 0 13-5.7 13-12.8S23.2 3 16 3zm0 23.4c-2.1 0-4.1-.6-5.9-1.7l-.4-.3-3.8 1.2 1.2-3.7-.3-.4a10.4 10.4 0 0 1-1.6-5.6C5.2 10 10 5.3 16 5.3S26.8 10 26.8 15.8 22 26.4 16 26.4zm5.9-7.8c-.3-.2-1.9-.9-2.2-1-.3-.1-.5-.2-.7.2l-1 1.2c-.2.2-.4.2-.7.1-.3-.2-1.4-.5-2.6-1.6-1-.9-1.6-1.9-1.8-2.2-.2-.3 0-.5.1-.7l.5-.6c.2-.2.2-.4.3-.6.1-.2 0-.4 0-.6l-1-2.4c-.3-.6-.5-.5-.7-.5h-.6c-.2 0-.6.1-.9.4-.3.3-1.2 1.1-1.2 2.7s1.2 3.2 1.4 3.4c.2.2 2.4 3.6 5.8 5 .8.4 1.4.6 1.9.7.8.3 1.5.2 2.1.1.6-.1 1.9-.8 2.2-1.5.3-.7.3-1.4.2-1.5-.1-.2-.3-.3-.6-.4z"/></svg>
+</a>
 
 <script src="js/app.js" defer></script>
 </body>
