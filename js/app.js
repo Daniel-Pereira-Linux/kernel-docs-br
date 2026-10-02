@@ -107,6 +107,7 @@
 		if (seen) { screen.remove(); return; }
 
 		const lines = [
+			'kernelbase-init: carregando serviços e formação...',
 			'kernelbase-init: montando documentação em pt_BR...',
 			'kernelbase-init: conectando ao lore.kernel.org...',
 			'kernelbase-init: carregando notícias e patches...',
@@ -136,17 +137,184 @@
 	let allPatches = [];
 	let newsLoaded = false;
 
-	function showTab(tabName) {
+	const TABS = ['home', 'docs', 'patches', 'news'];
+	// hash da URL -> [aba, seção para rolar]
+	const HASH_ROUTES = {
+		'': ['home'], inicio: ['home'],
+		docs: ['docs'], patches: ['patches'], news: ['news'],
+		servicos: ['home', 'servicos'], formacao: ['home', 'formacao'],
+		processo: ['home', 'processo'], comunidade: ['home', 'comunidade'],
+		contato: ['home', 'contato'],
+	};
+
+	function showTab(tabName, scrollTo) {
+		if (!TABS.includes(tabName)) tabName = 'home';
+		const changed = !document.getElementById(tabName).classList.contains('active');
 		document.querySelectorAll('.tab-content').forEach(el => el.classList.remove('active'));
 		document.querySelectorAll('nav.tabs a').forEach(el => el.classList.remove('active-tab'));
 		document.getElementById(tabName).classList.add('active');
 		document.getElementById('nav-' + tabName).classList.add('active-tab');
-		playBlip();
+		if (changed) playBlip();
+
+		const hash = scrollTo || (tabName === 'home' ? 'inicio' : tabName);
+		if (location.hash.slice(1) !== hash) history.replaceState(null, '', '#' + hash);
+
+		if (scrollTo) {
+			const target = document.getElementById(scrollTo);
+			if (target) requestAnimationFrame(() => target.scrollIntoView({ behavior: 'smooth', block: 'start' }));
+		} else if (changed) {
+			window.scrollTo({ top: 0 });
+		}
 
 		if (tabName === 'news' && !newsLoaded) loadNews();
 		if (tabName === 'patches' && allPatches.length === 0) loadPatches();
+		if (tabName === 'home') initReveal();
 	}
 	window.showTab = showTab;
+
+	function routeFromHash() {
+		const route = HASH_ROUTES[location.hash.slice(1)] || ['home'];
+		showTab(route[0], route[1]);
+	}
+
+	function initLinks() {
+		document.addEventListener('click', (e) => {
+			const a = e.target.closest('[data-tab], [data-scroll]');
+			if (!a) return;
+			e.preventDefault();
+			if (a.dataset.interest) setInterest(a.dataset.interest);
+			showTab(a.dataset.tab || 'home', a.dataset.scroll);
+		});
+		window.addEventListener('hashchange', routeFromHash);
+
+		// brilho que segue o cursor nos cards de serviço
+		document.querySelectorAll('.svc-card').forEach(card => {
+			card.addEventListener('pointermove', (e) => {
+				const r = card.getBoundingClientRect();
+				card.style.setProperty('--mx', (e.clientX - r.left) + 'px');
+				card.style.setProperty('--my', (e.clientY - r.top) + 'px');
+			});
+		});
+	}
+
+	/* ---------------- início: terminal animado ---------------- */
+	let kernelInfo = null;
+	let kernelInfoWaiters = [];
+	function whenKernelInfo(fn) {
+		if (kernelInfo) fn(kernelInfo); else kernelInfoWaiters.push(fn);
+	}
+	function setKernelInfo(info) {
+		kernelInfo = info;
+		kernelInfoWaiters.forEach(fn => fn(info));
+		kernelInfoWaiters = [];
+	}
+
+	function initHeroTerminal() {
+		const out = document.getElementById('hero-term');
+		if (!out) return;
+		const reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+		const script = (k) => [
+			{ cmd: 'uname -sr' },
+			{ out: 'Linux ' + (k.mainline || '7.x') },
+			{ cmd: 'systemctl list-units "kernelbase-*"' },
+			{ out: 'UNIT                       STATE   DESCRIPTION', cls: 'dim' },
+			{ out: 'kernelbase-lpic.service   <ok>active</ok>  aulas LPIC-1 e LPIC-2' },
+			{ out: 'kernelbase-consult.service<ok>active</ok>  consultoria Linux' },
+			{ out: 'kernelbase-maas.service   <ok>active</ok>  metal as a service' },
+			{ out: 'kernelbase-ansible.service<ok>active</ok>  automação com ansible' },
+			{ out: 'kernelbase-ai.service     <ok>active</ok>  automações com IA' },
+			{ cmd: 'echo "$PROXIMO_PASSO"' },
+			{ out: '<acc>→ fale com a gente: kernelbase.com.br/#contato</acc>' },
+		];
+
+		const fmt = (s) => escapeHtml(s)
+			.replace(/&lt;ok&gt;(.*?)&lt;\/ok&gt;/g, ' <span class="t-ok">$1</span>')
+			.replace(/&lt;acc&gt;(.*?)&lt;\/acc&gt;/g, '<span class="t-acc">$1</span>');
+		const prompt = '<span class="t-prompt">root@kernelbase</span>:<span class="t-path">~</span># ';
+
+		function render(k) {
+			const lines = script(k);
+			if (reduce) {
+				out.innerHTML = lines.map(l => l.cmd ? prompt + escapeHtml(l.cmd) : `<span class="${l.cls || ''}">${fmt(l.out)}</span>`).join('\n') + '\n' + prompt + '<span class="t-cursor"></span>';
+				return;
+			}
+			let html = '';
+			let i = 0;
+			function step() {
+				if (i >= lines.length) {
+					out.innerHTML = html + prompt + '<span class="t-cursor"></span>';
+					return;
+				}
+				const l = lines[i++];
+				if (l.cmd) {
+					let c = 0;
+					const base = html + prompt;
+					(function type() {
+						out.innerHTML = base + escapeHtml(l.cmd.slice(0, c)) + '<span class="t-cursor"></span>';
+						if (c++ < l.cmd.length) setTimeout(type, 28 + Math.random() * 40);
+						else { html = base + escapeHtml(l.cmd) + '\n'; setTimeout(step, 260); }
+					})();
+				} else {
+					html += `<span class="${l.cls || ''}">${fmt(l.out)}</span>\n`;
+					out.innerHTML = html;
+					setTimeout(step, 90);
+				}
+			}
+			step();
+		}
+
+		// não espera para sempre pelo JSON: começa após 1,2s com o que tiver
+		let started = false;
+		const start = (k) => { if (!started) { started = true; render(k); } };
+		whenKernelInfo(start);
+		setTimeout(() => start(kernelInfo || {}), 1200);
+	}
+
+	/* ---------------- início: revelar ao rolar ---------------- */
+	let revealObserver = null;
+	function initReveal() {
+		const items = document.querySelectorAll('.reveal:not(.in)');
+		if (!('IntersectionObserver' in window) || window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+			items.forEach(el => el.classList.add('in'));
+			return;
+		}
+		if (!revealObserver) {
+			revealObserver = new IntersectionObserver((entries) => {
+				entries.forEach(en => {
+					if (en.isIntersecting) { en.target.classList.add('in'); revealObserver.unobserve(en.target); }
+				});
+			}, { rootMargin: '0px 0px -8% 0px' });
+		}
+		items.forEach(el => revealObserver.observe(el));
+	}
+
+	/* ---------------- início: contato ---------------- */
+	// Altere aqui o e-mail que recebe os contatos do site.
+	const CONTACT_EMAIL = 'danielmaraboo@gmail.com';
+
+	function setInterest(value) {
+		const sel = document.getElementById('contact-interest');
+		if (sel) sel.value = value;
+	}
+
+	function initContact() {
+		const link = document.getElementById('contact-email-link');
+		if (link) { link.href = 'mailto:' + CONTACT_EMAIL; link.textContent = CONTACT_EMAIL; }
+		const year = document.getElementById('year');
+		if (year) year.textContent = new Date().getFullYear();
+
+		const form = document.getElementById('contact-form');
+		if (!form) return;
+		form.addEventListener('submit', (e) => {
+			e.preventDefault();
+			const d = new FormData(form);
+			const subject = `[Site] ${d.get('interesse')} — ${d.get('nome')}`;
+			const body = `Nome: ${d.get('nome')}\nE-mail: ${d.get('email')}\nInteresse: ${d.get('interesse')}\n\n${d.get('mensagem')}`;
+			location.href = 'mailto:' + CONTACT_EMAIL + '?subject=' + encodeURIComponent(subject) + '&body=' + encodeURIComponent(body);
+			playChime();
+		});
+	}
 
 	/* ---------------- notícias ---------------- */
 	async function loadNews() {
@@ -268,6 +436,12 @@
 			const data = await res.json();
 			const releases = data.releases || [];
 			const mainline = releases.find(r => r.moniker === 'mainline');
+			const stable = releases.find(r => r.moniker === 'stable');
+			setKernelInfo({ mainline: mainline && mainline.version, stable: stable && stable.version });
+			const statK = document.getElementById('stat-kernel');
+			if (statK && mainline) statK.textContent = mainline.version;
+			const statS = document.getElementById('stat-stable');
+			if (statS && stable) statS.textContent = stable.version;
 			const card = document.getElementById('kernel-banner');
 			if (!mainline || !card) return;
 
@@ -307,6 +481,7 @@
 				tbody.appendChild(tr);
 			});
 		} catch (e) {
+			setKernelInfo({});
 			console.error('Erro ao carregar status do kernel:', e);
 		}
 	}
@@ -489,9 +664,11 @@
 		initCodeCopy();
 		initReleasesToggle();
 		loadKernelStatus();
+		if (!document.getElementById('home')) return; // lab.html usa só tema/fundo/sons
 
-		document.querySelectorAll('nav.tabs a[data-tab]').forEach(a => {
-			a.addEventListener('click', () => showTab(a.dataset.tab));
-		});
+		initLinks();
+		initContact();
+		initHeroTerminal();
+		routeFromHash();
 	});
 })();

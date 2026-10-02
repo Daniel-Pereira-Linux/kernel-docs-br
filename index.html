@@ -3,8 +3,13 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>KernelBase — Documentação do Kernel Linux em Português</title>
-<meta name="description" content="Guia em português para contribuir com a documentação do Kernel Linux: como traduzir, revisar e enviar patches via git send-email. Patches e notícias do kernel em tempo real.">
+<title>KernelBase Tecnologia — Linux, do kernel à produção</title>
+<meta name="description" content="KernelBase Tecnologia: aulas particulares para LPIC-1 e LPIC-2, consultoria Linux, implantação de Metal as a Service, automação com Ansible e automações com IA. Mais documentação do Kernel Linux em português.">
+<meta property="og:title" content="KernelBase Tecnologia — Linux, do kernel à produção">
+<meta property="og:description" content="Aulas LPIC-1/LPIC-2, consultoria Linux, Metal as a Service, Ansible e automações com IA.">
+<meta property="og:url" content="https://kernelbase.com.br/">
+<meta property="og:type" content="website">
+<meta name="theme-color" content="#090c12">
 <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Crect width='100' height='100' rx='20' fill='%23090c12'/%3E%3Ctext x='50' y='66' font-family='monospace' font-size='58' font-weight='700' fill='%23f5c445' text-anchor='middle'%3E%3E_%3C/text%3E%3C/svg%3E">
 <link rel="stylesheet" href="css/style.css">
 </head>
@@ -16,15 +21,18 @@
 
 <header class="topbar">
 	<div class="topbar-inner">
-		<div class="brand">
+		<a class="brand" href="#inicio" data-tab="home">
 			<span>kernel<span class="dot">Base</span></span>
-		</div>
+		</a>
 		<nav class="tabs">
-			<a data-tab="docs" id="nav-docs" class="active-tab">Documentação</a>
-			<a data-tab="patches" id="nav-patches">Patches</a>
-			<a data-tab="news" id="nav-news">Notícias</a>
+			<a href="#inicio" data-tab="home" id="nav-home" class="active-tab">Início</a>
+			<a href="#docs" data-tab="docs" id="nav-docs">Documentação</a>
+			<a href="#patches" data-tab="patches" id="nav-patches">Patches</a>
+			<a href="#news" data-tab="news" id="nav-news">Notícias</a>
+			<a href="lab.html">Laboratório</a>
 		</nav>
 		<div class="topbar-actions">
+			<a href="#contato" class="btn primary topbar-cta" data-tab="home" data-scroll="contato">Fale com a gente</a>
 			<button class="icon-btn" id="sound-toggle-btn" title="Ativar sons da interface">🔈</button>
 			<div class="theme-menu">
 				<button class="icon-btn" id="theme-toggle-btn" title="Trocar tema">🎨</button>
@@ -37,38 +45,229 @@
 	</div>
 </header>
 
-<section class="hero">
-	<h1>Documentação do Kernel Linux, em português<span class="type-cursor">_</span></h1>
-	<p class="lede">Guia prático para traduzir, revisar e enviar patches de documentação para o Kernel Linux via <code>git send-email</code> — mais patches e notícias da comunidade em tempo real.</p>
-	<div class="cta-row">
-		<a href="#docs" class="btn primary" data-tab="docs" onclick="showTab('docs')">Começar a contribuir</a>
-		<a href="https://github.com/Daniel-Pereira-Linux/kernel-docs-br" target="_blank" rel="noopener" class="btn">Ver no GitHub</a>
+<main class="container">
+
+	<!-- ===================== INÍCIO (site da empresa) ===================== -->
+	<div id="home" class="tab-content active">
+
+		<section class="home-hero">
+			<div class="home-hero-copy">
+				<a class="hero-badge" href="#docs" data-tab="docs">
+					<span class="pulse-dot"></span>
+					Mantenedor da tradução pt_BR do Kernel Linux
+				</a>
+				<h1 class="hero-title">Linux de verdade,<br><span class="grad">do kernel à produção.</span></h1>
+				<p class="hero-lede">A <strong>KernelBase Tecnologia</strong> forma profissionais para a <strong>LPIC-1</strong> e a <strong>LPIC-2</strong> e implanta infraestrutura Linux para empresas: bare metal provisionado como serviço, automação com Ansible e automações com IA. Feito por quem contribui com o próprio Kernel Linux.</p>
+				<div class="cta-row">
+					<a href="#contato" class="btn primary btn-lg" data-scroll="contato">Agendar uma conversa →</a>
+					<a href="#servicos" class="btn btn-lg" data-scroll="servicos">Ver serviços</a>
+				</div>
+				<ul class="hero-points">
+					<li>Aulas particulares 1:1, ao vivo</li>
+					<li>Projetos sob medida, com documentação</li>
+					<li>100% open source, sem lock-in</li>
+				</ul>
+			</div>
+
+			<div class="term" aria-label="Terminal demonstrativo da KernelBase">
+				<div class="term-bar">
+					<span class="term-dot r"></span><span class="term-dot y"></span><span class="term-dot g"></span>
+					<span class="term-title">root@kernelbase: ~</span>
+				</div>
+				<pre class="term-body" id="hero-term"></pre>
+			</div>
+		</section>
+
+		<section class="stats" aria-label="Números ao vivo">
+			<div class="stat">
+				<div class="stat-value mono" id="stat-kernel">—</div>
+				<div class="stat-label">kernel mainline agora <span class="live">ao vivo</span></div>
+			</div>
+			<div class="stat">
+				<div class="stat-value mono" id="stat-stable">—</div>
+				<div class="stat-label">stable mais recente <span class="live">ao vivo</span></div>
+			</div>
+			<div class="stat">
+				<div class="stat-value mono">LPIC-1 · 2</div>
+				<div class="stat-label">trilhas completas de formação</div>
+			</div>
+			<div class="stat">
+				<div class="stat-value mono">0 → prod</div>
+				<div class="stat-label">do bare metal ao serviço no ar</div>
+			</div>
+		</section>
+
+		<!-- serviços -->
+		<section class="home-section" id="servicos">
+			<div class="eyebrow">// serviços</div>
+			<h2 class="h2">O que a KernelBase faz por você</h2>
+			<p class="section-sub">Formação e engenharia Linux em um só lugar. Você aprende com quem implanta, e implanta com quem ensina.</p>
+
+			<div class="svc-grid">
+				<article class="svc-card reveal">
+					<div class="svc-icon">🎓</div>
+					<h3>Aulas particulares LPIC-1</h3>
+					<p>Preparação completa para os exames 101 e 102: arquitetura do sistema, pacotes, shell, filesystems, redes, segurança e scripts. Ritmo definido por você.</p>
+					<div class="tags"><span>101-500</span><span>102-500</span><span>1:1</span></div>
+				</article>
+				<article class="svc-card reveal">
+					<div class="svc-icon">🧠</div>
+					<h3>Aulas particulares LPIC-2</h3>
+					<p>Nível engenheiro: kernel, boot, storage avançado, DNS, web, compartilhamento de arquivos, e-mail e segurança de rede. Tudo com laboratório prático.</p>
+					<div class="tags"><span>201-450</span><span>202-450</span><span>hands-on</span></div>
+				</article>
+				<article class="svc-card reveal">
+					<div class="svc-icon">🔎</div>
+					<h3>Consultoria Linux</h3>
+					<p>Diagnóstico de performance, troubleshooting de kernel e drivers, hardening, padronização de servidores e revisão de arquitetura. Respostas técnicas, não achismo.</p>
+					<div class="tags"><span>performance</span><span>hardening</span><span>kernel</span></div>
+				</article>
+				<article class="svc-card reveal featured">
+					<div class="svc-icon">🖥️</div>
+					<h3>Metal as a Service</h3>
+					<p>Seus servidores físicos provisionados como se fossem nuvem: descoberta automática, PXE, controle via IPMI/Redfish e deploy de SO em minutos, sob demanda.</p>
+					<div class="tags"><span>MAAS</span><span>PXE</span><span>IPMI/Redfish</span></div>
+				</article>
+				<article class="svc-card reveal">
+					<div class="svc-icon">⚙️</div>
+					<h3>Automação com Ansible</h3>
+					<p>Playbooks e roles idempotentes, inventários dinâmicos e pipelines de configuração. Infraestrutura reproduzível e versionada no Git.</p>
+					<div class="tags"><span>playbooks</span><span>roles</span><span>AWX</span></div>
+				</article>
+				<article class="svc-card reveal">
+					<div class="svc-icon">🤖</div>
+					<h3>Automações com IA</h3>
+					<p>Agentes e fluxos com LLMs integrados à sua operação: triagem de incidentes, análise de logs, runbooks assistidos e atendimento técnico automatizado.</p>
+					<div class="tags"><span>LLMs</span><span>agentes</span><span>ChatOps</span></div>
+				</article>
+			</div>
+		</section>
+
+		<!-- formação -->
+		<section class="home-section split" id="formacao">
+			<div>
+				<div class="eyebrow">// formação</div>
+				<h2 class="h2">Certificação LPI com quem vive Linux no dia a dia</h2>
+				<p class="section-sub">Nada de decorar simulado. Cada objetivo do exame vira prática em um Linux de verdade, e você chega na prova sabendo <em>por que</em> cada comando funciona.</p>
+				<ul class="checklist">
+					<li>Plano de estudo montado a partir do seu nível atual</li>
+					<li>Aulas ao vivo, individuais, em horários flexíveis</li>
+					<li>Laboratório no navegador com desafios por objetivo do exame</li>
+					<li>Revisão final focada nos pontos fracos antes da prova</li>
+				</ul>
+				<div class="cta-row">
+					<a href="lab.html" class="btn primary">Experimentar o laboratório →</a>
+					<a href="#contato" class="btn" data-scroll="contato" data-interest="Aulas LPIC-1">Quero aulas</a>
+				</div>
+			</div>
+			<div class="track">
+				<div class="track-step reveal">
+					<span class="track-code mono">LPIC-1 · 101</span>
+					<strong>Arquitetura, instalação, comandos GNU e filesystems</strong>
+				</div>
+				<div class="track-step reveal">
+					<span class="track-code mono">LPIC-1 · 102</span>
+					<strong>Shell scripting, serviços, redes e segurança</strong>
+				</div>
+				<div class="track-step reveal">
+					<span class="track-code mono">LPIC-2 · 201</span>
+					<strong>Kernel, boot, storage, capacidade e redes avançadas</strong>
+				</div>
+				<div class="track-step reveal">
+					<span class="track-code mono">LPIC-2 · 202</span>
+					<strong>DNS, web, arquivos, e-mail e segurança de rede</strong>
+				</div>
+			</div>
+		</section>
+
+		<!-- processo -->
+		<section class="home-section" id="processo">
+			<div class="eyebrow">// como trabalhamos</div>
+			<h2 class="h2">Do diagnóstico ao <span class="mono accent">git push</span></h2>
+			<div class="steps">
+				<div class="step reveal"><span class="step-n mono">01</span><h3>Diagnóstico</h3><p>Entendemos seu ambiente, objetivos e restrições antes de propor qualquer coisa.</p></div>
+				<div class="step reveal"><span class="step-n mono">02</span><h3>Plano</h3><p>Escopo, arquitetura e cronograma claros, com entregas que você consegue validar.</p></div>
+				<div class="step reveal"><span class="step-n mono">03</span><h3>Implantação</h3><p>Tudo automatizado e versionado: o que fazemos uma vez, roda de novo sem surpresa.</p></div>
+				<div class="step reveal"><span class="step-n mono">04</span><h3>Transferência</h3><p>Documentação e treinamento para o seu time operar sozinho. Sem dependência.</p></div>
+			</div>
+		</section>
+
+		<!-- comunidade -->
+		<section class="home-section" id="comunidade">
+			<div class="community">
+				<div>
+					<div class="eyebrow">// conhecimento aberto</div>
+					<h2 class="h2">Devolvemos para a comunidade</h2>
+					<p class="section-sub">A KernelBase mantém, de graça e em português, o guia de como contribuir com a documentação do Kernel Linux, além do acompanhamento dos patches pt_BR e das notícias do kernel. É aqui que muita gente dá o primeiro passo.</p>
+					<div class="cta-row">
+						<a href="#docs" class="btn primary" data-tab="docs">Abrir a Documentação</a>
+						<a href="#patches" class="btn" data-tab="patches">Patches</a>
+						<a href="#news" class="btn" data-tab="news">Notícias</a>
+					</div>
+				</div>
+				<pre class="community-code mono"><span class="c">$</span> git clone --branch docs-next \
+    git://git.lwn.net/linux.git
+<span class="c">$</span> git commit -s
+<span class="c">$</span> git send-email --to=linux-doc@vger.kernel.org
+<span class="ok">Result: 250</span></pre>
+			</div>
+		</section>
+
+		<!-- contato -->
+		<section class="home-section" id="contato">
+			<div class="contact">
+				<div class="contact-copy">
+					<div class="eyebrow">// contato</div>
+					<h2 class="h2">Vamos conversar sobre o seu projeto?</h2>
+					<p class="section-sub">Conte o que você precisa: aulas, consultoria ou implantação. A gente responde com um próximo passo concreto.</p>
+					<ul class="contact-list">
+						<li><span class="mono accent">email</span> <a id="contact-email-link" href="#"></a></li>
+						<li><span class="mono accent">site</span> kernelbase.com.br</li>
+						<li><span class="mono accent">atendimento</span> remoto, em todo o Brasil</li>
+					</ul>
+				</div>
+				<form class="contact-form" id="contact-form">
+					<label>Nome<input name="nome" required autocomplete="name"></label>
+					<label>E-mail<input name="email" type="email" required autocomplete="email"></label>
+					<label>Interesse
+						<select name="interesse" id="contact-interest">
+							<option>Aulas LPIC-1</option>
+							<option>Aulas LPIC-2</option>
+							<option>Consultoria Linux</option>
+							<option>Metal as a Service</option>
+							<option>Automação com Ansible</option>
+							<option>Automações com IA</option>
+							<option>Outro assunto</option>
+						</select>
+					</label>
+					<label>Mensagem<textarea name="mensagem" rows="4" required placeholder="Conte um pouco sobre o seu cenário..."></textarea></label>
+					<button type="submit" class="btn primary btn-lg">Enviar mensagem →</button>
+					<p class="form-note">Ao enviar, seu aplicativo de e-mail abre com a mensagem pronta.</p>
+				</form>
+			</div>
+		</section>
 	</div>
-</section>
 
-<div class="banner">
-	<div class="banner-card open" id="kernel-banner">
-		<div class="banner-title" id="banner-title"><span class="pulse"></span>Carregando status do kernel...</div>
-		<div class="banner-desc" id="banner-desc">Buscando a versão mainline mais recente em kernel.org.</div>
-		<div class="releases-toggle" id="releases-toggle">▸ ver todas as versões (mainline, stable, longterm)</div>
-		<table class="releases-table" id="releases-table">
-			<thead><tr><th>Tipo</th><th>Versão</th><th>Data</th><th>Links</th></tr></thead>
-			<tbody id="releases-tbody"></tbody>
-		</table>
-	</div>
-</div>
-
-<div class="container">
-
+	<!-- ===================== NOTÍCIAS ===================== -->
 	<div id="news" class="tab-content">
 		<div class="section-title">Notícias</div>
 		<div class="section-lede">Traduzidas automaticamente a partir de Phoronix, LWN, Planet Kernel, kernel.org e 9to5Linux. Atualizado periodicamente.</div>
 		<div id="news-grid" class="news-grid"><div class="loading">Carregando notícias<span class="spinner"></span></div></div>
 	</div>
 
-	<div id="docs" class="tab-content active">
+	<!-- ===================== DOCUMENTAÇÃO ===================== -->
+	<div id="docs" class="tab-content">
 		<div class="section-title">Documentação</div>
 		<div class="section-lede">Passo a passo completo para contribuir com traduções de documentação para o Kernel Linux.</div>
+		<div class="banner-card open" id="kernel-banner">
+			<div class="banner-title" id="banner-title"><span class="pulse"></span>Carregando status do kernel...</div>
+			<div class="banner-desc" id="banner-desc">Buscando a versão mainline mais recente em kernel.org.</div>
+			<div class="releases-toggle" id="releases-toggle">▸ ver todas as versões (mainline, stable, longterm)</div>
+			<table class="releases-table" id="releases-table">
+				<thead><tr><th>Tipo</th><th>Versão</th><th>Data</th><th>Links</th></tr></thead>
+				<tbody id="releases-tbody"></tbody>
+			</table>
+		</div>
 		<div class="prose">
 <h1>Pré-requisitos</h1>
 <p>É preciso instalar algumas dependências para conseguir contribuir:</p>
@@ -429,20 +628,27 @@ v1: https://lore.kernel.org/r/MESSAGE-ID-DA-V1
 		</div>
 	</div>
 
-</div>
+</main>
 
 <footer class="site-footer">
 	<div class="footer-inner">
 		<div class="footer-brand">
 			<strong>kernelBase</strong>
-			<p>Centralizando a documentação em português do Kernel Linux — traduções, patches e notícias da comunidade em um só lugar.</p>
+			<p>KernelBase Tecnologia LTDA. Formação e engenharia Linux: aulas LPIC, consultoria, Metal as a Service, Ansible e automações com IA.</p>
 		</div>
 		<div class="footer-links">
 			<div class="footer-col">
-				<h4>Explorar</h4>
-				<a href="#" data-tab="docs" onclick="showTab('docs')">Documentação</a>
-				<a href="#" data-tab="patches" onclick="showTab('patches')">Patches</a>
-				<a href="#" data-tab="news" onclick="showTab('news')">Notícias</a>
+				<h4>Empresa</h4>
+				<a href="#servicos" data-tab="home" data-scroll="servicos">Serviços</a>
+				<a href="#formacao" data-tab="home" data-scroll="formacao">Formação LPIC</a>
+				<a href="#contato" data-tab="home" data-scroll="contato">Contato</a>
+			</div>
+			<div class="footer-col">
+				<h4>Aprender</h4>
+				<a href="#docs" data-tab="docs">Documentação</a>
+				<a href="#patches" data-tab="patches">Patches</a>
+				<a href="#news" data-tab="news">Notícias</a>
+				<a href="lab.html">Laboratório</a>
 			</div>
 			<div class="footer-col">
 				<h4>Comunidade</h4>
@@ -456,7 +662,7 @@ v1: https://lore.kernel.org/r/MESSAGE-ID-DA-V1
 			</div>
 		</div>
 	</div>
-	<div class="footer-bottom">Mantido por Daniel Pereira · dados de kernel.org e lore.kernel.org</div>
+	<div class="footer-bottom">© <span id="year">2026</span> KernelBase Tecnologia LTDA · dados ao vivo de kernel.org e lore.kernel.org</div>
 </footer>
 
 <script src="js/app.js" defer></script>
