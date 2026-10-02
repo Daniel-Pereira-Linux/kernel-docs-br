@@ -107,10 +107,9 @@
 		if (seen) { screen.remove(); return; }
 
 		const lines = [
-			'kernelbase-init: carregando serviços e formação...',
+			'kernelbase-init: iniciando assistentes de atendimento...',
 			'kernelbase-init: montando documentação em pt_BR...',
 			'kernelbase-init: conectando ao lore.kernel.org...',
-			'kernelbase-init: carregando notícias e patches...',
 			'kernelbase-init: pronto.',
 		];
 		const out = document.getElementById('boot-lines');
@@ -135,14 +134,14 @@
 
 	/* ---------------- tabs ---------------- */
 	let allPatches = [];
-	let newsLoaded = false;
 
-	const TABS = ['home', 'docs', 'patches', 'news'];
+	const TABS = ['home', 'docs', 'patches'];
 	// hash da URL -> [aba, seção para rolar]
 	const HASH_ROUTES = {
 		'': ['home'], inicio: ['home'],
-		docs: ['docs'], patches: ['patches'], news: ['news'],
-		servicos: ['home', 'servicos'], formacao: ['home', 'formacao'],
+		docs: ['docs'], patches: ['patches'],
+		'como-funciona': ['home', 'como-funciona'], 'para-quem': ['home', 'para-quem'],
+		servicos: ['home', 'servicos'],
 		processo: ['home', 'processo'], comunidade: ['home', 'comunidade'],
 		contato: ['home', 'contato'],
 	};
@@ -166,7 +165,6 @@
 			window.scrollTo({ top: 0 });
 		}
 
-		if (tabName === 'news' && !newsLoaded) loadNews();
 		if (tabName === 'patches' && allPatches.length === 0) loadPatches();
 		if (tabName === 'home') initReveal();
 	}
@@ -197,78 +195,69 @@
 		});
 	}
 
-	/* ---------------- início: terminal animado ---------------- */
-	let kernelInfo = null;
-	let kernelInfoWaiters = [];
-	function whenKernelInfo(fn) {
-		if (kernelInfo) fn(kernelInfo); else kernelInfoWaiters.push(fn);
-	}
-	function setKernelInfo(info) {
-		kernelInfo = info;
-		kernelInfoWaiters.forEach(fn => fn(info));
-		kernelInfoWaiters = [];
-	}
-
-	function initHeroTerminal() {
-		const out = document.getElementById('hero-term');
-		if (!out) return;
+	/* ---------------- início: conversa de demonstração ---------------- */
+	function initHeroChat() {
+		const box = document.getElementById('hero-chat');
+		const status = document.getElementById('chat-status');
+		if (!box) return;
 		const reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 
-		const script = (k) => [
-			{ cmd: 'uname -sr' },
-			{ out: 'Linux ' + (k.mainline || '7.x') },
-			{ cmd: 'systemctl list-units "kernelbase-*"' },
-			{ out: 'UNIT                       STATE   DESCRIPTION', cls: 'dim' },
-			{ out: 'kernelbase-lpic.service   <ok>active</ok>  aulas LPIC-1 e LPIC-2' },
-			{ out: 'kernelbase-consult.service<ok>active</ok>  consultoria Linux' },
-			{ out: 'kernelbase-maas.service   <ok>active</ok>  metal as a service' },
-			{ out: 'kernelbase-ansible.service<ok>active</ok>  automação com ansible' },
-			{ out: 'kernelbase-ai.service     <ok>active</ok>  automações com IA' },
-			{ cmd: 'echo "$PROXIMO_PASSO"' },
-			{ out: '<acc>→ fale com a gente: kernelbase.com.br/#contato</acc>' },
+		const SCRIPT = [
+			{ from: 'user', at: '03:11', text: 'Oi! Vocês atendem sábado?' },
+			{ from: 'bot', at: '03:11', text: 'Oi, Ana! 😊 Atendemos sim, sábado das 9h às 13h. Quer que eu reserve um horário pra você?' },
+			{ from: 'user', at: '03:12', text: 'Quero! Tem às 10h?' },
+			{ from: 'bot', at: '03:12', text: 'Tem sim. Reservei sábado às 10h no seu nome e mandei a confirmação aqui e no seu e-mail. ✅' },
+			{ from: 'sys', text: '✓ agendamento criado · ✓ cliente salvo no CRM · 03:12 da manhã' },
+			{ from: 'user', at: '03:13', text: 'Perfeito, obrigada!' },
+			{ from: 'bot', at: '03:13', text: 'Imagina! Te mando um lembrete na sexta. Até sábado! 👋' },
 		];
 
-		const fmt = (s) => escapeHtml(s)
-			.replace(/&lt;ok&gt;(.*?)&lt;\/ok&gt;/g, ' <span class="t-ok">$1</span>')
-			.replace(/&lt;acc&gt;(.*?)&lt;\/acc&gt;/g, '<span class="t-acc">$1</span>');
-		const prompt = '<span class="t-prompt">root@kernelbase</span>:<span class="t-path">~</span># ';
-
-		function render(k) {
-			const lines = script(k);
-			if (reduce) {
-				out.innerHTML = lines.map(l => l.cmd ? prompt + escapeHtml(l.cmd) : `<span class="${l.cls || ''}">${fmt(l.out)}</span>`).join('\n') + '\n' + prompt + '<span class="t-cursor"></span>';
-				return;
-			}
-			let html = '';
-			let i = 0;
-			function step() {
-				if (i >= lines.length) {
-					out.innerHTML = html + prompt + '<span class="t-cursor"></span>';
-					return;
-				}
-				const l = lines[i++];
-				if (l.cmd) {
-					let c = 0;
-					const base = html + prompt;
-					(function type() {
-						out.innerHTML = base + escapeHtml(l.cmd.slice(0, c)) + '<span class="t-cursor"></span>';
-						if (c++ < l.cmd.length) setTimeout(type, 28 + Math.random() * 40);
-						else { html = base + escapeHtml(l.cmd) + '\n'; setTimeout(step, 260); }
-					})();
-				} else {
-					html += `<span class="${l.cls || ''}">${fmt(l.out)}</span>\n`;
-					out.innerHTML = html;
-					setTimeout(step, 90);
-				}
-			}
-			step();
+		function bubble(m) {
+			const el = document.createElement('div');
+			el.className = 'msg ' + m.from;
+			el.innerHTML = m.from === 'sys'
+				? escapeHtml(m.text)
+				: `${escapeHtml(m.text)}<span class="msg-time">${m.at}${m.from === 'user' ? '' : ' ✓✓'}</span>`;
+			box.appendChild(el);
+			box.scrollTop = box.scrollHeight;
+			return el;
 		}
 
-		// não espera para sempre pelo JSON: começa após 1,2s com o que tiver
-		let started = false;
-		const start = (k) => { if (!started) { started = true; render(k); } };
-		whenKernelInfo(start);
-		setTimeout(() => start(kernelInfo || {}), 1200);
+		if (reduce) { SCRIPT.forEach(bubble); return; }
+
+		function typing() {
+			const el = document.createElement('div');
+			el.className = 'msg bot typing';
+			el.innerHTML = '<span></span><span></span><span></span>';
+			box.appendChild(el);
+			box.scrollTop = box.scrollHeight;
+			if (status) status.textContent = 'digitando...';
+			return el;
+		}
+
+		let i = 0;
+		function next() {
+			if (i >= SCRIPT.length) {
+				// reinicia a demonstração depois de uma pausa
+				setTimeout(() => { box.innerHTML = ''; i = 0; next(); }, 7000);
+				return;
+			}
+			const m = SCRIPT[i++];
+			if (m.from === 'bot') {
+				const t = typing();
+				setTimeout(() => {
+					t.remove();
+					if (status) status.textContent = 'online';
+					bubble(m);
+					setTimeout(next, 1100);
+				}, 900 + Math.min(m.text.length * 12, 1300));
+			} else {
+				bubble(m);
+				if (m.from === 'user') playBlip();
+				setTimeout(next, m.from === 'sys' ? 1200 : 900);
+			}
+		}
+		setTimeout(next, 500);
 	}
 
 	/* ---------------- início: revelar ao rolar ---------------- */
@@ -314,39 +303,6 @@
 			location.href = 'mailto:' + CONTACT_EMAIL + '?subject=' + encodeURIComponent(subject) + '&body=' + encodeURIComponent(body);
 			playChime();
 		});
-	}
-
-	/* ---------------- notícias ---------------- */
-	async function loadNews() {
-		const grid = document.getElementById('news-grid');
-		try {
-			const res = await fetch('news.json?' + Date.now());
-			if (!res.ok) throw new Error('HTTP ' + res.status);
-			const data = await res.json();
-			grid.innerHTML = '';
-			if (!data.length) {
-				grid.innerHTML = '<p class="loading">Nenhuma notícia encontrada.</p>';
-				return;
-			}
-			data.forEach(item => {
-				const card = document.createElement('div');
-				card.className = 'news-card';
-				let dateStr = item.date;
-				try { if (dateStr) dateStr = new Date(dateStr).toLocaleDateString('pt-BR', { day: '2-digit', month: '2-digit', year: 'numeric', hour: '2-digit', minute: '2-digit' }); } catch (e) {}
-				card.innerHTML = `
-					<span class="news-source">${escapeHtml(item.source)}</span>
-					<div class="news-title">${escapeHtml(item.title_pt || item.title_en)}</div>
-					<div class="news-date">${escapeHtml(dateStr || '')}</div>
-					<div class="news-summary">${escapeHtml(item.summary_pt || item.summary_en || '')}</div>
-					<a href="${item.link}" target="_blank" rel="noopener" class="news-link btn">Ler na fonte ↗</a>
-				`;
-				grid.appendChild(card);
-			});
-			newsLoaded = true;
-		} catch (e) {
-			console.error('Erro ao carregar notícias:', e);
-			grid.innerHTML = '<p class="loading">Erro ao carregar as notícias. Tente novamente mais tarde.</p>';
-		}
 	}
 
 	/* ---------------- patches ---------------- */
@@ -436,12 +392,6 @@
 			const data = await res.json();
 			const releases = data.releases || [];
 			const mainline = releases.find(r => r.moniker === 'mainline');
-			const stable = releases.find(r => r.moniker === 'stable');
-			setKernelInfo({ mainline: mainline && mainline.version, stable: stable && stable.version });
-			const statK = document.getElementById('stat-kernel');
-			if (statK && mainline) statK.textContent = mainline.version;
-			const statS = document.getElementById('stat-stable');
-			if (statS && stable) statS.textContent = stable.version;
 			const card = document.getElementById('kernel-banner');
 			if (!mainline || !card) return;
 
@@ -481,7 +431,6 @@
 				tbody.appendChild(tr);
 			});
 		} catch (e) {
-			setKernelInfo({});
 			console.error('Erro ao carregar status do kernel:', e);
 		}
 	}
@@ -668,7 +617,7 @@
 
 		initLinks();
 		initContact();
-		initHeroTerminal();
+		initHeroChat();
 		routeFromHash();
 	});
 })();

@@ -3,10 +3,10 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>KernelBase Tecnologia — Linux, do kernel à produção</title>
-<meta name="description" content="KernelBase Tecnologia: aulas particulares para LPIC-1 e LPIC-2, consultoria Linux, implantação de Metal as a Service, automação com Ansible e automações com IA. Mais documentação do Kernel Linux em português.">
-<meta property="og:title" content="KernelBase Tecnologia — Linux, do kernel à produção">
-<meta property="og:description" content="Aulas LPIC-1/LPIC-2, consultoria Linux, Metal as a Service, Ansible e automações com IA.">
+<title>KernelBase Tecnologia — Automação de atendimento com IA</title>
+<meta name="description" content="KernelBase Tecnologia: assistentes com IA que atendem seus clientes no WhatsApp, Instagram e site, 24 horas por dia. Também: consultoria Linux, aulas LPIC, Metal as a Service e Ansible.">
+<meta property="og:title" content="KernelBase Tecnologia — Automação de atendimento com IA">
+<meta property="og:description" content="Assistentes com IA que atendem seus clientes no WhatsApp, Instagram e site, 24 horas por dia.">
 <meta property="og:url" content="https://kernelbase.com.br/">
 <meta property="og:type" content="website">
 <meta name="theme-color" content="#090c12">
@@ -28,8 +28,6 @@
 			<a href="#inicio" data-tab="home" id="nav-home" class="active-tab">Início</a>
 			<a href="#docs" data-tab="docs" id="nav-docs">Documentação</a>
 			<a href="#patches" data-tab="patches" id="nav-patches">Patches</a>
-			<a href="#news" data-tab="news" id="nav-news">Notícias</a>
-			<a href="lab.html">Laboratório</a>
 		</nav>
 		<div class="topbar-actions">
 			<a href="#contato" class="btn primary topbar-cta" data-tab="home" data-scroll="contato">Fale com a gente</a>
@@ -52,130 +50,133 @@
 
 		<section class="home-hero">
 			<div class="home-hero-copy">
-				<a class="hero-badge" href="#docs" data-tab="docs">
+				<span class="hero-badge">
 					<span class="pulse-dot"></span>
-					Mantenedor da tradução pt_BR do Kernel Linux
-				</a>
-				<h1 class="hero-title">Linux de verdade,<br><span class="grad">do kernel à produção.</span></h1>
-				<p class="hero-lede">A <strong>KernelBase Tecnologia</strong> forma profissionais para a <strong>LPIC-1</strong> e a <strong>LPIC-2</strong> e implanta infraestrutura Linux para empresas: bare metal provisionado como serviço, automação com Ansible e automações com IA. Feito por quem contribui com o próprio Kernel Linux.</p>
+					Automação de atendimento com IA
+				</span>
+				<h1 class="hero-title">Seu atendimento,<br><span class="grad">no automático.</span></h1>
+				<p class="hero-lede">A <strong>KernelBase Tecnologia</strong> cria assistentes com IA que atendem seus clientes no <strong>WhatsApp</strong>, no <strong>Instagram</strong> e no <strong>seu site</strong>, 24 horas por dia. Eles tiram dúvidas, agendam, registram pedidos e passam a conversa para a sua equipe quando precisa.</p>
 				<div class="cta-row">
-					<a href="#contato" class="btn primary btn-lg" data-scroll="contato">Agendar uma conversa →</a>
-					<a href="#servicos" class="btn btn-lg" data-scroll="servicos">Ver serviços</a>
+					<a href="#contato" class="btn primary btn-lg" data-scroll="contato" data-interest="Automação de atendimento">Quero automatizar meu atendimento →</a>
+					<a href="#como-funciona" class="btn btn-lg" data-scroll="como-funciona">Como funciona</a>
 				</div>
 				<ul class="hero-points">
-					<li>Aulas particulares 1:1, ao vivo</li>
-					<li>Projetos sob medida, com documentação</li>
-					<li>100% open source, sem lock-in</li>
+					<li>Responde em segundos, a qualquer hora</li>
+					<li>Integra com seus sistemas</li>
+					<li>Sua equipe assume quando quiser</li>
 				</ul>
 			</div>
 
-			<div class="term" aria-label="Terminal demonstrativo da KernelBase">
-				<div class="term-bar">
-					<span class="term-dot r"></span><span class="term-dot y"></span><span class="term-dot g"></span>
-					<span class="term-title">root@kernelbase: ~</span>
+			<div class="chat" aria-label="Exemplo de conversa com um assistente de atendimento">
+				<div class="chat-bar">
+					<div class="chat-avatar mono">kB</div>
+					<div class="chat-who">
+						<strong>Assistente da sua empresa</strong>
+						<span id="chat-status">online</span>
+					</div>
+					<span class="chat-demo mono">demonstração</span>
 				</div>
-				<pre class="term-body" id="hero-term"></pre>
+				<div class="chat-body" id="hero-chat"></div>
 			</div>
 		</section>
 
-		<section class="stats" aria-label="Números ao vivo">
+		<section class="stats" aria-label="Diferenciais">
 			<div class="stat">
-				<div class="stat-value mono" id="stat-kernel">—</div>
-				<div class="stat-label">kernel mainline agora <span class="live">ao vivo</span></div>
+				<div class="stat-value mono">24/7</div>
+				<div class="stat-label">atendimento sem pausa, inclusive à noite e no fim de semana</div>
 			</div>
 			<div class="stat">
-				<div class="stat-value mono" id="stat-stable">—</div>
-				<div class="stat-label">stable mais recente <span class="live">ao vivo</span></div>
+				<div class="stat-value mono">segundos</div>
+				<div class="stat-label">para a primeira resposta, sem fila de espera</div>
 			</div>
 			<div class="stat">
-				<div class="stat-value mono">LPIC-1 · 2</div>
-				<div class="stat-label">trilhas completas de formação</div>
+				<div class="stat-value mono">3 canais</div>
+				<div class="stat-label">WhatsApp, Instagram e chat no site, num fluxo só</div>
 			</div>
 			<div class="stat">
-				<div class="stat-value mono">0 → prod</div>
-				<div class="stat-label">do bare metal ao serviço no ar</div>
+				<div class="stat-value mono">humano</div>
+				<div class="stat-label">no controle: a sua equipe assume a conversa quando quiser</div>
 			</div>
 		</section>
 
-		<!-- serviços -->
-		<section class="home-section" id="servicos">
-			<div class="eyebrow">// serviços</div>
-			<h2 class="h2">O que a KernelBase faz por você</h2>
-			<p class="section-sub">Formação e engenharia Linux em um só lugar. Você aprende com quem implanta, e implanta com quem ensina.</p>
+		<!-- como funciona -->
+		<section class="home-section" id="como-funciona">
+			<div class="eyebrow">// automação de atendimento</div>
+			<h2 class="h2">Um assistente que conhece o seu negócio</h2>
+			<p class="section-sub">Nada de robô engessado com menu de opções. O assistente entende o que o cliente escreve, responde com base nas informações da sua empresa e executa tarefas de verdade.</p>
 
 			<div class="svc-grid">
-				<article class="svc-card reveal">
-					<div class="svc-icon">🎓</div>
-					<h3>Aulas particulares LPIC-1</h3>
-					<p>Preparação completa para os exames 101 e 102: arquitetura do sistema, pacotes, shell, filesystems, redes, segurança e scripts. Ritmo definido por você.</p>
-					<div class="tags"><span>101-500</span><span>102-500</span><span>1:1</span></div>
-				</article>
-				<article class="svc-card reveal">
-					<div class="svc-icon">🧠</div>
-					<h3>Aulas particulares LPIC-2</h3>
-					<p>Nível engenheiro: kernel, boot, storage avançado, DNS, web, compartilhamento de arquivos, e-mail e segurança de rede. Tudo com laboratório prático.</p>
-					<div class="tags"><span>201-450</span><span>202-450</span><span>hands-on</span></div>
-				</article>
-				<article class="svc-card reveal">
-					<div class="svc-icon">🔎</div>
-					<h3>Consultoria Linux</h3>
-					<p>Diagnóstico de performance, troubleshooting de kernel e drivers, hardening, padronização de servidores e revisão de arquitetura. Respostas técnicas, não achismo.</p>
-					<div class="tags"><span>performance</span><span>hardening</span><span>kernel</span></div>
-				</article>
 				<article class="svc-card reveal featured">
-					<div class="svc-icon">🖥️</div>
-					<h3>Metal as a Service</h3>
-					<p>Seus servidores físicos provisionados como se fossem nuvem: descoberta automática, PXE, controle via IPMI/Redfish e deploy de SO em minutos, sob demanda.</p>
-					<div class="tags"><span>MAAS</span><span>PXE</span><span>IPMI/Redfish</span></div>
+					<div class="svc-icon">💬</div>
+					<h3>Todos os canais num só lugar</h3>
+					<p>WhatsApp, Instagram e chat no site atendidos pelo mesmo assistente, com o histórico de cada cliente organizado.</p>
+					<div class="tags"><span>WhatsApp</span><span>Instagram</span><span>site</span></div>
 				</article>
 				<article class="svc-card reveal">
-					<div class="svc-icon">⚙️</div>
-					<h3>Automação com Ansible</h3>
-					<p>Playbooks e roles idempotentes, inventários dinâmicos e pipelines de configuração. Infraestrutura reproduzível e versionada no Git.</p>
-					<div class="tags"><span>playbooks</span><span>roles</span><span>AWX</span></div>
+					<div class="svc-icon">📚</div>
+					<h3>Respostas com o seu conteúdo</h3>
+					<p>Treinado com seus preços, catálogo, políticas e perguntas frequentes. Ele responde o que a sua empresa responderia, e não inventa.</p>
+					<div class="tags"><span>FAQ</span><span>catálogo</span><span>políticas</span></div>
 				</article>
 				<article class="svc-card reveal">
-					<div class="svc-icon">🤖</div>
-					<h3>Automações com IA</h3>
-					<p>Agentes e fluxos com LLMs integrados à sua operação: triagem de incidentes, análise de logs, runbooks assistidos e atendimento técnico automatizado.</p>
-					<div class="tags"><span>LLMs</span><span>agentes</span><span>ChatOps</span></div>
+					<div class="svc-icon">📅</div>
+					<h3>Agendamentos e pedidos</h3>
+					<p>Marca horários, consulta disponibilidade, registra pedidos e envia confirmações, direto nos sistemas que você já usa.</p>
+					<div class="tags"><span>agenda</span><span>pedidos</span><span>lembretes</span></div>
+				</article>
+				<article class="svc-card reveal">
+					<div class="svc-icon">🎯</div>
+					<h3>Qualificação de clientes</h3>
+					<p>Faz as perguntas certas, identifica quem está pronto para comprar e entrega o contato qualificado para o seu time comercial ou CRM.</p>
+					<div class="tags"><span>leads</span><span>CRM</span><span>vendas</span></div>
+				</article>
+				<article class="svc-card reveal">
+					<div class="svc-icon">🙋</div>
+					<h3>Passagem para humano</h3>
+					<p>Quando o assunto pede uma pessoa, a conversa vai para a sua equipe com todo o contexto, sem o cliente repetir nada.</p>
+					<div class="tags"><span>handoff</span><span>contexto</span><span>equipe</span></div>
+				</article>
+				<article class="svc-card reveal">
+					<div class="svc-icon">📊</div>
+					<h3>Relatórios e melhoria contínua</h3>
+					<p>Veja o que os clientes mais perguntam, onde a conversa trava e o que pode ser automatizado a seguir. Ajustamos junto com você.</p>
+					<div class="tags"><span>métricas</span><span>ajustes</span><span>suporte</span></div>
 				</article>
 			</div>
 		</section>
 
-		<!-- formação -->
-		<section class="home-section split" id="formacao">
+		<!-- para quem -->
+		<section class="home-section split" id="para-quem">
 			<div>
-				<div class="eyebrow">// formação</div>
-				<h2 class="h2">Certificação LPI com quem vive Linux no dia a dia</h2>
-				<p class="section-sub">Nada de decorar simulado. Cada objetivo do exame vira prática em um Linux de verdade, e você chega na prova sabendo <em>por que</em> cada comando funciona.</p>
+				<div class="eyebrow">// para quem é</div>
+				<h2 class="h2">Para empresas que não podem deixar cliente esperando</h2>
+				<p class="section-sub">Se o seu time passa o dia respondendo as mesmas perguntas, ou se mensagens ficam sem resposta fora do horário comercial, a automação paga a conta.</p>
 				<ul class="checklist">
-					<li>Plano de estudo montado a partir do seu nível atual</li>
-					<li>Aulas ao vivo, individuais, em horários flexíveis</li>
-					<li>Laboratório no navegador com desafios por objetivo do exame</li>
-					<li>Revisão final focada nos pontos fracos antes da prova</li>
+					<li>Assistente configurado com a linguagem e o tom da sua marca</li>
+					<li>Integração com agenda, ERP, CRM e planilhas que você já usa</li>
+					<li>Dados tratados com cuidado e em conformidade com a LGPD</li>
+					<li>Infraestrutura Linux operada por quem entende do assunto</li>
 				</ul>
 				<div class="cta-row">
-					<a href="lab.html" class="btn primary">Experimentar o laboratório →</a>
-					<a href="#contato" class="btn" data-scroll="contato" data-interest="Aulas LPIC-1">Quero aulas</a>
+					<a href="#contato" class="btn primary" data-scroll="contato" data-interest="Automação de atendimento">Conversar sobre o meu caso →</a>
 				</div>
 			</div>
 			<div class="track">
 				<div class="track-step reveal">
-					<span class="track-code mono">LPIC-1 · 101</span>
-					<strong>Arquitetura, instalação, comandos GNU e filesystems</strong>
+					<span class="track-code mono">clínicas e consultórios</span>
+					<strong>Agendamento, confirmação e lembrete de consultas</strong>
 				</div>
 				<div class="track-step reveal">
-					<span class="track-code mono">LPIC-1 · 102</span>
-					<strong>Shell scripting, serviços, redes e segurança</strong>
+					<span class="track-code mono">lojas e e-commerce</span>
+					<strong>Dúvidas sobre produtos, status de pedido e trocas</strong>
 				</div>
 				<div class="track-step reveal">
-					<span class="track-code mono">LPIC-2 · 201</span>
-					<strong>Kernel, boot, storage, capacidade e redes avançadas</strong>
+					<span class="track-code mono">prestadores de serviço</span>
+					<strong>Orçamentos, qualificação e agendamento de visitas</strong>
 				</div>
 				<div class="track-step reveal">
-					<span class="track-code mono">LPIC-2 · 202</span>
-					<strong>DNS, web, arquivos, e-mail e segurança de rede</strong>
+					<span class="track-code mono">provedores e suporte de TI</span>
+					<strong>Triagem de chamados, segunda via e diagnóstico inicial</strong>
 				</div>
 			</div>
 		</section>
@@ -183,26 +184,51 @@
 		<!-- processo -->
 		<section class="home-section" id="processo">
 			<div class="eyebrow">// como trabalhamos</div>
-			<h2 class="h2">Do diagnóstico ao <span class="mono accent">git push</span></h2>
+			<h2 class="h2">Do primeiro contato ao assistente no ar</h2>
 			<div class="steps">
-				<div class="step reveal"><span class="step-n mono">01</span><h3>Diagnóstico</h3><p>Entendemos seu ambiente, objetivos e restrições antes de propor qualquer coisa.</p></div>
-				<div class="step reveal"><span class="step-n mono">02</span><h3>Plano</h3><p>Escopo, arquitetura e cronograma claros, com entregas que você consegue validar.</p></div>
-				<div class="step reveal"><span class="step-n mono">03</span><h3>Implantação</h3><p>Tudo automatizado e versionado: o que fazemos uma vez, roda de novo sem surpresa.</p></div>
-				<div class="step reveal"><span class="step-n mono">04</span><h3>Transferência</h3><p>Documentação e treinamento para o seu time operar sozinho. Sem dependência.</p></div>
+				<div class="step reveal"><span class="step-n mono">01</span><h3>Diagnóstico</h3><p>Mapeamos como seus clientes chegam, o que perguntam e onde o atendimento trava hoje.</p></div>
+				<div class="step reveal"><span class="step-n mono">02</span><h3>Desenho dos fluxos</h3><p>Definimos o que o assistente resolve sozinho, o que vai para a equipe e com quais sistemas ele conversa.</p></div>
+				<div class="step reveal"><span class="step-n mono">03</span><h3>Implantação</h3><p>Configuramos canais, integrações e conteúdo, e testamos com conversas reais antes de ligar.</p></div>
+				<div class="step reveal"><span class="step-n mono">04</span><h3>Acompanhamento</h3><p>Monitoramos as conversas, ajustamos respostas e ampliamos a automação conforme o resultado.</p></div>
 			</div>
 		</section>
 
-		<!-- comunidade -->
+		<!-- outros serviços -->
+		<section class="home-section" id="servicos">
+			<div class="eyebrow">// também fazemos</div>
+			<h2 class="h2">Engenharia e formação Linux</h2>
+			<p class="section-sub">A base técnica por trás das nossas automações também está disponível como serviço.</p>
+			<div class="mini-grid">
+				<article class="mini-card reveal">
+					<h3>🎓 Aulas LPIC-1 e LPIC-2</h3>
+					<p>Aulas particulares ao vivo, com plano de estudo sob medida para os exames 101/102 e 201/202.</p>
+				</article>
+				<article class="mini-card reveal">
+					<h3>🔎 Consultoria Linux</h3>
+					<p>Performance, troubleshooting de kernel e drivers, hardening e padronização de servidores.</p>
+				</article>
+				<article class="mini-card reveal">
+					<h3>🖥️ Metal as a Service</h3>
+					<p>Servidores físicos provisionados como nuvem: PXE, IPMI/Redfish e deploy de SO sob demanda.</p>
+				</article>
+				<article class="mini-card reveal">
+					<h3>⚙️ Automação com Ansible</h3>
+					<p>Playbooks e roles idempotentes para uma infraestrutura reproduzível e versionada no Git.</p>
+				</article>
+			</div>
+		</section>
+
+		<!-- open source -->
 		<section class="home-section" id="comunidade">
 			<div class="community">
 				<div>
-					<div class="eyebrow">// conhecimento aberto</div>
-					<h2 class="h2">Devolvemos para a comunidade</h2>
-					<p class="section-sub">A KernelBase mantém, de graça e em português, o guia de como contribuir com a documentação do Kernel Linux, além do acompanhamento dos patches pt_BR e das notícias do kernel. É aqui que muita gente dá o primeiro passo.</p>
+					<div class="eyebrow">// open source</div>
+					<h2 class="h2">Documentação aberta do Kernel Linux</h2>
+					<p class="section-sub">Mantemos, de graça e em português, o guia de como contribuir com a documentação do Kernel Linux, além do acompanhamento dos patches pt_BR. Daniel Pereira, fundador da KernelBase, é o mantenedor da tradução pt_BR do Kernel Linux.</p>
 					<div class="cta-row">
 						<a href="#docs" class="btn primary" data-tab="docs">Abrir a Documentação</a>
 						<a href="#patches" class="btn" data-tab="patches">Patches</a>
-						<a href="#news" class="btn" data-tab="news">Notícias</a>
+						<a href="https://github.com/Daniel-Pereira-Linux/kernel-docs-br" class="btn" target="_blank" rel="noopener">GitHub ↗</a>
 					</div>
 				</div>
 				<pre class="community-code mono"><span class="c">$</span> git clone --branch docs-next \
@@ -218,8 +244,8 @@
 			<div class="contact">
 				<div class="contact-copy">
 					<div class="eyebrow">// contato</div>
-					<h2 class="h2">Vamos conversar sobre o seu projeto?</h2>
-					<p class="section-sub">Conte o que você precisa: aulas, consultoria ou implantação. A gente responde com um próximo passo concreto.</p>
+					<h2 class="h2">Vamos colocar seu atendimento no automático?</h2>
+					<p class="section-sub">Conte como funciona o seu atendimento hoje. A gente responde com uma proposta de automação para o seu caso.</p>
 					<ul class="contact-list">
 						<li><span class="mono accent">email</span> <a id="contact-email-link" href="#"></a></li>
 						<li><span class="mono accent">site</span> kernelbase.com.br</li>
@@ -231,28 +257,21 @@
 					<label>E-mail<input name="email" type="email" required autocomplete="email"></label>
 					<label>Interesse
 						<select name="interesse" id="contact-interest">
-							<option>Aulas LPIC-1</option>
-							<option>Aulas LPIC-2</option>
+							<option>Automação de atendimento</option>
+							<option>Outras automações com IA</option>
+							<option>Aulas LPIC-1 / LPIC-2</option>
 							<option>Consultoria Linux</option>
 							<option>Metal as a Service</option>
 							<option>Automação com Ansible</option>
-							<option>Automações com IA</option>
 							<option>Outro assunto</option>
 						</select>
 					</label>
-					<label>Mensagem<textarea name="mensagem" rows="4" required placeholder="Conte um pouco sobre o seu cenário..."></textarea></label>
+					<label>Mensagem<textarea name="mensagem" rows="4" required placeholder="Ex.: recebemos 200 mensagens por dia no WhatsApp, a maioria pedindo horário..."></textarea></label>
 					<button type="submit" class="btn primary btn-lg">Enviar mensagem →</button>
 					<p class="form-note">Ao enviar, seu aplicativo de e-mail abre com a mensagem pronta.</p>
 				</form>
 			</div>
 		</section>
-	</div>
-
-	<!-- ===================== NOTÍCIAS ===================== -->
-	<div id="news" class="tab-content">
-		<div class="section-title">Notícias</div>
-		<div class="section-lede">Traduzidas automaticamente a partir de Phoronix, LWN, Planet Kernel, kernel.org e 9to5Linux. Atualizado periodicamente.</div>
-		<div id="news-grid" class="news-grid"><div class="loading">Carregando notícias<span class="spinner"></span></div></div>
 	</div>
 
 	<!-- ===================== DOCUMENTAÇÃO ===================== -->
@@ -634,21 +653,19 @@ v1: https://lore.kernel.org/r/MESSAGE-ID-DA-V1
 	<div class="footer-inner">
 		<div class="footer-brand">
 			<strong>kernelBase</strong>
-			<p>KernelBase Tecnologia LTDA. Formação e engenharia Linux: aulas LPIC, consultoria, Metal as a Service, Ansible e automações com IA.</p>
+			<p>KernelBase Tecnologia LTDA. Automação de atendimento com IA para WhatsApp, Instagram e site, além de engenharia e formação Linux.</p>
 		</div>
 		<div class="footer-links">
 			<div class="footer-col">
 				<h4>Empresa</h4>
-				<a href="#servicos" data-tab="home" data-scroll="servicos">Serviços</a>
-				<a href="#formacao" data-tab="home" data-scroll="formacao">Formação LPIC</a>
+				<a href="#como-funciona" data-tab="home" data-scroll="como-funciona">Automação de atendimento</a>
+				<a href="#servicos" data-tab="home" data-scroll="servicos">Outros serviços</a>
 				<a href="#contato" data-tab="home" data-scroll="contato">Contato</a>
 			</div>
 			<div class="footer-col">
-				<h4>Aprender</h4>
+				<h4>Open source</h4>
 				<a href="#docs" data-tab="docs">Documentação</a>
 				<a href="#patches" data-tab="patches">Patches</a>
-				<a href="#news" data-tab="news">Notícias</a>
-				<a href="lab.html">Laboratório</a>
 			</div>
 			<div class="footer-col">
 				<h4>Comunidade</h4>
