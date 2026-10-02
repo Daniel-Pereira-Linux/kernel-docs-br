@@ -484,7 +484,10 @@ footer.site-footer {
 
 @media (max-width: 640px) {
 	.topbar-inner { flex-wrap: wrap; }
-	nav.tabs { order: 3; width: 100%; }
+	nav.tabs { order: 3; flex: 1 0 100%; }
+	.topbar-inner { row-gap: 10px; padding: 10px 16px; }
+	.topbar-actions { margin-left: auto; }
+	#sound-toggle-btn { display: none; }
 	.hero { padding-top: 36px; }
 	.footer-inner { flex-direction: column; }
 }
